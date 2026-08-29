@@ -4,9 +4,9 @@
  * 데이터 타입과 무관한 문자열 상수만 export한다.
  */
 export const adminContent = {
-  eyebrow: '나의 Baaaam',
-  title: '내 글 관리',
-  description: '새 학습 글을 작성하고 내가 쓴 글과 댓글을 관리해요.',
+  eyebrow: 'Baaaam 운영 공간',
+  title: '콘텐츠 관리',
+  description: '작성자는 학습 글을 만들고, 관리자는 콘텐츠와 회원 권한을 함께 관리해요.',
   loading: '불러오는 중이에요...',
   session: {
     activeSuffix: '님으로 관리 중',
@@ -17,6 +17,27 @@ export const adminContent = {
   tabs: {
     posts: '글 관리',
     comments: '댓글 관리',
+    roles: '권한 관리',
+  },
+  accessDenied: {
+    badge: '일반 회원',
+    title: '작성자 권한이 필요해요',
+    description: '현재 계정은 글을 읽고 댓글을 남길 수 있어요. 글 작성 권한은 관리자에게 요청해주세요.',
+    homeCta: '홈으로 돌아가기',
+  },
+  roleManager: {
+    title: '회원 권한',
+    description: '일반 회원을 작성자로 지정하거나 관리자 권한을 부여할 수 있어요.',
+    loading: '회원 목록을 불러오는 중이에요...',
+    empty: '등록된 회원이 없어요.',
+    tableCaption: '회원 권한 목록',
+    name: '이름',
+    email: '이메일',
+    role: '권한',
+    selfLabel: '내 계정',
+    savedToast: '회원 권한을 변경했어요',
+    saveError: '권한 변경에 실패했어요. 잠시 후 다시 시도해주세요.',
+    selfHelp: '현재 로그인한 관리자 계정의 권한은 여기서 변경할 수 없어요.',
   },
   loginForm: {
     eyebrow: '운영진 로그인',

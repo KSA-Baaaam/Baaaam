@@ -27,6 +27,15 @@ type CommentRow = {
   created_at: string
 }
 
+type ProfileRow = {
+  id: string
+  email: string
+  display_name: string
+  role: 'admin' | 'author' | 'general'
+  created_at: string
+  updated_at: string
+}
+
 export type Database = {
   public: {
     Tables: {
@@ -63,6 +72,19 @@ export type Database = {
           created_at?: string
         }
         Update: Partial<Omit<CommentRow, 'id'>>
+        Relationships: []
+      }
+      profiles: {
+        Row: ProfileRow
+        Insert: {
+          id: string
+          email: string
+          display_name: string
+          role?: ProfileRow['role']
+          created_at?: string
+          updated_at?: string
+        }
+        Update: Partial<Omit<ProfileRow, 'id'>>
         Relationships: []
       }
     }

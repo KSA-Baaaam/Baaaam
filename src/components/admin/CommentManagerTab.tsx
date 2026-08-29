@@ -20,10 +20,12 @@ import {
 } from '@/components/ui'
 import { koDateTimeFormatter } from '@/lib/format'
 import { adminContent } from '@/content/admin'
+import type { UserRole } from '@/services/profiles'
 
 type CommentManagerTabProps = {
   staffId: string
   staffName: string
+  role: UserRole
 }
 
 type QuestionReplyItemProps = {
@@ -105,7 +107,7 @@ function QuestionReplyItem({ question, postTitle, staffName, onReplied }: Questi
 }
 
 /** 댓글 관리(core: 질문 답변 작성, 댓글 삭제). */
-export function CommentManagerTab({ staffId, staffName }: CommentManagerTabProps) {
+export function CommentManagerTab({ staffId, staffName, role }: CommentManagerTabProps) {
   const queryClient = useQueryClient()
   const [toast, setToast] = useState({ open: false, message: '' })
 
@@ -204,7 +206,7 @@ export function CommentManagerTab({ staffId, staffName }: CommentManagerTabProps
                   </p>
                 </div>
 
-                {comment.authorId === staffId ? <AlertDialog>
+                {role === 'admin' || comment.authorId === staffId ? <AlertDialog>
                   <AlertDialogTrigger className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border-subtle px-3 py-1.5 text-xs font-semibold text-ink-muted transition-colors hover:border-danger hover:text-danger">
                     <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                     {adminContent.commentManager.deleteCta}

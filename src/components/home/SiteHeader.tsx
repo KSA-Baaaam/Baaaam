@@ -69,9 +69,11 @@ export function SiteHeader() {
           <SiteSearchForm size="compact" className="w-56 xl:w-64" />
           {!isSessionLoading && currentStaff ? (
             <>
-              <Link to="/admin" className="inline-flex min-h-11 items-center justify-center rounded-lg border border-brand px-4 text-sm font-bold text-brand transition-colors hover:bg-brand-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">
-                내 글 관리
-              </Link>
+              {currentStaff.role !== 'general' ? (
+                <Link to="/admin" className="inline-flex min-h-11 items-center justify-center rounded-lg border border-brand px-4 text-sm font-bold text-brand transition-colors hover:bg-brand-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">
+                  {currentStaff.role === 'admin' ? '관리자' : '글 관리'}
+                </Link>
+              ) : null}
               <button type="button" onClick={() => void logout()} disabled={isLoggingOut} aria-label="로그아웃" className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-ink-muted hover:bg-section hover:text-navy disabled:opacity-60">
                 <LogOut className="h-5 w-5" aria-hidden="true" />
               </button>
@@ -122,8 +124,12 @@ export function SiteHeader() {
               <SiteSearchForm size="large" />
             </div>
             {!isSessionLoading && currentStaff ? (
-              <div className="mt-4 grid grid-cols-[1fr_auto] gap-2">
-                <Link to="/admin" className="inline-flex min-h-12 items-center justify-center rounded-lg bg-brand px-5 text-sm font-bold text-white">내 글 관리</Link>
+              <div className={`mt-4 flex gap-2 ${currentStaff.role === 'general' ? 'justify-end' : ''}`}>
+                {currentStaff.role !== 'general' ? (
+                  <Link to="/admin" className="inline-flex min-h-12 flex-1 items-center justify-center rounded-lg bg-brand px-5 text-sm font-bold text-white">
+                    {currentStaff.role === 'admin' ? '관리자' : '글 관리'}
+                  </Link>
+                ) : null}
                 <button type="button" onClick={() => void logout()} disabled={isLoggingOut} className="inline-flex h-12 w-12 items-center justify-center rounded-lg border border-border-subtle text-ink-muted" aria-label="로그아웃"><LogOut className="h-5 w-5" /></button>
               </div>
             ) : (

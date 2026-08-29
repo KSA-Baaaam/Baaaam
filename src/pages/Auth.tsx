@@ -7,12 +7,12 @@ import brandMascot from '@/assets/brand-mascot.png'
 import { useOperatorSession } from '@/services/session'
 
 type AuthProps = { mode: 'login' | 'signup' }
-type FormErrors = { name?: string; email?: string; password?: string }
+type FormErrors = { name?: string; identifier?: string; password?: string }
 
 export default function Auth({ mode }: AuthProps) {
   const isSignup = mode === 'signup'
   const navigate = useNavigate()
-  const { login, isLoggingIn, loginErrorMessage, signUp, isSigningUp } = useOperatorSession()
+  const { login, isLoggingIn, signUp, isSigningUp } = useOperatorSession()
   const [errors, setErrors] = useState<FormErrors>({})
   const [message, setMessage] = useState('')
   const [submitError, setSubmitError] = useState('')
@@ -21,12 +21,13 @@ export default function Auth({ mode }: AuthProps) {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
     const name = String(formData.get('name') ?? '').trim()
-    const email = String(formData.get('email') ?? '').trim()
+    const identifier = String(formData.get('identifier') ?? '').trim()
     const password = String(formData.get('password') ?? '')
     const nextErrors: FormErrors = {}
 
     if (isSignup && name.length < 2) nextErrors.name = '이름을 두 글자 이상 입력해주세요.'
-    if (!/^\S+@\S+\.\S+$/.test(email)) nextErrors.email = '올바른 이메일 주소를 입력해주세요.'
+    if (!identifier) nextErrors.identifier = isSignup ? '이메일을 입력해주세요.' : '아이디 또는 이메일을 입력해주세요.'
+    if (isSignup && !/^\S+@\S+\.\S+$/.test(identifier)) nextErrors.identifier = '올바른 이메일 주소를 입력해주세요.'
     if (password.length < 8) nextErrors.password = '비밀번호는 8자 이상이어야 해요.'
 
     setErrors(nextErrors)
@@ -35,7 +36,7 @@ export default function Auth({ mode }: AuthProps) {
     if (Object.keys(nextErrors).length > 0) return
 
     if (isSignup) {
-      const result = await signUp({ name, email, password })
+      const result = await signUp({ name, email: identifier, password })
       if (!result.ok) {
         setSubmitError(result.errorMessage ?? '회원가입에 실패했어요. 잠시 후 다시 시도해주세요.')
         return
@@ -48,9 +49,9 @@ export default function Auth({ mode }: AuthProps) {
       return
     }
 
-    const ok = await login(email, password)
+    const ok = await login(identifier, password)
     if (ok) navigate('/admin')
-    else setSubmitError(loginErrorMessage ?? '이메일 또는 비밀번호를 확인해주세요.')
+    else setSubmitError('아이디 또는 비밀번호를 확인해주세요.')
   }
 
   return (
@@ -72,7 +73,7 @@ export default function Auth({ mode }: AuthProps) {
           <div className="mb-8">
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-soft text-brand"><LockKeyhole className="h-5 w-5" /></span>
             <h2 className="mt-5 text-3xl font-extrabold tracking-[-0.035em] text-navy">{isSignup ? '회원가입' : '로그인'}</h2>
-            <p className="mt-2 text-sm leading-6 text-ink-muted">{isSignup ? 'Baaaam 계정을 만들기 위한 정보를 입력해주세요.' : '이메일과 비밀번호를 입력해주세요.'}</p>
+            <p className="mt-2 text-sm leading-6 text-ink-muted">{isSignup ? 'Baaaam 계정을 만들기 위한 정보를 입력해주세요.' : '아이디 또는 이메일과 비밀번호를 입력해주세요.'}</p>
           </div>
 
           <form noValidate onSubmit={handleSubmit} className="space-y-5">
@@ -82,9 +83,9 @@ export default function Auth({ mode }: AuthProps) {
                 {errors.name ? <span className="mt-1.5 block text-xs font-semibold text-danger">{errors.name}</span> : null}
               </label>
             ) : null}
-            <label className="block text-sm font-bold text-navy">이메일
-              <input name="email" type="email" autoComplete="email" aria-invalid={Boolean(errors.email)} className="form-input" placeholder="name@example.com" />
-              {errors.email ? <span className="mt-1.5 block text-xs font-semibold text-danger">{errors.email}</span> : null}
+            <label className="block text-sm font-bold text-navy">{isSignup ? '이메일' : '아이디 또는 이메일'}
+              <input name="identifier" type={isSignup ? 'email' : 'text'} autoComplete={isSignup ? 'email' : 'username'} aria-invalid={Boolean(errors.identifier)} className="form-input" placeholder={isSignup ? 'name@example.com' : 'admin 또는 name@example.com'} />
+              {errors.identifier ? <span className="mt-1.5 block text-xs font-semibold text-danger">{errors.identifier}</span> : null}
             </label>
             <label className="block text-sm font-bold text-navy">비밀번호
               <input name="password" type="password" autoComplete={isSignup ? 'new-password' : 'current-password'} aria-invalid={Boolean(errors.password)} className="form-input" placeholder="8자 이상 입력해주세요" />

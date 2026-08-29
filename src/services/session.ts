@@ -3,19 +3,23 @@ import type { ReactNode } from 'react'
 import type { User } from '@supabase/supabase-js'
 
 import { supabase } from '@/lib/supabase'
+import { profilesService } from '@/services/profiles'
+import type { UserRole } from '@/services/profiles'
+
+const adminLoginEmail = 'admin@baaaam.app'
 
 export type StaffAccount = {
   id: string
   name: string
   email: string
+  role: UserRole
 }
 
 type AuthContextValue = {
   currentStaff: StaffAccount | null
   isSessionLoading: boolean
-  login: (email: string, password: string) => Promise<boolean>
+  login: (identifier: string, password: string) => Promise<boolean>
   isLoggingIn: boolean
-  loginErrorMessage: string | null
   signUp: (input: { email: string; password: string; name: string }) => Promise<{
     ok: boolean
     needsEmailConfirmation: boolean
@@ -28,14 +32,18 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
-function toStaffAccount(user: User | null): StaffAccount | null {
+async function toStaffAccount(user: User | null): Promise<StaffAccount | null> {
   if (!user?.email) return null
 
+  const profile = await profilesService.getById(user.id).catch(() => null)
   const metadataName = user.user_metadata?.full_name
   return {
     id: user.id,
-    name: typeof metadataName === 'string' && metadataName.trim() ? metadataName.trim() : user.email,
+    name:
+      profile?.displayName ??
+      (typeof metadataName === 'string' && metadataName.trim() ? metadataName.trim() : user.email),
     email: user.email,
+    role: profile?.role ?? 'general',
   }
 }
 
@@ -45,21 +53,23 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
   const [isLoggingIn, setIsLoggingIn] = useState(false)
   const [isSigningUp, setIsSigningUp] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
-  const [loginErrorMessage, setLoginErrorMessage] = useState<string | null>(null)
 
   useEffect(() => {
     let active = true
 
-    void supabase.auth.getUser().then(({ data }) => {
+    void supabase.auth.getUser().then(async ({ data }) => {
       if (!active) return
-      setCurrentStaff(toStaffAccount(data.user))
+      setCurrentStaff(await toStaffAccount(data.user))
       setIsSessionLoading(false)
     })
 
     const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!active) return
-      setCurrentStaff(toStaffAccount(session?.user ?? null))
-      setIsSessionLoading(false)
+      void toStaffAccount(session?.user ?? null).then((account) => {
+        if (!active) return
+        setCurrentStaff(account)
+        setIsSessionLoading(false)
+      })
     })
 
     return () => {
@@ -68,16 +78,15 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const login = useCallback(async (email: string, password: string) => {
+  const login = useCallback(async (identifier: string, password: string) => {
     setIsLoggingIn(true)
-    setLoginErrorMessage(null)
     try {
+      const email = identifier.trim().toLowerCase() === 'admin' ? adminLoginEmail : identifier.trim()
       const { data, error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) {
-        setLoginErrorMessage(error.message)
         return false
       }
-      setCurrentStaff(toStaffAccount(data.user))
+      setCurrentStaff(await toStaffAccount(data.user))
       return true
     } finally {
       setIsLoggingIn(false)
@@ -98,7 +107,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       if (error) {
         return { ok: false, needsEmailConfirmation: false, errorMessage: error.message }
       }
-      if (data.session) setCurrentStaff(toStaffAccount(data.user))
+      if (data.session) setCurrentStaff(await toStaffAccount(data.user))
       return {
         ok: true,
         needsEmailConfirmation: data.session === null,
@@ -127,13 +136,12 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       isSessionLoading,
       login,
       isLoggingIn,
-      loginErrorMessage,
       signUp,
       isSigningUp,
       logout,
       isLoggingOut,
     }),
-    [currentStaff, isSessionLoading, login, isLoggingIn, loginErrorMessage, signUp, isSigningUp, logout, isLoggingOut],
+    [currentStaff, isSessionLoading, login, isLoggingIn, signUp, isSigningUp, logout, isLoggingOut],
   )
 
   return createElement(AuthContext.Provider, { value }, children)

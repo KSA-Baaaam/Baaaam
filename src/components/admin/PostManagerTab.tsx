@@ -8,16 +8,18 @@ import { postsService } from '@/services/posts'
 import { PostForm } from '@/components/admin/PostForm'
 import { Switch, SwitchThumb, Toast, ToastClose, ToastTitle } from '@/components/ui'
 import { adminContent } from '@/content/admin'
+import type { UserRole } from '@/services/profiles'
 
 const categoryLabelById = new Map(categories.map((category) => [category.id, category.label]))
 
 type PostManagerTabProps = {
   staffId: string
   staffName: string
+  role: UserRole
 }
 
 /** 글 관리(core: 글 작성/수정, 추천 글 지정). */
-export function PostManagerTab({ staffId, staffName }: PostManagerTabProps) {
+export function PostManagerTab({ staffId, staffName, role }: PostManagerTabProps) {
   const queryClient = useQueryClient()
   const { data: posts = [], isLoading } = useQuery({
     queryKey: ['posts', 'all'],
@@ -37,9 +39,9 @@ export function PostManagerTab({ staffId, staffName }: PostManagerTabProps) {
   const sortedPosts = useMemo(
     () =>
       posts
-        .filter((post) => post.authorId === staffId)
+        .filter((post) => role === 'admin' || post.authorId === staffId)
         .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()),
-    [posts, staffId],
+    [posts, role, staffId],
   )
 
   function handleSaved(mode: 'create' | 'update') {
