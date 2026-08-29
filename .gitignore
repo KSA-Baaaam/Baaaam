@@ -1,0 +1,16 @@
+node_modules/
+dist/
+out/
+.env
+.env.*
+!.env.example
+*.crt
+*.pem
+*.key
+*.p12
+*.pfx
+.npmrc
+.yarnrc
+.yarnrc.yml
+.wrangler/
+.dev.vars*

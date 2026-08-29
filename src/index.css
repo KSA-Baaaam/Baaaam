@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+@theme {
+  --color-surface: #ffffff;
+  --color-surface-card: #ffffff;
+  --color-surface-muted: #f3f7fb;
+  --color-section: #f7f9fc;
+  --color-hero: #f3f7ff;
+  --color-hero-border: #d8e4f3;
+  --color-border-subtle: #dce4ee;
+  --color-input-border: #cfd9e6;
+  --color-ink: #26364b;
+  --color-ink-muted: #59697e;
+  --color-ink-soft: #8391a4;
+  --color-navy: #15233a;
+  --color-brand: #2161e7;
+  --color-brand-strong: #174dbd;
+  --color-brand-soft: #edf4ff;
+  --color-footer: #15233a;
+  --color-spark: #f1b94d;
+  --color-spark-strong: #a96508;
+  --color-danger: #b42318;
+
+  --shadow-search: 0 8px 24px rgba(41, 72, 116, 0.1);
+
+  --font-sans: 'Pretendard Variable', Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo',
+    -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif;
+}
+
+:root {
+  color-scheme: light;
+  font-family: var(--font-sans);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--color-surface);
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+
+button,
+a,
+select,
+summary {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+select,
+summary {
+  cursor: pointer;
+}
+
+::selection {
+  background: #dbe8ff;
+  color: var(--color-navy);
+}
+
+@layer components {
+  .empty-panel {
+    @apply rounded-2xl border border-dashed border-border-subtle bg-white px-6 py-12 text-center text-sm leading-6 text-ink-muted;
+  }
+
+  .form-input {
+    @apply mt-2 min-h-12 w-full rounded-lg border border-input-border bg-white px-4 text-sm font-medium text-navy placeholder:text-ink-soft focus:border-brand focus:outline focus:outline-2 focus:outline-offset-1 focus:outline-brand/20;
+  }
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(0.5rem); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes toast-out {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(0.5rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
