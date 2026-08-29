@@ -109,14 +109,14 @@ export default function Auth({ mode }: AuthProps) {
 
   return (
     <main className="grid min-h-screen bg-section lg:grid-cols-[0.9fr_1.1fr]">
-      <section className="flex min-h-[260px] flex-col justify-between bg-hero px-6 py-8 sm:px-10 lg:min-h-screen lg:px-16 lg:py-12">
+      <section className="flex flex-col justify-between bg-hero px-5 py-6 sm:min-h-[260px] sm:px-10 sm:py-8 lg:min-h-screen lg:px-16 lg:py-12">
         <Link to="/" className="inline-flex w-fit items-center gap-2 text-sm font-bold text-navy hover:text-brand">
           <ArrowLeft className="h-4 w-4" aria-hidden="true" /> 홈으로
         </Link>
-        <div className="mx-auto max-w-md py-8 text-center lg:text-left">
+        <div className="mx-auto max-w-md py-6 text-center sm:py-8 lg:text-left">
           <BrandLogo
             alt="프로젝트 Baaaam 공식 로고"
-            className="mx-auto h-[126px] w-[230px] rounded-2xl shadow-sm lg:mx-0"
+            className="mx-auto h-[108px] w-[200px] sm:h-[126px] sm:w-[230px] lg:mx-0"
           />
           <p className="mt-5 text-sm font-bold text-brand">KAIST부설 한국과학영재학교 Baaaam 연구회</p>
           <h1 className="mt-3 text-3xl font-extrabold tracking-[-0.04em] text-navy sm:text-4xl">배운 내용을 이어서<br />탐색해보세요</h1>
@@ -124,7 +124,7 @@ export default function Auth({ mode }: AuthProps) {
         <p className="hidden text-xs text-ink-soft lg:block">Baaaam · 초중학생을 위한 수과학 이야기</p>
       </section>
 
-      <section className="flex items-center justify-center bg-white px-5 py-14 sm:px-10">
+      <section className="flex items-center justify-center bg-white px-5 py-10 sm:px-10 sm:py-14">
         <div className="w-full max-w-md">
           <div className="mb-8">
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-soft text-brand">{challenge ? <MailCheck className="h-5 w-5" /> : <LockKeyhole className="h-5 w-5" />}</span>

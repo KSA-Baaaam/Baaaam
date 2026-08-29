@@ -4,24 +4,24 @@ type BrandLogoProps = {
   alt?: string
 }
 
-const logoUrl = '/image/baaaam-project-logo.jpeg'
+const logoUrl = '/image/baaaam-project-logo.png'
 
 export function BrandLogo({ variant = 'lockup', className = '', alt = '' }: BrandLogoProps) {
   if (variant === 'header') {
     return (
       <span
-        className={`inline-flex h-10 shrink-0 items-center gap-2 ${className}`}
+        className={`inline-flex h-9 shrink-0 items-center gap-1.5 sm:h-10 sm:gap-2 ${className}`}
         role={alt ? 'img' : undefined}
         aria-label={alt || undefined}
       >
-        <span className="relative block h-10 w-[4.25rem] shrink-0 overflow-hidden bg-white sm:w-[4.75rem]" aria-hidden="true">
+        <span className="relative block h-9 w-[3.8rem] shrink-0 overflow-hidden sm:h-10 sm:w-[4.75rem]" aria-hidden="true">
           <img
             src={logoUrl}
             alt=""
             className="pointer-events-none absolute left-1/2 top-0 h-auto w-[128%] max-w-none -translate-x-1/2 -translate-y-[20%] select-none"
           />
         </span>
-        <span aria-hidden="true" className="inline-flex h-full translate-y-px items-center whitespace-nowrap text-[0.63rem] font-black leading-none tracking-[0.11em] text-brand-strong sm:text-[0.82rem] sm:tracking-[0.16em]">
+        <span aria-hidden="true" className="inline-flex h-full translate-y-px items-center whitespace-nowrap text-[0.58rem] font-black leading-none tracking-[0.08em] text-brand-strong min-[375px]:text-[0.63rem] min-[375px]:tracking-[0.11em] sm:text-[0.82rem] sm:tracking-[0.16em]">
           PROJECT BAAAAM
         </span>
       </span>
@@ -32,7 +32,7 @@ export function BrandLogo({ variant = 'lockup', className = '', alt = '' }: Bran
 
   return (
     <span
-      className={`relative block shrink-0 overflow-hidden bg-white ${className}`}
+      className={`relative block shrink-0 overflow-hidden ${className}`}
       role={alt ? 'img' : undefined}
       aria-label={alt || undefined}
     >

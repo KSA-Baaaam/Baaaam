@@ -29,7 +29,7 @@ export function LatestSection() {
   const visiblePosts = sortedPosts.slice((currentPage - 1) * POSTS_PER_PAGE, currentPage * POSTS_PER_PAGE)
 
   return (
-    <section id="latest" aria-labelledby="latest-heading" className="mx-auto max-w-7xl scroll-mt-24 px-5 py-20 md:px-8 md:py-24">
+    <section id="latest" aria-labelledby="latest-heading" className="mx-auto max-w-7xl scroll-mt-24 px-5 py-14 sm:py-16 md:px-8 md:py-24">
       <header className="mb-8 max-w-2xl">
         <p className="mb-3 text-sm font-bold text-brand">{homeContent.latest.eyebrow}</p>
         <h2 id="latest-heading" className="text-3xl font-extrabold tracking-[-0.035em] text-navy md:text-[2.35rem]">

@@ -17,7 +17,7 @@ export function RecommendedSection() {
   if (!isLoading && recommendedPosts.length === 0) return null
 
   return (
-    <section aria-labelledby="recommended-heading" className="bg-section py-20 md:py-24">
+    <section aria-labelledby="recommended-heading" className="bg-section py-14 sm:py-16 md:py-24">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <header className="mb-9 max-w-2xl">
           <p className="mb-3 text-sm font-bold text-brand">{homeContent.recommended.eyebrow}</p>

@@ -52,7 +52,7 @@ export default function Account() {
   return (
     <div className="min-h-screen bg-surface text-ink">
       <SiteHeader />
-      <main className="mx-auto max-w-3xl px-6 py-16">
+      <main className="mx-auto max-w-3xl px-5 py-12 sm:px-6 sm:py-16">
         <p className="text-sm font-bold text-brand-strong">내 계정</p>
         <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.035em] text-navy sm:text-4xl">계정 관리</h1>
         <p className="mt-3 text-sm leading-6 text-ink-muted">로그인 정보와 회원탈퇴를 관리할 수 있어요.</p>
@@ -111,7 +111,7 @@ export default function Account() {
                       />
                     </label>
                     {errorMessage ? <p role="alert" className="mt-3 text-sm leading-6 text-danger">{errorMessage}</p> : null}
-                    <div className="mt-6 flex justify-end gap-3">
+                    <div className="mt-6 flex flex-col-reverse gap-3 min-[375px]:flex-row min-[375px]:justify-end">
                       <AlertDialogCancel type="button" disabled={isDeletingAccount} className="rounded-full border border-border-subtle px-4 py-2 text-sm font-semibold text-ink-muted transition-colors hover:border-brand hover:text-brand-strong disabled:opacity-60">취소</AlertDialogCancel>
                       <button
                         type="submit"

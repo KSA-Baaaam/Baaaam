@@ -25,7 +25,7 @@ export default function SubjectHub({ subject }: SubjectHubProps) {
         <section className="border-b border-border-subtle bg-hero">
           <div className="mx-auto max-w-7xl px-5 py-14 md:px-8 md:py-20">
             <p className="text-sm font-bold text-brand">{isMath ? '숫자와 도형의 규칙' : '세상을 움직이는 원리'}</p>
-            <h1 className="mt-3 text-4xl font-extrabold tracking-[-0.045em] text-navy md:text-5xl">{isMath ? '수학을 이해하는 즐거움' : '과학으로 세상을 바라보기'}</h1>
+            <h1 className="mt-3 text-3xl font-extrabold tracking-[-0.045em] text-navy min-[375px]:text-4xl md:text-5xl">{isMath ? '수학을 이해하는 즐거움' : '과학으로 세상을 바라보기'}</h1>
             <p className="mt-5 max-w-2xl text-base leading-8 text-ink-muted md:text-lg">{isMath ? '답을 외우기보다 어떻게 그 답에 도착하는지 차근차근 살펴봐요.' : '익숙한 현상 속에 숨어 있는 물리·화학·생물·지구과학의 원리를 만나봐요.'}</p>
           </div>
         </section>

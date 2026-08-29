@@ -70,7 +70,7 @@ export function PostCard({ post, categoryLabel, variant = 'grid' }: PostCardProp
         className={isRow ? 'hidden w-[34%] min-w-32 shrink-0 sm:flex' : isFeature ? 'aspect-[16/7] w-full' : 'aspect-[16/8] w-full'}
       />
 
-      <div className={`flex min-w-0 flex-1 flex-col ${isRow ? 'p-5' : isFeature ? 'p-7 sm:p-8' : 'p-5'}`}>
+      <div className={`flex min-w-0 flex-1 flex-col ${isRow ? 'p-4 sm:p-5' : isFeature ? 'p-5 sm:p-8' : 'p-4 sm:p-5'}`}>
         <div className="flex items-center gap-2 text-xs font-bold text-brand">
           <span>{categoryLabel}</span>
           {post.isRecommended ? (
@@ -81,7 +81,7 @@ export function PostCard({ post, categoryLabel, variant = 'grid' }: PostCardProp
           ) : null}
         </div>
 
-        <h3 className={`mt-2 font-extrabold leading-snug tracking-[-0.025em] text-navy ${isFeature ? 'text-2xl sm:text-[1.8rem]' : isRow ? 'text-lg' : 'text-xl'}`}>
+        <h3 className={`mt-2 font-extrabold leading-snug tracking-[-0.025em] text-navy ${isFeature ? 'text-xl min-[375px]:text-2xl sm:text-[1.8rem]' : isRow ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'}`}>
           <Link
             to={`/article/${post.id}`}
             className="rounded-sm after:absolute after:inset-0 after:content-[''] group-hover:text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"

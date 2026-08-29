@@ -62,12 +62,12 @@ export function CategoryPostGrid({ activeCategoryId }: CategoryPostGridProps) {
               className="min-h-11 w-full rounded-lg border border-input-border bg-white pl-10 pr-4 text-sm text-navy placeholder:text-ink-soft focus:border-brand focus:outline focus:outline-2 focus:outline-offset-1 focus:outline-brand/20"
             />
           </label>
-          <label className="flex items-center gap-2 text-sm font-bold text-ink-muted">
+          <label className="flex w-full items-center gap-2 text-sm font-bold text-ink-muted sm:w-auto">
             <span>{categoryContent.sortLabel}</span>
             <select
               value={sortMode}
               onChange={(event) => { setSortMode(event.target.value as SortMode); setPage(1) }}
-              className="min-h-11 rounded-lg border border-input-border bg-white px-3 text-sm font-semibold text-navy focus:border-brand focus:outline focus:outline-2 focus:outline-offset-1 focus:outline-brand/20"
+              className="min-h-11 min-w-0 flex-1 rounded-lg border border-input-border bg-white px-3 text-sm font-semibold text-navy focus:border-brand focus:outline focus:outline-2 focus:outline-offset-1 focus:outline-brand/20 sm:flex-none"
             >
               <option value="newest">{categoryContent.sortNewest}</option>
               <option value="popular">{categoryContent.sortPopular}</option>

@@ -19,7 +19,7 @@ const sizeStyles = {
   large: {
     shell: 'min-h-14 rounded-xl pl-4 pr-1.5 shadow-search',
     input: 'text-[0.98rem]',
-    button: 'h-11 gap-2 rounded-lg px-5',
+    button: 'h-11 gap-2 rounded-lg px-4 sm:px-5',
   },
 } as const
 

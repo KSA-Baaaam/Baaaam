@@ -20,7 +20,7 @@ export default function About() {
           <div className="mx-auto grid max-w-7xl items-center gap-8 px-5 py-14 md:grid-cols-[1.1fr_0.9fr] md:px-8 md:py-20">
             <div>
               <p className="text-sm font-bold text-brand">Baaaam이 만드는 이해의 순간</p>
-              <h1 className="mt-4 max-w-3xl text-4xl font-extrabold leading-tight tracking-[-0.045em] text-navy md:text-5xl">
+              <h1 className="mt-4 max-w-3xl text-3xl font-extrabold leading-tight tracking-[-0.045em] text-navy min-[375px]:text-4xl md:text-5xl">
                 어려운 개념도<br />제대로 이해하면 재미있습니다.
               </h1>
               <p className="mt-6 max-w-2xl text-base leading-8 text-ink-muted md:text-lg">
@@ -29,12 +29,12 @@ export default function About() {
             </div>
             <BrandLogo
               alt="프로젝트 Baaaam 공식 로고"
-              className="mx-auto aspect-[1.8/1] w-full max-w-lg rounded-3xl border border-border-subtle shadow-[0_20px_60px_rgba(12,73,53,0.12)]"
+              className="mx-auto aspect-[1.8/1] w-full max-w-lg"
             />
           </div>
         </section>
 
-        <section aria-labelledby="principles-heading" className="mx-auto max-w-7xl px-5 py-20 md:px-8 md:py-24">
+        <section aria-labelledby="principles-heading" className="mx-auto max-w-7xl px-5 py-14 sm:py-16 md:px-8 md:py-24">
           <header className="mb-10 max-w-2xl">
             <p className="text-sm font-bold text-brand">우리가 글을 쓰는 기준</p>
             <h2 id="principles-heading" className="mt-3 text-3xl font-extrabold tracking-[-0.035em] text-navy md:text-[2.35rem]">세 가지 원칙</h2>

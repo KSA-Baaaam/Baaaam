@@ -16,8 +16,8 @@ const iconByCategoryId: Record<string, LucideIcon> = {
 
 export function TopicExplore() {
   return (
-    <section id="topics" aria-labelledby="topics-heading" className="mx-auto max-w-7xl px-5 py-20 md:px-8 md:py-24">
-      <header className="mb-10 max-w-2xl">
+    <section id="topics" aria-labelledby="topics-heading" className="mx-auto max-w-7xl px-5 py-14 sm:py-16 md:px-8 md:py-24">
+      <header className="mb-8 max-w-2xl sm:mb-10">
         <p className="mb-3 text-sm font-bold text-brand">{homeContent.topics.eyebrow}</p>
         <h2 id="topics-heading" className="text-3xl font-extrabold tracking-[-0.035em] text-navy md:text-[2.35rem]">
           {homeContent.topics.title}

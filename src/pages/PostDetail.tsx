@@ -85,14 +85,14 @@ export default function PostDetail() {
         <SiteHeader />
         <ReadingProgress />
         <main>
-          <div className="mx-auto grid max-w-7xl gap-12 px-5 py-12 md:px-8 md:py-16 lg:grid-cols-[minmax(0,760px)_220px] lg:justify-center">
+          <div className="mx-auto grid max-w-7xl gap-12 px-5 py-10 md:px-8 md:py-16 lg:grid-cols-[minmax(0,760px)_220px] lg:justify-center">
             <article id="article-content" className="min-w-0">
               <nav aria-label="이동 경로" className="flex flex-wrap items-center gap-1.5 text-sm font-semibold text-ink-soft">
                 <Link to="/" className="hover:text-brand">홈</Link><ChevronRight className="h-3.5 w-3.5" /><Link to={`/category/${post.categoryId}`} className="hover:text-brand">{categoryLabel}</Link>
               </nav>
               <p className="mt-8 text-sm font-extrabold text-brand">{categoryLabel}</p>
-              <h1 className="mt-3 text-[2.3rem] font-extrabold leading-[1.24] tracking-[-0.045em] text-navy sm:text-5xl">{post.title}</h1>
-              <p className="mt-5 text-lg leading-8 text-ink-muted">{post.content.split('. ')[0]}.</p>
+              <h1 className="mt-3 text-[2rem] font-extrabold leading-[1.24] tracking-[-0.045em] text-navy min-[375px]:text-[2.2rem] sm:text-5xl">{post.title}</h1>
+              <p className="mt-5 text-base leading-8 text-ink-muted sm:text-lg">{post.content.split('. ')[0]}.</p>
               <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-border-subtle pb-8 text-sm text-ink-soft">
                 <span className="font-bold text-navy">{post.author}</span>
                 <span className="inline-flex items-center gap-1.5"><CalendarDays className="h-4 w-4" />{koDateFormatter.format(new Date(post.publishedAt))}</span>

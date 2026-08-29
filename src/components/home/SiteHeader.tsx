@@ -35,13 +35,13 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-border-subtle bg-white/95">
-      <div className="mx-auto flex h-[72px] max-w-7xl items-center gap-4 px-5 md:px-8 lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:gap-6">
+      <div className="mx-auto flex h-16 max-w-7xl items-center gap-1.5 px-3 min-[375px]:gap-2 min-[375px]:px-4 sm:h-[72px] sm:gap-4 sm:px-5 md:px-8 lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:gap-6">
         <Link
           to="/"
           className="flex shrink-0 items-center rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
           aria-label="Baaaam 홈"
         >
-          <BrandLogo variant="header" className="w-[10.75rem] sm:w-[13rem]" />
+          <BrandLogo variant="header" className="w-[8.8rem] min-[375px]:w-[10.75rem] sm:w-[13rem]" />
         </Link>
 
         <nav aria-label="주요 메뉴" className="hidden h-full items-center justify-self-center gap-5 lg:flex xl:gap-8">
@@ -91,7 +91,7 @@ export function SiteHeader() {
         <Link
           to="/search"
           aria-label={homeContent.header.searchLabel}
-          className="ml-auto inline-flex h-11 w-11 items-center justify-center rounded-lg text-navy hover:bg-brand-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand lg:hidden"
+          className="ml-auto inline-flex h-10 w-10 items-center justify-center rounded-lg text-navy hover:bg-brand-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:h-11 sm:w-11 lg:hidden"
         >
           <Search className="h-5 w-5" aria-hidden="true" />
         </Link>
@@ -100,14 +100,14 @@ export function SiteHeader() {
           aria-label={menuOpen ? '메뉴 닫기' : homeContent.header.menuLabel}
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen((open) => !open)}
-          className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-navy hover:bg-brand-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand lg:hidden"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-navy hover:bg-brand-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:h-11 sm:w-11 lg:hidden"
         >
           {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </div>
 
       {menuOpen ? (
-        <div className="border-t border-border-subtle bg-white px-5 py-5 lg:hidden">
+        <div className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-border-subtle bg-white px-4 py-4 sm:max-h-[calc(100dvh-4.5rem)] sm:px-5 sm:py-5 lg:hidden">
           <nav aria-label="모바일 메뉴" className="mx-auto flex max-w-7xl flex-col">
             {navItems.map((item) => (
               <Link
