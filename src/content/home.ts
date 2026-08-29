@@ -24,7 +24,6 @@ export const homeContent = {
     headlineAccent: '쉽고 재미있게!',
     sub: '어려운 개념도 학생의 눈높이에서 차근차근. Baaaam과 함께 “왜 그럴까?”를 이해해봐요.',
     scrollCta: '주제부터 골라보기',
-    quickLinksLabel: '빠른 주제',
   },
   topics: {
     eyebrow: '무엇부터 알아볼까요?',
@@ -44,12 +43,13 @@ export const homeContent = {
     title: '최근에 올라온 글',
     description: '부담 없는 짧은 글부터 한 편씩 읽어보세요.',
     allCategory: '전체',
-    loadMore: '더 보기',
-    allLoaded: '모든 글을 다 보여드렸어요',
     empty: '아직 이 주제의 글이 없어요. 다른 카테고리를 살펴보세요.',
     loading: '최신 글을 불러오는 중이에요...',
   },
   footer: {
-    note: '공식보다 원리를, 암기보다 이해를 먼저 생각하는 수과학 블로그입니다.',
+    organization: '본 사이트는 한국과학영재학교 교내 연구회 Baaaam 단체의 웹사이트 입니다.',
+    copyright: '© 2026 한국과학영재학교 Baaaam 연구회. ALL RIGHTS RESERVED. Created by 26 박현택',
+    schoolLinkLabel: 'KAIST 부설 한국과학영재학교 바로가기',
+    schoolUrl: 'https://ksa.hs.kr/',
   },
 }

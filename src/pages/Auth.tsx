@@ -40,7 +40,8 @@ export default function Auth({ mode }: AuthProps) {
 
     if (isSignup && name.length < 2) nextErrors.name = '이름을 두 글자 이상 입력해주세요.'
     if (!identifier) nextErrors.identifier = isSignup ? '이메일을 입력해주세요.' : '아이디 또는 이메일을 입력해주세요.'
-    if (isSignup && !/^\S+@\S+\.\S+$/.test(identifier)) nextErrors.identifier = '올바른 이메일 주소를 입력해주세요.'
+    else if (isSignup && !/^\S+@\S+\.\S+$/.test(identifier)) nextErrors.identifier = '올바른 이메일 주소를 입력해주세요.'
+    else if (!isSignup && identifier.toLowerCase() !== 'admin' && !/^\S+@\S+\.\S+$/.test(identifier)) nextErrors.identifier = 'admin 또는 올바른 이메일 주소를 입력해주세요.'
     if (password.length < 8) nextErrors.password = '비밀번호는 8자 이상이어야 해요.'
 
     setErrors(nextErrors)
@@ -59,19 +60,21 @@ export default function Auth({ mode }: AuthProps) {
         setMessage('인증코드를 보냈어요. 메일함을 확인해주세요.')
         return
       }
-      navigate('/admin')
+      navigate(result.destination ?? '/')
       return
     }
 
     const result = await login(identifier, password)
     if (!result.ok) {
-      setSubmitError(result.errorMessage ?? '아이디 또는 비밀번호를 확인해주세요.')
+      setSubmitError(result.errorMessage ?? '아이디 또는 이메일과 비밀번호를 확인해주세요.')
       return
     }
     if (result.challenge) {
       setChallenge(result.challenge)
       setMessage('인증코드를 보냈어요. 메일함을 확인해주세요.')
+      return
     }
+    navigate(result.destination ?? '/')
   }
 
   async function handleVerifyCode(event: FormEvent<HTMLFormElement>) {
@@ -89,7 +92,7 @@ export default function Auth({ mode }: AuthProps) {
       setSubmitError(result.errorMessage ?? '인증코드를 확인해주세요.')
       return
     }
-    navigate('/admin')
+    navigate(result.destination ?? '/')
   }
 
   async function handleResendCode() {
@@ -115,8 +118,8 @@ export default function Auth({ mode }: AuthProps) {
             alt="프로젝트 Baaaam 공식 로고"
             className="mx-auto h-[126px] w-[230px] rounded-2xl shadow-sm lg:mx-0"
           />
-          <p className="mt-5 text-sm font-bold text-brand">학생과 운영진을 위한 공간</p>
-          <h1 className="mt-3 text-3xl font-extrabold tracking-[-0.04em] text-navy sm:text-4xl">배운 내용을 이어서<br />탐색해보세요.</h1>
+          <p className="mt-5 text-sm font-bold text-brand">KAIST부설 한국과학영재학교 Baaaam 연구회</p>
+          <h1 className="mt-3 text-3xl font-extrabold tracking-[-0.04em] text-navy sm:text-4xl">배운 내용을 이어서<br />탐색해보세요</h1>
         </div>
         <p className="hidden text-xs text-ink-soft lg:block">Baaaam · 초중학생을 위한 수과학 이야기</p>
       </section>
@@ -126,7 +129,7 @@ export default function Auth({ mode }: AuthProps) {
           <div className="mb-8">
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-soft text-brand">{challenge ? <MailCheck className="h-5 w-5" /> : <LockKeyhole className="h-5 w-5" />}</span>
             <h2 className="mt-5 text-3xl font-extrabold tracking-[-0.035em] text-navy">{challenge ? '이메일 인증' : isSignup ? '회원가입' : '로그인'}</h2>
-            <p className="mt-2 text-sm leading-6 text-ink-muted">{challenge ? <><strong className="font-bold text-navy">{challenge.email}</strong>으로 보낸 인증코드 6자리를 입력해주세요.</> : isSignup ? 'Baaaam 계정을 만들기 위한 정보를 입력해주세요.' : '아이디 또는 이메일과 비밀번호를 입력해주세요.'}</p>
+            <p className="mt-2 text-sm leading-6 text-ink-muted">{challenge ? <><strong className="font-bold text-navy">{challenge.email}</strong>으로 보낸 인증코드 6자리를 입력해주세요.</> : isSignup ? '이메일 인증은 계정을 만들 때 한 번만 진행해요.' : '일반 회원은 이메일로, 관리자는 admin 아이디로 로그인할 수 있어요.'}</p>
           </div>
 
           {challenge ? (
@@ -161,11 +164,11 @@ export default function Auth({ mode }: AuthProps) {
               </label>
             ) : null}
             <label className="block text-sm font-bold text-navy">{isSignup ? '이메일' : '아이디 또는 이메일'}
-              <input name="identifier" type={isSignup ? 'email' : 'text'} autoComplete={isSignup ? 'email' : 'username'} aria-invalid={Boolean(errors.identifier)} className="form-input" placeholder={isSignup ? 'name@example.com' : 'admin 또는 name@example.com'} />
+              <input name="identifier" type={isSignup ? 'email' : 'text'} inputMode={isSignup ? 'email' : 'text'} autoComplete={isSignup ? 'email' : 'username'} aria-invalid={Boolean(errors.identifier)} className="form-input" placeholder={isSignup ? 'name@example.com' : 'admin 또는 name@example.com'} />
               {errors.identifier ? <span className="mt-1.5 block text-xs font-semibold text-danger">{errors.identifier}</span> : null}
             </label>
             <label className="block text-sm font-bold text-navy">비밀번호
-              <input name="password" type="password" autoComplete={isSignup ? 'new-password' : 'current-password'} aria-invalid={Boolean(errors.password)} className="form-input" placeholder="8자 이상 입력해주세요" />
+              <input name="password" type="password" autoComplete={isSignup ? 'new-password' : 'current-password'} aria-invalid={Boolean(errors.password)} className="form-input" placeholder="비밀번호를 입력해주세요" />
               {errors.password ? <span className="mt-1.5 block text-xs font-semibold text-danger">{errors.password}</span> : null}
             </label>
 

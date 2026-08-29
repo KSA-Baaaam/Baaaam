@@ -17,8 +17,6 @@ export const categoryContent = {
   sortPopular: '많이 본 순',
   sortRecommended: '추천 먼저',
   countSuffix: '개의 글',
-  loadMore: '더 보기',
-  allLoaded: '모든 글을 다 보여드렸어요',
   empty: '아직 이 조건에 맞는 글이 없어요. 다른 검색어나 카테고리를 살펴보세요.',
   loading: '글 목록을 불러오는 중이에요...',
   tabsAriaLabel: '카테고리 선택',

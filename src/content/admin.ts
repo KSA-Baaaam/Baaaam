@@ -62,7 +62,7 @@ export const adminContent = {
     loadingConfig: '가입 조건을 확인하는 중이에요...',
     nameLabel: '이름',
     namePlaceholder: '이름을 입력해주세요',
-    emailLabel: '이메일 (로그인 아이디)',
+    emailLabel: '이메일',
     emailPlaceholder: 'name@baaaam.example',
     passwordLabel: '비밀번호',
     passwordPlaceholder: '8자 이상 입력해주세요',

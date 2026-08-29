@@ -24,7 +24,5 @@ export const searchContent = {
     categoryTitle: '카테고리로 둘러보기',
     allCategoryChip: '전체',
   },
-  loadMore: '더 보기',
-  allLoaded: '모든 결과를 다 보여드렸어요',
   loading: '검색 결과를 불러오는 중이에요...',
 }

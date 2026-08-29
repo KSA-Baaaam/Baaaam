@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Navigate, Route, Routes } from 'react-router-dom'
 
 import About from '@/pages/About'
+import Account from '@/pages/Account'
 import Admin from '@/pages/Admin'
 import Auth from '@/pages/Auth'
 import CategoryList from '@/pages/CategoryList'
@@ -27,6 +28,7 @@ export default function App() {
         <Route path="/article/:postId" element={<PostDetail />} />
         <Route path="/search" element={<SearchResults />} />
         <Route path="/about" element={<About />} />
+        <Route path="/account" element={<Account />} />
         <Route path="/login" element={<Auth mode="login" />} />
         <Route path="/signup" element={<Auth mode="signup" />} />
         <Route path="/admin" element={<Admin />} />

@@ -4,21 +4,21 @@ import { useMemo, useState } from 'react'
 
 import brandMascot from '@/assets/brand-mascot.png'
 import { PostCard } from '@/components/home/PostCard'
+import { Pagination } from '@/components/ui'
 import { categoryContent } from '@/content/category'
 import { categories } from '@/data/categories'
 import { postsService } from '@/services/posts'
 
 const categoryLabelById = new Map(categories.map((category) => [category.id, category.label]))
 const ALL_CATEGORY_ID = 'all'
-const INITIAL_VISIBLE_COUNT = 6
-const LOAD_MORE_STEP = 6
+const POSTS_PER_PAGE = 6
 
 type SortMode = 'newest' | 'popular' | 'recommended'
 type CategoryPostGridProps = { activeCategoryId: string }
 
 export function CategoryPostGrid({ activeCategoryId }: CategoryPostGridProps) {
   const { data: posts = [], isLoading } = useQuery({ queryKey: ['posts', 'all'], queryFn: postsService.listAll })
-  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT)
+  const [page, setPage] = useState(1)
   const [query, setQuery] = useState('')
   const [sortMode, setSortMode] = useState<SortMode>('newest')
 
@@ -37,12 +37,13 @@ export function CategoryPostGrid({ activeCategoryId }: CategoryPostGridProps) {
     })
   }, [activeCategoryId, posts, query, sortMode])
 
-  const visiblePosts = filteredPosts.slice(0, visibleCount)
-  const hasMore = visibleCount < filteredPosts.length
+  const totalPages = Math.max(1, Math.ceil(filteredPosts.length / POSTS_PER_PAGE))
+  const currentPage = Math.min(page, totalPages)
+  const visiblePosts = filteredPosts.slice((currentPage - 1) * POSTS_PER_PAGE, currentPage * POSTS_PER_PAGE)
   const heading = activeCategoryId === ALL_CATEGORY_ID ? categoryContent.allCategoryTitle : `${categoryLabelById.get(activeCategoryId) ?? activeCategoryId}${categoryContent.categoryTitleSuffix}`
 
   return (
-    <div>
+    <div id="category-post-list" className="scroll-mt-24">
       <div className="mb-7 flex flex-col gap-4 border-b border-border-subtle pb-6 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <h2 className="text-2xl font-extrabold tracking-[-0.03em] text-navy">{heading}</h2>
@@ -56,7 +57,7 @@ export function CategoryPostGrid({ activeCategoryId }: CategoryPostGridProps) {
             <input
               type="search"
               value={query}
-              onChange={(event) => { setQuery(event.target.value); setVisibleCount(INITIAL_VISIBLE_COUNT) }}
+              onChange={(event) => { setQuery(event.target.value); setPage(1) }}
               placeholder={categoryContent.filterPlaceholder}
               className="min-h-11 w-full rounded-lg border border-input-border bg-white pl-10 pr-4 text-sm text-navy placeholder:text-ink-soft focus:border-brand focus:outline focus:outline-2 focus:outline-offset-1 focus:outline-brand/20"
             />
@@ -65,7 +66,7 @@ export function CategoryPostGrid({ activeCategoryId }: CategoryPostGridProps) {
             <span>{categoryContent.sortLabel}</span>
             <select
               value={sortMode}
-              onChange={(event) => { setSortMode(event.target.value as SortMode); setVisibleCount(INITIAL_VISIBLE_COUNT) }}
+              onChange={(event) => { setSortMode(event.target.value as SortMode); setPage(1) }}
               className="min-h-11 rounded-lg border border-input-border bg-white px-3 text-sm font-semibold text-navy focus:border-brand focus:outline focus:outline-2 focus:outline-offset-1 focus:outline-brand/20"
             >
               <option value="newest">{categoryContent.sortNewest}</option>
@@ -91,13 +92,7 @@ export function CategoryPostGrid({ activeCategoryId }: CategoryPostGridProps) {
         </ul>
       )}
 
-      {!isLoading && hasMore ? (
-        <div className="mt-10 flex justify-center">
-          <button type="button" onClick={() => setVisibleCount((count) => count + LOAD_MORE_STEP)} className="rounded-lg border border-brand px-6 py-3 text-sm font-bold text-brand hover:bg-brand hover:text-white">
-            {categoryContent.loadMore}
-          </button>
-        </div>
-      ) : null}
+      {!isLoading ? <Pagination currentPage={currentPage} totalItems={filteredPosts.length} itemsPerPage={POSTS_PER_PAGE} onPageChange={setPage} ariaLabel="카테고리 글 페이지" scrollTargetId="category-post-list" /> : null}
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import { LogOut, Menu, Search, X } from 'lucide-react'
+import { LogOut, Menu, Search, UserRound, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 
@@ -35,19 +35,16 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-border-subtle bg-white/95">
-      <div className="mx-auto flex h-[72px] max-w-7xl items-center gap-4 px-5 md:px-8">
+      <div className="mx-auto flex h-[72px] max-w-7xl items-center gap-4 px-5 md:px-8 lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:gap-6">
         <Link
           to="/"
-          className="flex shrink-0 items-center gap-2.5 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
+          className="flex shrink-0 items-center rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
           aria-label="Baaaam 홈"
         >
-          <BrandLogo variant="mark" className="h-10 w-[4.75rem] rounded-md" />
-          <span className="text-[1.35rem] font-extrabold tracking-[-0.04em] text-navy">
-            {homeContent.brand.name}
-          </span>
+          <BrandLogo variant="header" className="w-[10.75rem] sm:w-[13rem]" />
         </Link>
 
-        <nav aria-label="주요 메뉴" className="mx-auto hidden h-full items-center gap-8 lg:flex">
+        <nav aria-label="주요 메뉴" className="hidden h-full items-center justify-self-center gap-5 lg:flex xl:gap-8">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
@@ -65,7 +62,7 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <div className="ml-auto hidden items-center gap-3 lg:flex">
+        <div className="hidden items-center justify-self-end gap-3 lg:flex">
           <SiteSearchForm size="compact" className="w-56 xl:w-64" />
           {!isSessionLoading && currentStaff ? (
             <>
@@ -74,6 +71,9 @@ export function SiteHeader() {
                   {currentStaff.role === 'admin' ? '관리자' : '글 관리'}
                 </Link>
               ) : null}
+              <Link to="/account" aria-label="계정 관리" className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-ink-muted hover:bg-section hover:text-navy focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">
+                <UserRound className="h-5 w-5" aria-hidden="true" />
+              </Link>
               <button type="button" onClick={() => void logout()} disabled={isLoggingOut} aria-label="로그아웃" className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-ink-muted hover:bg-section hover:text-navy disabled:opacity-60">
                 <LogOut className="h-5 w-5" aria-hidden="true" />
               </button>
@@ -124,13 +124,14 @@ export function SiteHeader() {
               <SiteSearchForm size="large" />
             </div>
             {!isSessionLoading && currentStaff ? (
-              <div className={`mt-4 flex gap-2 ${currentStaff.role === 'general' ? 'justify-end' : ''}`}>
+              <div className="mt-4 grid grid-cols-2 gap-2">
                 {currentStaff.role !== 'general' ? (
-                  <Link to="/admin" className="inline-flex min-h-12 flex-1 items-center justify-center rounded-lg bg-brand px-5 text-sm font-bold text-white">
+                  <Link to="/admin" className="col-span-2 inline-flex min-h-12 items-center justify-center rounded-lg bg-brand px-5 text-sm font-bold text-white">
                     {currentStaff.role === 'admin' ? '관리자' : '글 관리'}
                   </Link>
                 ) : null}
-                <button type="button" onClick={() => void logout()} disabled={isLoggingOut} className="inline-flex h-12 w-12 items-center justify-center rounded-lg border border-border-subtle text-ink-muted" aria-label="로그아웃"><LogOut className="h-5 w-5" /></button>
+                <Link to="/account" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-border-subtle px-4 text-sm font-bold text-navy"><UserRound className="h-5 w-5" aria-hidden="true" />계정 관리</Link>
+                <button type="button" onClick={() => void logout()} disabled={isLoggingOut} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-border-subtle px-4 text-sm font-bold text-ink-muted" aria-label="로그아웃"><LogOut className="h-5 w-5" aria-hidden="true" />로그아웃</button>
               </div>
             ) : (
               <Link

@@ -1,15 +1,8 @@
-import { ArrowDown, ArrowUpRight } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { ArrowDown } from 'lucide-react'
 
 import heroMascot from '@/assets/hero-mascot.png'
 import { SiteSearchForm } from '@/components/search/SiteSearchForm'
 import { homeContent } from '@/content/home'
-
-const quickLinks = [
-  { label: '분수', query: '분수' },
-  { label: '빛', query: '빛' },
-  { label: '세포', query: '세포' },
-] as const
 
 export function Hero() {
   return (
@@ -30,23 +23,9 @@ export function Hero() {
             <SiteSearchForm size="large" />
           </div>
 
-          <div className="mt-5 flex flex-wrap items-center gap-2 text-sm text-ink-muted">
-            <span className="mr-1 font-semibold">{homeContent.hero.quickLinksLabel}</span>
-            {quickLinks.map((item) => (
-              <Link
-                key={item.query}
-                to={`/search?q=${encodeURIComponent(item.query)}`}
-                className="inline-flex min-h-9 items-center gap-1 rounded-full border border-hero-border bg-white/70 px-3 font-semibold text-navy hover:border-brand hover:text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
-              >
-                {item.label}
-                <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
-              </Link>
-            ))}
-          </div>
-
           <a
             href="#topics"
-            className="mt-8 inline-flex min-h-11 items-center gap-2 text-sm font-bold text-brand hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            className="mt-7 inline-flex min-h-11 items-center gap-2 text-sm font-bold text-brand hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
             {homeContent.hero.scrollCta}
             <ArrowDown className="h-4 w-4" aria-hidden="true" />
