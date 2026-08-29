@@ -16,6 +16,7 @@ export interface PostsAdapter {
   create(input: PostInput): Promise<Post>
   update(id: string, input: PostInput): Promise<Post>
   setRecommended(id: string, isRecommended: boolean): Promise<Post>
+  deletePost(id: string): Promise<void>
 }
 
 function mapPost(row: PostRow): Post {
@@ -106,5 +107,15 @@ export const postsService: PostsAdapter = {
       .single()
     if (error) throw new Error(error.message)
     return mapPost(data)
+  },
+
+  async deletePost(id) {
+    const { error } = await supabase
+      .from('posts')
+      .delete()
+      .eq('id', Number(id))
+      .select('id')
+      .single()
+    if (error) throw new Error(error.message)
   },
 }

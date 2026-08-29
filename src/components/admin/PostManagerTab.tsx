@@ -1,12 +1,25 @@
 import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { CheckCircle2, Plus, X } from 'lucide-react'
+import { CheckCircle2, Plus, Trash2, X } from 'lucide-react'
 
 import { categories } from '@/data/categories'
 import type { Post } from '@/services/posts'
 import { postsService } from '@/services/posts'
 import { PostForm } from '@/components/admin/PostForm'
-import { Switch, SwitchThumb, Toast, ToastClose, ToastTitle } from '@/components/ui'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+  Switch,
+  SwitchThumb,
+  Toast,
+  ToastClose,
+  ToastTitle,
+} from '@/components/ui'
 import { adminContent } from '@/content/admin'
 import type { UserRole } from '@/services/profiles'
 
@@ -33,6 +46,17 @@ export function PostManagerTab({ staffId, staffName, role }: PostManagerTabProps
       postsService.setRecommended(vars.id, vars.isRecommended),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['posts'] })
+    },
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => postsService.deletePost(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] })
+      setToast({ open: true, message: adminContent.postManager.deletedToast })
+    },
+    onError: () => {
+      setToast({ open: true, message: adminContent.postManager.deleteErrorToast })
     },
   })
 
@@ -134,14 +158,47 @@ export function PostManagerTab({ staffId, staffName, role }: PostManagerTabProps
                         <SwitchThumb className="block h-5 w-5 translate-x-0.5 rounded-full bg-surface-card shadow transition-transform data-[state=checked]:translate-x-[22px]" />
                       </Switch>
                     </td>
-                    <td className="px-4 py-3 text-right">
-                      <button
-                        type="button"
-                        onClick={() => setFormTarget(post)}
-                        className="rounded-full border border-border-subtle px-4 py-1.5 text-sm font-semibold text-ink-muted transition-colors hover:border-brand hover:text-brand-strong"
-                      >
-                        {adminContent.postManager.editCta}
-                      </button>
+                    <td className="px-4 py-3">
+                      <div className="flex justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setFormTarget(post)}
+                          className="rounded-full border border-border-subtle px-4 py-1.5 text-sm font-semibold text-ink-muted transition-colors hover:border-brand hover:text-brand-strong"
+                        >
+                          {adminContent.postManager.editCta}
+                        </button>
+                        {role === 'admin' ? (
+                          <AlertDialog>
+                            <AlertDialogTrigger className="inline-flex items-center gap-1.5 rounded-full border border-border-subtle px-3 py-1.5 text-sm font-semibold text-ink-muted transition-colors hover:border-danger hover:text-danger">
+                              <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                              {adminContent.postManager.deleteCta}
+                            </AlertDialogTrigger>
+                            <AlertDialogContent
+                              overlayProps={{ className: 'fixed inset-0 z-40 bg-ink/40' }}
+                              className="fixed left-1/2 top-1/2 z-50 w-[calc(100%-3rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border-subtle bg-surface-card p-6 shadow-xl"
+                            >
+                              <AlertDialogTitle className="text-base font-bold text-ink">
+                                {adminContent.postManager.deleteDialogTitle}
+                              </AlertDialogTitle>
+                              <AlertDialogDescription className="mt-2 text-sm leading-6 text-ink-muted">
+                                {adminContent.postManager.deleteDialogDescription}
+                              </AlertDialogDescription>
+                              <div className="mt-6 flex justify-end gap-3">
+                                <AlertDialogCancel className="rounded-full border border-border-subtle px-4 py-2 text-sm font-semibold text-ink-muted transition-colors hover:border-brand hover:text-brand-strong">
+                                  {adminContent.postManager.deleteDialogCancel}
+                                </AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => deleteMutation.mutate(post.id)}
+                                  disabled={deleteMutation.isPending}
+                                  className="rounded-full bg-danger px-4 py-2 text-sm font-semibold text-surface-card transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                  {adminContent.postManager.deleteDialogConfirm}
+                                </AlertDialogAction>
+                              </div>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        ) : null}
+                      </div>
                     </td>
                   </tr>
                 )
