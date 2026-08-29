@@ -1,7 +1,7 @@
 import { ArrowRight, Eye, HelpCircle, MessageCircleMore } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
-import heroMascot from '@/assets/hero-mascot.png'
+import { BrandLogo } from '@/components/home/BrandLogo'
 import { SiteFooter } from '@/components/home/SiteFooter'
 import { SiteHeader } from '@/components/home/SiteHeader'
 
@@ -27,7 +27,10 @@ export default function About() {
                 Baaaam은 학생들이 수학과 과학을 단순히 암기하는 대신, “왜 그런지” 이해하도록 돕는 학습 블로그입니다.
               </p>
             </div>
-            <img src={heroMascot} alt="수학과 과학을 함께 공부하는 Baaaam 뱀 마스코트" width={700} height={430} className="mx-auto w-full max-w-lg" />
+            <BrandLogo
+              alt="프로젝트 Baaaam 공식 로고"
+              className="mx-auto aspect-[1.8/1] w-full max-w-lg rounded-3xl border border-border-subtle shadow-[0_20px_60px_rgba(12,73,53,0.12)]"
+            />
           </div>
         </section>
 

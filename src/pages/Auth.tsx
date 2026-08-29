@@ -3,7 +3,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
-import brandMascot from '@/assets/brand-mascot.png'
+import { BrandLogo } from '@/components/home/BrandLogo'
 import { useOperatorSession } from '@/services/session'
 import type { EmailCodePurpose } from '@/services/session'
 
@@ -111,7 +111,10 @@ export default function Auth({ mode }: AuthProps) {
           <ArrowLeft className="h-4 w-4" aria-hidden="true" /> 홈으로
         </Link>
         <div className="mx-auto max-w-md py-8 text-center lg:text-left">
-          <img src={brandMascot} alt="Baaaam 초록 뱀 마스코트" width={130} height={126} className="mx-auto h-28 w-28 object-contain lg:mx-0" />
+          <BrandLogo
+            alt="프로젝트 Baaaam 공식 로고"
+            className="mx-auto h-[126px] w-[230px] rounded-2xl shadow-sm lg:mx-0"
+          />
           <p className="mt-5 text-sm font-bold text-brand">학생과 운영진을 위한 공간</p>
           <h1 className="mt-3 text-3xl font-extrabold tracking-[-0.04em] text-navy sm:text-4xl">배운 내용을 이어서<br />탐색해보세요.</h1>
         </div>

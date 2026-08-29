@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 
-import brandMascot from '@/assets/brand-mascot.png'
+import { BrandLogo } from '@/components/home/BrandLogo'
 import { homeContent } from '@/content/home'
 
 export function SiteFooter() {
@@ -8,9 +8,12 @@ export function SiteFooter() {
     <footer className="border-t border-border-subtle bg-footer text-white">
       <div className="mx-auto grid max-w-7xl gap-10 px-5 py-12 md:grid-cols-[1fr_auto] md:items-end md:px-8">
         <div>
-          <Link to="/" className="inline-flex items-center gap-2.5 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
-            <img src={brandMascot} alt="" width={42} height={42} className="h-10 w-10 object-contain" />
-            <span className="text-xl font-extrabold tracking-[-0.04em]">{homeContent.brand.name}</span>
+          <Link
+            to="/"
+            aria-label="Baaaam 홈"
+            className="inline-flex rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+          >
+            <BrandLogo className="h-[76px] w-[150px] rounded-xl ring-1 ring-white/15" />
           </Link>
           <p className="mt-4 max-w-xl text-sm leading-6 text-white/68">{homeContent.footer.note}</p>
         </div>

@@ -2,7 +2,7 @@ import { LogOut, Menu, Search, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 
-import brandMascot from '@/assets/brand-mascot.png'
+import { BrandLogo } from '@/components/home/BrandLogo'
 import { SiteSearchForm } from '@/components/search/SiteSearchForm'
 import { homeContent } from '@/content/home'
 import { useOperatorSession } from '@/services/session'
@@ -41,7 +41,7 @@ export function SiteHeader() {
           className="flex shrink-0 items-center gap-2.5 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
           aria-label="Baaaam 홈"
         >
-          <img src={brandMascot} alt="" width={42} height={42} className="h-11 w-11 object-contain" />
+          <BrandLogo variant="mark" className="h-10 w-[4.75rem] rounded-md" />
           <span className="text-[1.35rem] font-extrabold tracking-[-0.04em] text-navy">
             {homeContent.brand.name}
           </span>
