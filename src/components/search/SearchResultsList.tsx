@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 import { categories } from '@/data/categories'
-import type { Post } from '@/data/posts'
+import type { Post } from '@/types/blog'
 import { PostCard } from '@/components/home/PostCard'
 import { searchContent } from '@/content/search'
 

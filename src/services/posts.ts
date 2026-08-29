@@ -1,10 +1,10 @@
-import type { Post as SeedPost } from '@/data/posts'
 import type { Database } from '@/lib/supabase'
 import { supabase } from '@/lib/supabase'
+import type { Post as BlogPost } from '@/types/blog'
 
 type PostRow = Database['public']['Tables']['posts']['Row']
 
-export type Post = SeedPost & {
+export type Post = BlogPost & {
   authorId: string | null
 }
 

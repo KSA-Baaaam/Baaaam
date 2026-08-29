@@ -2,7 +2,7 @@ import type { LucideIcon } from 'lucide-react'
 import { Atom, Braces, CalendarDays, Clock3, Compass, FlaskConical, Globe2, Leaf, Star } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
-import type { Post } from '@/data/posts'
+import type { Post } from '@/types/blog'
 import { koDateFormatter } from '@/lib/format'
 import { homeContent } from '@/content/home'
 

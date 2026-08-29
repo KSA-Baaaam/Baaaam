@@ -2,7 +2,6 @@ import { createClient } from '@supabase/supabase-js'
 
 type PostRow = {
   id: number
-  seed_key: string | null
   author_id: string | null
   title: string
   category_id: string
@@ -43,7 +42,6 @@ export type Database = {
         Row: PostRow
         Insert: {
           id?: number
-          seed_key?: string | null
           author_id?: string | null
           title: string
           category_id: string

@@ -1,5 +1,5 @@
 import type { Category } from '@/data/categories'
-import type { Post } from '@/data/posts'
+import type { Post } from '@/types/blog'
 
 /**
  * 검색(core). `query`를 제목·본문·카테고리 라벨에 대해 부분 문자열로 매칭한다.

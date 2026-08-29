@@ -1,10 +1,10 @@
-import type { Comment as SeedComment } from '@/data/comments'
 import type { Database } from '@/lib/supabase'
 import { supabase } from '@/lib/supabase'
+import type { Comment as BlogComment } from '@/types/blog'
 
 type CommentRow = Database['public']['Tables']['comments']['Row']
 
-export type Comment = SeedComment & {
+export type Comment = BlogComment & {
   authorId: string
 }
 

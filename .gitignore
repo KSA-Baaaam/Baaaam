@@ -13,4 +13,5 @@ out/
 .yarnrc
 .yarnrc.yml
 .wrangler/
+.vercel/
 .dev.vars*

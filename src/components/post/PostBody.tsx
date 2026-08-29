@@ -1,7 +1,7 @@
 import { Lightbulb, PauseCircle } from 'lucide-react'
 
 import { TopicArtwork } from '@/components/home/PostCard'
-import type { Post } from '@/data/posts'
+import type { Post } from '@/types/blog'
 
 type PostBodyProps = { post: Post }
 
