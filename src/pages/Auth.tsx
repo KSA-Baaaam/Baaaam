@@ -1,21 +1,34 @@
-import { ArrowLeft, LockKeyhole } from 'lucide-react'
+import { ArrowLeft, LockKeyhole, MailCheck } from 'lucide-react'
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import brandMascot from '@/assets/brand-mascot.png'
 import { useOperatorSession } from '@/services/session'
+import type { EmailCodePurpose } from '@/services/session'
 
 type AuthProps = { mode: 'login' | 'signup' }
 type FormErrors = { name?: string; identifier?: string; password?: string }
+type EmailChallenge = { email: string; purpose: EmailCodePurpose }
 
 export default function Auth({ mode }: AuthProps) {
   const isSignup = mode === 'signup'
   const navigate = useNavigate()
-  const { login, isLoggingIn, signUp, isSigningUp } = useOperatorSession()
+  const {
+    login,
+    isLoggingIn,
+    signUp,
+    isSigningUp,
+    verifyEmailCode,
+    isVerifyingEmailCode,
+    resendEmailCode,
+    isResendingEmailCode,
+  } = useOperatorSession()
   const [errors, setErrors] = useState<FormErrors>({})
   const [message, setMessage] = useState('')
   const [submitError, setSubmitError] = useState('')
+  const [challenge, setChallenge] = useState<EmailChallenge | null>(null)
+  const [code, setCode] = useState('')
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -41,17 +54,54 @@ export default function Auth({ mode }: AuthProps) {
         setSubmitError(result.errorMessage ?? '회원가입에 실패했어요. 잠시 후 다시 시도해주세요.')
         return
       }
-      if (result.needsEmailConfirmation) {
-        setMessage('가입 확인 메일을 보냈어요. 메일의 링크를 누른 뒤 로그인해주세요.')
+      if (result.challenge) {
+        setChallenge(result.challenge)
+        setMessage('인증코드를 보냈어요. 메일함을 확인해주세요.')
         return
       }
       navigate('/admin')
       return
     }
 
-    const ok = await login(identifier, password)
-    if (ok) navigate('/admin')
-    else setSubmitError('아이디 또는 비밀번호를 확인해주세요.')
+    const result = await login(identifier, password)
+    if (!result.ok) {
+      setSubmitError(result.errorMessage ?? '아이디 또는 비밀번호를 확인해주세요.')
+      return
+    }
+    if (result.challenge) {
+      setChallenge(result.challenge)
+      setMessage('인증코드를 보냈어요. 메일함을 확인해주세요.')
+    }
+  }
+
+  async function handleVerifyCode(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (!challenge) return
+    setSubmitError('')
+    setMessage('')
+    if (!/^\d{6}$/.test(code)) {
+      setSubmitError('메일로 받은 숫자 6자리를 입력해주세요.')
+      return
+    }
+
+    const result = await verifyEmailCode({ ...challenge, token: code })
+    if (!result.ok) {
+      setSubmitError(result.errorMessage ?? '인증코드를 확인해주세요.')
+      return
+    }
+    navigate('/admin')
+  }
+
+  async function handleResendCode() {
+    if (!challenge) return
+    setSubmitError('')
+    setMessage('')
+    const result = await resendEmailCode(challenge)
+    if (!result.ok) {
+      setSubmitError(result.errorMessage ?? '인증코드를 다시 보내지 못했어요.')
+      return
+    }
+    setMessage('새 인증코드를 보냈어요. 가장 최근 메일을 확인해주세요.')
   }
 
   return (
@@ -71,12 +121,36 @@ export default function Auth({ mode }: AuthProps) {
       <section className="flex items-center justify-center bg-white px-5 py-14 sm:px-10">
         <div className="w-full max-w-md">
           <div className="mb-8">
-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-soft text-brand"><LockKeyhole className="h-5 w-5" /></span>
-            <h2 className="mt-5 text-3xl font-extrabold tracking-[-0.035em] text-navy">{isSignup ? '회원가입' : '로그인'}</h2>
-            <p className="mt-2 text-sm leading-6 text-ink-muted">{isSignup ? 'Baaaam 계정을 만들기 위한 정보를 입력해주세요.' : '아이디 또는 이메일과 비밀번호를 입력해주세요.'}</p>
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-soft text-brand">{challenge ? <MailCheck className="h-5 w-5" /> : <LockKeyhole className="h-5 w-5" />}</span>
+            <h2 className="mt-5 text-3xl font-extrabold tracking-[-0.035em] text-navy">{challenge ? '이메일 인증' : isSignup ? '회원가입' : '로그인'}</h2>
+            <p className="mt-2 text-sm leading-6 text-ink-muted">{challenge ? <><strong className="font-bold text-navy">{challenge.email}</strong>으로 보낸 인증코드 6자리를 입력해주세요.</> : isSignup ? 'Baaaam 계정을 만들기 위한 정보를 입력해주세요.' : '아이디 또는 이메일과 비밀번호를 입력해주세요.'}</p>
           </div>
 
-          <form noValidate onSubmit={handleSubmit} className="space-y-5">
+          {challenge ? (
+            <form noValidate onSubmit={handleVerifyCode} className="space-y-5">
+              <label className="block text-sm font-bold text-navy">인증코드
+                <input
+                  value={code}
+                  onChange={(event) => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  className="form-input text-center text-xl font-extrabold tracking-[0.35em]"
+                  placeholder="000000"
+                  aria-describedby="email-code-help"
+                  autoFocus
+                />
+              </label>
+              <p id="email-code-help" className="rounded-xl bg-brand-soft px-4 py-3 text-xs leading-5 text-brand-strong">인증코드는 한 번만 사용할 수 있어요. 메일이 여러 통이면 가장 최근 코드를 입력해주세요.</p>
+              {submitError ? <p role="alert" className="text-sm leading-6 text-danger">{submitError}</p> : null}
+              <button type="submit" disabled={isVerifyingEmailCode} className="min-h-12 w-full rounded-lg bg-brand px-5 text-sm font-bold text-white hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-70">{isVerifyingEmailCode ? '확인 중...' : '인증하고 계속하기'}</button>
+              <div className="flex items-center justify-between gap-3 text-sm">
+                <button type="button" onClick={() => { setChallenge(null); setCode(''); setMessage(''); setSubmitError('') }} className="font-semibold text-ink-muted hover:text-navy">정보 다시 입력</button>
+                <button type="button" onClick={() => void handleResendCode()} disabled={isResendingEmailCode} className="font-bold text-brand hover:text-brand-strong disabled:cursor-not-allowed disabled:opacity-60">{isResendingEmailCode ? '전송 중...' : '인증코드 다시 받기'}</button>
+              </div>
+              <p aria-live="polite" className="min-h-6 text-sm leading-6 text-brand-strong">{message}</p>
+            </form>
+          ) : <form noValidate onSubmit={handleSubmit} className="space-y-5">
             {isSignup ? (
               <label className="block text-sm font-bold text-navy">이름
                 <input name="name" type="text" autoComplete="name" aria-invalid={Boolean(errors.name)} className="form-input" placeholder="이름" />
@@ -95,12 +169,12 @@ export default function Auth({ mode }: AuthProps) {
             {submitError ? <p role="alert" className="text-sm leading-6 text-danger">{submitError}</p> : null}
             <button type="submit" disabled={isLoggingIn || isSigningUp} className="min-h-12 w-full rounded-lg bg-brand px-5 text-sm font-bold text-white hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-70">{isLoggingIn || isSigningUp ? '처리 중...' : isSignup ? '회원가입' : '로그인'}</button>
             <p aria-live="polite" className="min-h-6 text-sm leading-6 text-brand-strong">{message}</p>
-          </form>
+          </form>}
 
-          <p className="mt-5 text-center text-sm text-ink-muted">
+          {!challenge ? <p className="mt-5 text-center text-sm text-ink-muted">
             {isSignup ? '이미 계정이 있나요?' : '아직 계정이 없나요?'}{' '}
             <Link to={isSignup ? '/login' : '/signup'} className="font-bold text-brand hover:text-brand-strong">{isSignup ? '로그인' : '회원가입'}</Link>
-          </p>
+          </p> : null}
         </div>
       </section>
     </main>
