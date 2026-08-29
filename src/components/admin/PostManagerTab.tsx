@@ -12,11 +12,12 @@ import { adminContent } from '@/content/admin'
 const categoryLabelById = new Map(categories.map((category) => [category.id, category.label]))
 
 type PostManagerTabProps = {
+  staffId: string
   staffName: string
 }
 
 /** 글 관리(core: 글 작성/수정, 추천 글 지정). */
-export function PostManagerTab({ staffName }: PostManagerTabProps) {
+export function PostManagerTab({ staffId, staffName }: PostManagerTabProps) {
   const queryClient = useQueryClient()
   const { data: posts = [], isLoading } = useQuery({
     queryKey: ['posts', 'all'],
@@ -35,8 +36,10 @@ export function PostManagerTab({ staffName }: PostManagerTabProps) {
 
   const sortedPosts = useMemo(
     () =>
-      [...posts].sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()),
-    [posts],
+      posts
+        .filter((post) => post.authorId === staffId)
+        .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()),
+    [posts, staffId],
   )
 
   function handleSaved(mode: 'create' | 'update') {

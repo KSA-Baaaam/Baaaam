@@ -1,12 +1,15 @@
-import { posts as postSeed } from '@/data/posts'
-import type { Post } from '@/data/posts'
+import type { Post as SeedPost } from '@/data/posts'
+import type { Database } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 
-export type { Post }
+type PostRow = Database['public']['Tables']['posts']['Row']
 
-/** 글 생성·수정 시 입력값. `id`·`viewCount`·`publishedAt`은 서비스가 채운다. */
-export type PostInput = Omit<Post, 'id' | 'viewCount' | 'publishedAt'>
+export type Post = SeedPost & {
+  authorId: string | null
+}
 
-/** Promise 기반 어댑터 계약. BaaS 연동 시 이 인터페이스를 구현하는 파일만 추가하면 된다. */
+export type PostInput = Omit<Post, 'id' | 'viewCount' | 'publishedAt' | 'authorId'>
+
 export interface PostsAdapter {
   listAll(): Promise<Post[]>
   getById(id: string): Promise<Post | undefined>
@@ -15,53 +18,93 @@ export interface PostsAdapter {
   setRecommended(id: string, isRecommended: boolean): Promise<Post>
 }
 
-/** 시드를 복제해 내부 상태로 쓰고, 바깥으로는 절대 노출하지 않는 메모리 어댑터. */
-function createMemoryPostsAdapter(): PostsAdapter {
-  let store: Post[] = postSeed.map((post) => ({ ...post }))
-  let nextSequence = 1
-
-  function requireUpdated(id: string, updater: (post: Post) => Post): Post {
-    let updated: Post | undefined
-    store = store.map((post) => {
-      if (post.id !== id) {
-        return post
-      }
-      updated = updater(post)
-      return updated
-    })
-    if (!updated) {
-      throw new Error(`글을 찾을 수 없어요: ${id}`)
-    }
-    return updated
-  }
-
+function mapPost(row: PostRow): Post {
   return {
-    async listAll() {
-      return store.map((post) => ({ ...post }))
-    },
-    async getById(id) {
-      const found = store.find((post) => post.id === id)
-      return found ? { ...found } : undefined
-    },
-    async create(input) {
-      const newPost: Post = {
-        ...input,
-        id: `post-${Date.now()}-${nextSequence++}`,
-        viewCount: 0,
-        publishedAt: new Date().toISOString(),
-      }
-      store = [...store, newPost]
-      return newPost
-    },
-    async update(id, input) {
-      // publishedAt·viewCount는 건드리지 않고 나머지 필드만 병합한다.
-      return requireUpdated(id, (post) => ({ ...post, ...input }))
-    },
-    async setRecommended(id, isRecommended) {
-      return requireUpdated(id, (post) => ({ ...post, isRecommended }))
-    },
+    id: String(row.id),
+    title: row.title,
+    categoryId: row.category_id,
+    content: row.content,
+    imageUrl: row.image_url,
+    videoUrl: row.video_url,
+    author: row.author,
+    authorId: row.author_id,
+    isRecommended: row.is_recommended,
+    viewCount: row.view_count,
+    publishedAt: row.published_at,
   }
 }
 
-/** 합성 루트: 지금은 메모리 어댑터만 선택한다. BaaS 활성화 시 이 값만 교체한다. */
-export const postsService: PostsAdapter = createMemoryPostsAdapter()
+async function requireCurrentUser() {
+  const { data, error } = await supabase.auth.getUser()
+  if (error || !data.user) throw new Error('로그인이 필요합니다.')
+  return data.user
+}
+
+function displayName(user: Awaited<ReturnType<typeof requireCurrentUser>>) {
+  const name = user.user_metadata?.full_name
+  return typeof name === 'string' && name.trim() ? name.trim() : (user.email ?? 'Baaaam 사용자')
+}
+
+export const postsService: PostsAdapter = {
+  async listAll() {
+    const { data, error } = await supabase.from('posts').select('*').order('published_at', { ascending: false })
+    if (error) throw new Error(error.message)
+    return data.map(mapPost)
+  },
+
+  async getById(id) {
+    const { data, error } = await supabase.from('posts').select('*').eq('id', Number(id)).maybeSingle()
+    if (error) throw new Error(error.message)
+    return data ? mapPost(data) : undefined
+  },
+
+  async create(input) {
+    const user = await requireCurrentUser()
+    const { data, error } = await supabase
+      .from('posts')
+      .insert({
+        author_id: user.id,
+        author: displayName(user),
+        title: input.title,
+        category_id: input.categoryId,
+        content: input.content,
+        image_url: input.imageUrl,
+        video_url: input.videoUrl,
+        is_recommended: input.isRecommended,
+      })
+      .select()
+      .single()
+    if (error) throw new Error(error.message)
+    return mapPost(data)
+  },
+
+  async update(id, input) {
+    const { data, error } = await supabase
+      .from('posts')
+      .update({
+        title: input.title,
+        category_id: input.categoryId,
+        content: input.content,
+        image_url: input.imageUrl,
+        video_url: input.videoUrl,
+        is_recommended: input.isRecommended,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', Number(id))
+      .select()
+      .single()
+    if (error) throw new Error(error.message)
+    return mapPost(data)
+  },
+
+  async setRecommended(id, isRecommended) {
+    const { data, error } = await supabase
+      .from('posts')
+      .update({ is_recommended: isRecommended, updated_at: new Date().toISOString() })
+      .eq('id', Number(id))
+      .select()
+      .single()
+    if (error) throw new Error(error.message)
+    return mapPost(data)
+  },
+}

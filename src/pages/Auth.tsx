@@ -1,19 +1,23 @@
 import { ArrowLeft, LockKeyhole } from 'lucide-react'
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import brandMascot from '@/assets/brand-mascot.png'
+import { useOperatorSession } from '@/services/session'
 
 type AuthProps = { mode: 'login' | 'signup' }
 type FormErrors = { name?: string; email?: string; password?: string }
 
 export default function Auth({ mode }: AuthProps) {
   const isSignup = mode === 'signup'
+  const navigate = useNavigate()
+  const { login, isLoggingIn, loginErrorMessage, signUp, isSigningUp } = useOperatorSession()
   const [errors, setErrors] = useState<FormErrors>({})
   const [message, setMessage] = useState('')
+  const [submitError, setSubmitError] = useState('')
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
     const name = String(formData.get('name') ?? '').trim()
@@ -27,9 +31,26 @@ export default function Auth({ mode }: AuthProps) {
 
     setErrors(nextErrors)
     setMessage('')
-    if (Object.keys(nextErrors).length === 0) {
-      setMessage(isSignup ? '회원가입 기능은 현재 준비 중이에요. 입력값 검사는 정상적으로 완료됐습니다.' : '로그인 기능은 현재 준비 중이에요. 입력값 검사는 정상적으로 완료됐습니다.')
+    setSubmitError('')
+    if (Object.keys(nextErrors).length > 0) return
+
+    if (isSignup) {
+      const result = await signUp({ name, email, password })
+      if (!result.ok) {
+        setSubmitError(result.errorMessage ?? '회원가입에 실패했어요. 잠시 후 다시 시도해주세요.')
+        return
+      }
+      if (result.needsEmailConfirmation) {
+        setMessage('가입 확인 메일을 보냈어요. 메일의 링크를 누른 뒤 로그인해주세요.')
+        return
+      }
+      navigate('/admin')
+      return
     }
+
+    const ok = await login(email, password)
+    if (ok) navigate('/admin')
+    else setSubmitError(loginErrorMessage ?? '이메일 또는 비밀번호를 확인해주세요.')
   }
 
   return (
@@ -70,7 +91,8 @@ export default function Auth({ mode }: AuthProps) {
               {errors.password ? <span className="mt-1.5 block text-xs font-semibold text-danger">{errors.password}</span> : null}
             </label>
 
-            <button type="submit" className="min-h-12 w-full rounded-lg bg-brand px-5 text-sm font-bold text-white hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">{isSignup ? '가입 정보 확인' : '로그인'}</button>
+            {submitError ? <p role="alert" className="text-sm leading-6 text-danger">{submitError}</p> : null}
+            <button type="submit" disabled={isLoggingIn || isSigningUp} className="min-h-12 w-full rounded-lg bg-brand px-5 text-sm font-bold text-white hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-70">{isLoggingIn || isSigningUp ? '처리 중...' : isSignup ? '회원가입' : '로그인'}</button>
             <p aria-live="polite" className="min-h-6 text-sm leading-6 text-brand-strong">{message}</p>
           </form>
 

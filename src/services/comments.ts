@@ -1,7 +1,12 @@
-import { comments as commentSeed } from '@/data/comments'
-import type { Comment } from '@/data/comments'
+import type { Comment as SeedComment } from '@/data/comments'
+import type { Database } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 
-export type { Comment }
+type CommentRow = Database['public']['Tables']['comments']['Row']
+
+export type Comment = SeedComment & {
+  authorId: string
+}
 
 export type AddCommentInput = {
   postId: string
@@ -11,7 +16,6 @@ export type AddCommentInput = {
   inReplyTo: string | null
 }
 
-/** Promise 기반 어댑터 계약. BaaS 연동 시 이 인터페이스를 구현하는 파일만 추가하면 된다. */
 export interface CommentsAdapter {
   listByPostId(postId: string): Promise<Comment[]>
   listAll(): Promise<Comment[]>
@@ -19,50 +23,72 @@ export interface CommentsAdapter {
   deleteComment(id: string): Promise<void>
 }
 
-function sortByCreatedAtAscending(records: Comment[]): Comment[] {
-  return [...records].sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-  )
-}
-
-function sortByCreatedAtDescending(records: Comment[]): Comment[] {
-  return [...records].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-  )
-}
-
-/** 시드를 복제해 내부 상태로 쓰고, 바깥으로는 절대 노출하지 않는 메모리 어댑터. */
-function createMemoryCommentsAdapter(): CommentsAdapter {
-  let store: Comment[] = commentSeed.map((comment) => ({ ...comment }))
-  let nextSequence = 1
-
+function mapComment(row: CommentRow): Comment {
   return {
-    async listByPostId(postId) {
-      return sortByCreatedAtAscending(store.filter((comment) => comment.postId === postId))
-    },
-    async listAll() {
-      // 관리자 전용 조회: 최신 활동을 먼저 보여준다(공개 상세 화면의 오름차순 정렬과는 용도가
-      // 달라 별도로 정렬한다).
-      return sortByCreatedAtDescending(store)
-    },
-    async addComment(input) {
-      const newComment: Comment = {
-        id: `comment-${Date.now()}-${nextSequence++}`,
-        postId: input.postId,
-        author: input.author,
-        content: input.content,
-        createdAt: new Date().toISOString(),
-        isQuestion: input.isQuestion,
-        inReplyTo: input.inReplyTo,
-      }
-      store = [...store, newComment]
-      return newComment
-    },
-    async deleteComment(id) {
-      store = store.filter((comment) => comment.id !== id)
-    },
+    id: String(row.id),
+    postId: String(row.post_id),
+    authorId: row.author_id,
+    author: row.author,
+    content: row.content,
+    createdAt: row.created_at,
+    isQuestion: row.is_question,
+    inReplyTo: row.in_reply_to === null ? null : String(row.in_reply_to),
   }
 }
 
-/** 합성 루트: 지금은 메모리 어댑터만 선택한다. BaaS 활성화 시 이 값만 교체한다. */
-export const commentsService: CommentsAdapter = createMemoryCommentsAdapter()
+async function currentUserIdentity() {
+  const { data, error } = await supabase.auth.getUser()
+  if (error || !data.user) throw new Error('댓글을 작성하려면 로그인해주세요.')
+  const metadataName = data.user.user_metadata?.full_name
+  return {
+    id: data.user.id,
+    name:
+      typeof metadataName === 'string' && metadataName.trim()
+        ? metadataName.trim()
+        : (data.user.email ?? 'Baaaam 사용자'),
+  }
+}
+
+export const commentsService: CommentsAdapter = {
+  async listByPostId(postId) {
+    const { data, error } = await supabase
+      .from('comments')
+      .select('*')
+      .eq('post_id', Number(postId))
+      .order('created_at', { ascending: true })
+    if (error) throw new Error(error.message)
+    return data.map(mapComment)
+  },
+
+  async listAll() {
+    const { data, error } = await supabase
+      .from('comments')
+      .select('*')
+      .order('created_at', { ascending: false })
+    if (error) throw new Error(error.message)
+    return data.map(mapComment)
+  },
+
+  async addComment(input) {
+    const identity = await currentUserIdentity()
+    const { data, error } = await supabase
+      .from('comments')
+      .insert({
+        post_id: Number(input.postId),
+        author_id: identity.id,
+        author: identity.name,
+        content: input.content,
+        is_question: input.isQuestion,
+        in_reply_to: input.inReplyTo === null ? null : Number(input.inReplyTo),
+      })
+      .select()
+      .single()
+    if (error) throw new Error(error.message)
+    return mapComment(data)
+  },
+
+  async deleteComment(id) {
+    const { error } = await supabase.from('comments').delete().eq('id', Number(id))
+    if (error) throw new Error(error.message)
+  },
+}

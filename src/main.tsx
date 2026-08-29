@@ -2,6 +2,7 @@ import * as ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 
 import App from './App'
+import { AuthSessionProvider } from './services/session'
 import './index.css'
 
 const runtimeBasename = import.meta.env.BASE_URL === './' ? '/' : import.meta.env.BASE_URL
@@ -13,6 +14,8 @@ if (!rootElement) {
 
 ReactDOM.createRoot(rootElement).render(
   <BrowserRouter basename={runtimeBasename}>
-    <App />
+    <AuthSessionProvider>
+      <App />
+    </AuthSessionProvider>
   </BrowserRouter>,
 )

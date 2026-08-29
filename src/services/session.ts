@@ -1,111 +1,146 @@
-import { useCallback, useMemo, useState } from 'react'
+import { createContext, createElement, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import type { ReactNode } from 'react'
+import type { User } from '@supabase/supabase-js'
 
-import { getBaasAuthSdk } from '@/lib/baas-auth-sdk'
-import type { SignupConfig, SignupTerms } from '@/lib/baas-auth-sdk'
+import { supabase } from '@/lib/supabase'
 
-/**
- * 운영진 계정(PRD "운영진 계정" 엔티티) 표시·세션 관리.
- *
- * 실제 BaaS 회원 인증(`window.BaasSDK`의 계정 훅)을 감싼 도메인 훅이다. `window.BaasSDK`
- * 접근은 이 파일과 `@/lib/baas-auth-sdk` 안에만 두고, 화면은 이 모듈이 내보내는 훅만 쓴다.
- */
 export type StaffAccount = {
   id: string
   name: string
   email: string
 }
 
-export type { SignupConfig, SignupTerms }
-
-function toStaffAccount(user: { id: string; email: string; name: string } | null): StaffAccount | null {
-  if (!user) {
-    return null
-  }
-  return { id: user.id, name: user.name || user.email, email: user.email }
+type AuthContextValue = {
+  currentStaff: StaffAccount | null
+  isSessionLoading: boolean
+  login: (email: string, password: string) => Promise<boolean>
+  isLoggingIn: boolean
+  loginErrorMessage: string | null
+  signUp: (input: { email: string; password: string; name: string }) => Promise<{
+    ok: boolean
+    needsEmailConfirmation: boolean
+    errorMessage: string | null
+  }>
+  isSigningUp: boolean
+  logout: () => Promise<boolean>
+  isLoggingOut: boolean
 }
 
-/** 관리자 화면(`/admin`)의 로그인 세션. */
-export function useOperatorSession() {
-  const sdk = getBaasAuthSdk()
-  const { isLoggedIn, user, loading: isSessionLoading } = sdk.useAuth()
-  const { login, loading: isLoggingIn, error: loginError } = sdk.useLogin()
-  const { logout: sdkLogout } = sdk.useLogout()
-  const [isLoggingOut, setIsLoggingOut] = useState(false)
+const AuthContext = createContext<AuthContextValue | null>(null)
 
-  const currentStaff = useMemo(() => (isLoggedIn ? toStaffAccount(user) : null), [isLoggedIn, user])
+function toStaffAccount(user: User | null): StaffAccount | null {
+  if (!user?.email) return null
+
+  const metadataName = user.user_metadata?.full_name
+  return {
+    id: user.id,
+    name: typeof metadataName === 'string' && metadataName.trim() ? metadataName.trim() : user.email,
+    email: user.email,
+  }
+}
+
+export function AuthSessionProvider({ children }: { children: ReactNode }) {
+  const [currentStaff, setCurrentStaff] = useState<StaffAccount | null>(null)
+  const [isSessionLoading, setIsSessionLoading] = useState(true)
+  const [isLoggingIn, setIsLoggingIn] = useState(false)
+  const [isSigningUp, setIsSigningUp] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const [loginErrorMessage, setLoginErrorMessage] = useState<string | null>(null)
+
+  useEffect(() => {
+    let active = true
+
+    void supabase.auth.getUser().then(({ data }) => {
+      if (!active) return
+      setCurrentStaff(toStaffAccount(data.user))
+      setIsSessionLoading(false)
+    })
+
+    const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!active) return
+      setCurrentStaff(toStaffAccount(session?.user ?? null))
+      setIsSessionLoading(false)
+    })
+
+    return () => {
+      active = false
+      subscription.subscription.unsubscribe()
+    }
+  }, [])
+
+  const login = useCallback(async (email: string, password: string) => {
+    setIsLoggingIn(true)
+    setLoginErrorMessage(null)
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) {
+        setLoginErrorMessage(error.message)
+        return false
+      }
+      setCurrentStaff(toStaffAccount(data.user))
+      return true
+    } finally {
+      setIsLoggingIn(false)
+    }
+  }, [])
+
+  const signUp = useCallback(async (input: { email: string; password: string; name: string }) => {
+    setIsSigningUp(true)
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: input.email,
+        password: input.password,
+        options: {
+          data: { full_name: input.name },
+          emailRedirectTo: `${window.location.origin}/login`,
+        },
+      })
+      if (error) {
+        return { ok: false, needsEmailConfirmation: false, errorMessage: error.message }
+      }
+      if (data.session) setCurrentStaff(toStaffAccount(data.user))
+      return {
+        ok: true,
+        needsEmailConfirmation: data.session === null,
+        errorMessage: null,
+      }
+    } finally {
+      setIsSigningUp(false)
+    }
+  }, [])
 
   const logout = useCallback(async () => {
     setIsLoggingOut(true)
     try {
-      return await sdkLogout()
+      const { error } = await supabase.auth.signOut()
+      if (error) return false
+      setCurrentStaff(null)
+      return true
     } finally {
       setIsLoggingOut(false)
     }
-  }, [sdkLogout])
+  }, [])
 
-  return {
-    currentStaff,
-    isSessionLoading,
-    login, // (email, password) => Promise<boolean> — 실패해도 throw 하지 않는다
-    isLoggingIn,
-    loginErrorMessage: loginError?.message ?? null,
-    logout,
-    isLoggingOut,
-  }
-}
-
-export type OperatorSignupInput = {
-  email: string
-  password: string
-  name: string
-  phone: string
-  termsAgreed: boolean
-  privacyAgreed: boolean
-}
-
-/** 운영진 가입 신청(`/admin`의 가입 화면). 프로젝트 설정(`config`)을 매번 읽어 화면을 분기한다. */
-export function useOperatorSignup() {
-  const sdk = getBaasAuthSdk()
-  const {
-    signup,
-    config,
-    terms,
-    verified,
-    fetchConfig,
-    fetchTerms,
-    sendCode,
-    verifyCode,
-    loading: isSubmitting,
-    error: signupError,
-  } = sdk.useSignup()
-
-  const signUp = useCallback(
-    async (input: OperatorSignupInput) => {
-      if (!terms || !input.termsAgreed || !input.privacyAgreed) {
-        return null
-      }
-      return signup(input.email, input.password, input.name, input.phone, {
-        terms_agreed: input.termsAgreed,
-        privacy_agreed: input.privacyAgreed,
-        terms_version: terms.version,
-      })
-    },
-    [signup, terms],
+  const value = useMemo<AuthContextValue>(
+    () => ({
+      currentStaff,
+      isSessionLoading,
+      login,
+      isLoggingIn,
+      loginErrorMessage,
+      signUp,
+      isSigningUp,
+      logout,
+      isLoggingOut,
+    }),
+    [currentStaff, isSessionLoading, login, isLoggingIn, loginErrorMessage, signUp, isSigningUp, logout, isLoggingOut],
   )
 
-  const formatPhone = useCallback((value: string) => sdk.formatPhone(value), [sdk])
+  return createElement(AuthContext.Provider, { value }, children)
+}
 
-  return {
-    config,
-    terms,
-    verified,
-    fetchConfig,
-    fetchTerms,
-    sendCode,
-    verifyCode,
-    signUp,
-    isSubmitting,
-    signupErrorMessage: signupError?.message ?? null,
-    formatPhone,
-  }
+export function useOperatorSession() {
+  const value = useContext(AuthContext)
+  if (!value) throw new Error('AuthSessionProvider가 필요합니다.')
+  return value
 }

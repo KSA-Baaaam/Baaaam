@@ -22,7 +22,7 @@ const tabTriggerClassName =
 /**
  * 관리자 - 글 관리 화면(`/admin`).
  *
- * 실제 BaaS 계정 로그인 게이트를 통과해야 글 관리/댓글 관리 탭이 보인다.
+ * 실제 Supabase 로그인 세션이 있을 때 글 관리/댓글 관리 탭이 보인다.
  */
 export default function Admin() {
   const { currentStaff, isSessionLoading, logout, isLoggingOut } = useOperatorSession()
@@ -70,10 +70,10 @@ export default function Admin() {
                   </TabsTrigger>
                 </TabsList>
                 <TabsContent value="posts">
-                  <PostManagerTab staffName={currentStaff.name} />
+                  <PostManagerTab staffId={currentStaff.id} staffName={currentStaff.name} />
                 </TabsContent>
                 <TabsContent value="comments">
-                  <CommentManagerTab staffName={currentStaff.name} />
+                  <CommentManagerTab staffId={currentStaff.id} staffName={currentStaff.name} />
                 </TabsContent>
               </Tabs>
             </div>

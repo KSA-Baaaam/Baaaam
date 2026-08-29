@@ -1,16 +1,15 @@
-import { useState } from 'react'
+import { Link } from 'react-router-dom'
 
-import { OperatorLoginForm } from '@/components/admin/OperatorLoginForm'
-import { OperatorSignupForm } from '@/components/admin/OperatorSignupForm'
-
-type Mode = 'login' | 'signup'
-
-/** 운영진 인증 게이트. 로그인/가입 신청 폼을 전환한다(둘 다 실제 BaaS 계정 인증). */
+/** 인증이 없는 사용자에게 로그인과 회원가입 경로를 안내한다. */
 export function OperatorAuthGate() {
-  const [mode, setMode] = useState<Mode>('login')
-
-  if (mode === 'signup') {
-    return <OperatorSignupForm onBackToLogin={() => setMode('login')} />
-  }
-  return <OperatorLoginForm onSwitchToSignup={() => setMode('signup')} />
+  return (
+    <div className="mx-auto max-w-md rounded-2xl border border-border-subtle bg-surface-card p-6 text-center md:p-8">
+      <h2 className="text-xl font-bold text-ink">로그인이 필요해요</h2>
+      <p className="mt-2 text-sm leading-6 text-ink-muted">글을 작성하고 관리하려면 Baaaam 계정으로 로그인해주세요.</p>
+      <div className="mt-6 flex justify-center gap-3">
+        <Link to="/login" className="rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-strong">로그인</Link>
+        <Link to="/signup" className="rounded-full border border-brand px-5 py-2.5 text-sm font-semibold text-brand hover:bg-brand-soft">회원가입</Link>
+      </div>
+    </div>
+  )
 }

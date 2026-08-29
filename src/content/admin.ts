@@ -4,9 +4,9 @@
  * 데이터 타입과 무관한 문자열 상수만 export한다.
  */
 export const adminContent = {
-  eyebrow: '운영진 전용',
-  title: '관리자 - 글 관리',
-  description: '글을 작성·수정하고, 추천 글 지정과 댓글을 관리해요.',
+  eyebrow: '나의 Baaaam',
+  title: '내 글 관리',
+  description: '새 학습 글을 작성하고 내가 쓴 글과 댓글을 관리해요.',
   loading: '불러오는 중이에요...',
   session: {
     activeSuffix: '님으로 관리 중',

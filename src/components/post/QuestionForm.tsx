@@ -2,24 +2,25 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { CheckCircle2, X } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 import { commentsService } from '@/services/comments'
 import { Toast, ToastClose, ToastDescription, ToastTitle } from '@/components/ui'
 import { postContent } from '@/content/post'
+import { useOperatorSession } from '@/services/session'
 
 type QuestionFormProps = {
   postId: string
 }
 
 type FieldErrors = {
-  author?: string
   content?: string
 }
 
 /** 질문 작성(core). 제출이 성공하면 댓글 목록 쿼리를 무효화하고 토스트로 알린다. */
 export function QuestionForm({ postId }: QuestionFormProps) {
   const queryClient = useQueryClient()
-  const [author, setAuthor] = useState('')
+  const { currentStaff, isSessionLoading } = useOperatorSession()
   const [content, setContent] = useState('')
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
   const [toastOpen, setToastOpen] = useState(false)
@@ -28,7 +29,6 @@ export function QuestionForm({ postId }: QuestionFormProps) {
     mutationFn: commentsService.addComment,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['comments', postId] })
-      setAuthor('')
       setContent('')
       setFieldErrors({})
       setToastOpen(true)
@@ -38,12 +38,8 @@ export function QuestionForm({ postId }: QuestionFormProps) {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    const trimmedAuthor = author.trim()
     const trimmedContent = content.trim()
     const nextErrors: FieldErrors = {}
-    if (!trimmedAuthor) {
-      nextErrors.author = postContent.question.validation.author
-    }
     if (!trimmedContent) {
       nextErrors.content = postContent.question.validation.content
     }
@@ -54,7 +50,7 @@ export function QuestionForm({ postId }: QuestionFormProps) {
 
     mutation.mutate({
       postId,
-      author: trimmedAuthor,
+      author: currentStaff?.name ?? '',
       content: trimmedContent,
       isQuestion: true,
       inReplyTo: null,
@@ -74,28 +70,15 @@ export function QuestionForm({ postId }: QuestionFormProps) {
       </h2>
       <p className="mt-2 text-sm text-ink-muted">{postContent.question.description}</p>
 
-      <form onSubmit={handleSubmit} noValidate className="mt-6 flex flex-col gap-4">
-        <div>
-          <label htmlFor="question-author" className="mb-1.5 block text-sm font-semibold text-ink">
-            {postContent.question.nameLabel}
-          </label>
-          <input
-            id="question-author"
-            type="text"
-            value={author}
-            onChange={(event) => setAuthor(event.target.value)}
-            placeholder={postContent.question.namePlaceholder}
-            aria-invalid={Boolean(fieldErrors.author)}
-            aria-describedby={fieldErrors.author ? 'question-author-error' : undefined}
-            className="w-full rounded-xl border border-border-subtle bg-surface-card px-4 py-2.5 text-sm text-ink placeholder:text-ink-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-strong"
-          />
-          {fieldErrors.author ? (
-            <p id="question-author-error" role="alert" className="mt-1.5 text-xs text-danger">
-              {fieldErrors.author}
-            </p>
-          ) : null}
+      {isSessionLoading ? (
+        <p className="mt-6 text-sm text-ink-muted">로그인 상태를 확인하고 있어요...</p>
+      ) : !currentStaff ? (
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          <p className="text-sm text-ink-muted">질문을 남기려면 로그인이 필요해요.</p>
+          <Link to="/login" className="rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-strong">로그인하기</Link>
         </div>
-
+      ) : <form onSubmit={handleSubmit} noValidate className="mt-6 flex flex-col gap-4">
+        <p className="text-sm font-semibold text-ink">{currentStaff.name} 님으로 질문을 남겨요.</p>
         <div>
           <label
             htmlFor="question-content"
@@ -137,7 +120,7 @@ export function QuestionForm({ postId }: QuestionFormProps) {
         >
           {mutation.isPending ? postContent.question.submitting : postContent.question.submit}
         </button>
-      </form>
+      </form>}
 
       <Toast
         open={toastOpen}

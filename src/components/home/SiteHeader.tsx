@@ -1,10 +1,11 @@
-import { Menu, Search, X } from 'lucide-react'
+import { LogOut, Menu, Search, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 
 import brandMascot from '@/assets/brand-mascot.png'
 import { SiteSearchForm } from '@/components/search/SiteSearchForm'
 import { homeContent } from '@/content/home'
+import { useOperatorSession } from '@/services/session'
 
 const navItems = [
   { to: '/', label: homeContent.header.navHome, kind: 'home' },
@@ -28,6 +29,7 @@ function isItemActive(pathname: string, kind: (typeof navItems)[number]['kind'])
 export function SiteHeader() {
   const { pathname } = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
+  const { currentStaff, isSessionLoading, logout, isLoggingOut } = useOperatorSession()
 
   useEffect(() => setMenuOpen(false), [pathname])
 
@@ -65,12 +67,23 @@ export function SiteHeader() {
 
         <div className="ml-auto hidden items-center gap-3 lg:flex">
           <SiteSearchForm size="compact" className="w-56 xl:w-64" />
-          <Link
-            to="/login"
-            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-brand px-5 text-sm font-bold text-brand transition-colors hover:bg-brand-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
-          >
-            {homeContent.header.loginCta}
-          </Link>
+          {!isSessionLoading && currentStaff ? (
+            <>
+              <Link to="/admin" className="inline-flex min-h-11 items-center justify-center rounded-lg border border-brand px-4 text-sm font-bold text-brand transition-colors hover:bg-brand-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">
+                내 글 관리
+              </Link>
+              <button type="button" onClick={() => void logout()} disabled={isLoggingOut} aria-label="로그아웃" className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-ink-muted hover:bg-section hover:text-navy disabled:opacity-60">
+                <LogOut className="h-5 w-5" aria-hidden="true" />
+              </button>
+            </>
+          ) : (
+            <Link
+              to="/login"
+              className="inline-flex min-h-11 items-center justify-center rounded-lg border border-brand px-5 text-sm font-bold text-brand transition-colors hover:bg-brand-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            >
+              {homeContent.header.loginCta}
+            </Link>
+          )}
         </div>
 
         <Link
@@ -108,12 +121,19 @@ export function SiteHeader() {
             <div className="pt-5">
               <SiteSearchForm size="large" />
             </div>
-            <Link
-              to="/login"
-              className="mt-4 inline-flex min-h-12 items-center justify-center rounded-lg bg-brand px-5 text-sm font-bold text-white"
-            >
-              {homeContent.header.loginCta}
-            </Link>
+            {!isSessionLoading && currentStaff ? (
+              <div className="mt-4 grid grid-cols-[1fr_auto] gap-2">
+                <Link to="/admin" className="inline-flex min-h-12 items-center justify-center rounded-lg bg-brand px-5 text-sm font-bold text-white">내 글 관리</Link>
+                <button type="button" onClick={() => void logout()} disabled={isLoggingOut} className="inline-flex h-12 w-12 items-center justify-center rounded-lg border border-border-subtle text-ink-muted" aria-label="로그아웃"><LogOut className="h-5 w-5" /></button>
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                className="mt-4 inline-flex min-h-12 items-center justify-center rounded-lg bg-brand px-5 text-sm font-bold text-white"
+              >
+                {homeContent.header.loginCta}
+              </Link>
+            )}
           </nav>
         </div>
       ) : null}
