@@ -51,8 +51,5 @@ export const homeContent = {
   },
   footer: {
     note: '공식보다 원리를, 암기보다 이해를 먼저 생각하는 수과학 블로그입니다.',
-    explore: '전체 글',
-    about: 'Baaaam 소개',
-    adminLink: '운영진 로그인',
   },
 }
