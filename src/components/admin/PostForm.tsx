@@ -24,7 +24,7 @@ type FieldErrors = {
 }
 
 const fieldClassName =
-  'w-full rounded-xl border border-border-subtle bg-surface px-4 py-2.5 text-base text-ink placeholder:text-ink-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-strong sm:text-sm'
+  'w-full rounded-lg border border-border-subtle bg-surface px-4 py-2.5 text-base text-ink placeholder:text-ink-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-strong sm:text-sm'
 const categoryOptions = categories.map((category) => ({ value: category.id, label: category.label }))
 
 /** 글 작성/수정(core). 제출 성공 시 목록으로 돌아가도록 `onSaved`를 호출한다. */
@@ -85,7 +85,7 @@ export function PostForm({ post, staffName, onCancel, onSaved }: PostFormProps) 
   }
 
   return (
-    <div className="rounded-2xl border border-border-subtle bg-surface-card p-4 min-[375px]:p-5 sm:p-6 md:p-8">
+    <div className="rounded-xl border border-border-subtle bg-surface-card p-4 min-[375px]:p-5 sm:p-6 md:p-8">
       <h2 className="text-lg font-bold text-ink">
         {isEditMode ? adminContent.postForm.editTitle : adminContent.postForm.createTitle}
       </h2>

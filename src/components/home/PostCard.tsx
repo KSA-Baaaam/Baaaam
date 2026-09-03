@@ -61,13 +61,22 @@ export function PostCard({ post, categoryLabel, variant = 'grid' }: PostCardProp
 
   return (
     <article className={`group relative h-full overflow-hidden border border-border-subtle bg-white transition-colors hover:border-brand/45 ${
-      isRow ? 'flex min-h-[156px] rounded-xl' : 'flex flex-col rounded-2xl'
+      isRow ? 'flex min-h-[156px] rounded-lg' : 'flex flex-col rounded-xl'
     }`}>
-      <TopicArtwork
-        categoryId={post.categoryId}
-        compact={isRow}
-        className={isRow ? 'hidden w-[34%] min-w-32 shrink-0 sm:flex' : isFeature ? 'aspect-[16/7] w-full' : 'aspect-[16/8] w-full'}
-      />
+      {post.imageUrl ? (
+        <img
+          src={post.imageUrl}
+          alt=""
+          loading="lazy"
+          className={isRow ? 'hidden w-[34%] min-w-32 shrink-0 object-cover sm:block' : isFeature ? 'aspect-[16/7] w-full object-cover' : 'aspect-[16/8] w-full object-cover'}
+        />
+      ) : (
+        <TopicArtwork
+          categoryId={post.categoryId}
+          compact={isRow}
+          className={isRow ? 'hidden w-[34%] min-w-32 shrink-0 sm:flex' : isFeature ? 'aspect-[16/7] w-full' : 'aspect-[16/8] w-full'}
+        />
+      )}
 
       <div className={`flex min-w-0 flex-1 flex-col ${isRow ? 'p-4 sm:p-5' : isFeature ? 'p-5 sm:p-8' : 'p-4 sm:p-5'}`}>
         <div className="text-xs font-bold text-brand">{categoryLabel}</div>

@@ -120,9 +120,9 @@ export function ServiceUsageTab() {
         {services.map((service) => {
           const Icon = service.icon
           return (
-            <article key={service.name} className="flex min-w-0 flex-col rounded-3xl border border-border-subtle bg-surface-card p-5 sm:p-6">
+            <article key={service.name} className="flex min-w-0 flex-col rounded-xl border border-border-subtle bg-surface-card p-5 sm:p-6">
               <div className="flex items-start gap-4">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand-soft text-brand-strong">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-brand-strong">
                   <Icon className="h-5 w-5" aria-hidden="true" />
                 </span>
                 <div className="min-w-0 flex-1">
@@ -152,7 +152,7 @@ export function ServiceUsageTab() {
         })}
       </div>
 
-      <p className="mt-6 rounded-2xl border border-border-subtle bg-brand-soft/60 px-5 py-4 text-sm leading-6 text-ink-muted">
+      <p className="mt-6 border-y border-hero-border bg-brand-soft/60 px-5 py-4 text-sm leading-6 text-ink-muted">
         무료 한도와 집계 주기는 공급자 정책에 따라 바뀔 수 있습니다. 정확한 현재 사용량과 초기화 날짜는 각 카드의 대시보드에서 확인해주세요.
       </p>
     </section>

@@ -127,12 +127,12 @@ export default function Auth({ mode }: AuthProps) {
         : '이메일과 비밀번호로 학습을 이어가세요.'
 
   return (
-    <main className="relative flex min-h-dvh justify-center bg-white px-5 py-8 sm:px-8 sm:py-10">
-      <Link to="/" className="absolute left-5 top-6 inline-flex min-h-11 items-center gap-2 rounded-full px-3 text-sm font-bold text-ink-muted transition-colors hover:bg-brand-soft hover:text-brand sm:left-8 sm:top-8">
+    <main className="relative flex min-h-dvh justify-center bg-white px-4 py-6 min-[375px]:px-5 sm:px-8 sm:py-10">
+      <Link to="/" className="absolute left-2 top-3 inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-bold text-ink-muted transition-colors hover:bg-brand-soft hover:text-brand min-[375px]:left-3 min-[375px]:top-4 sm:left-8 sm:top-8">
         <ArrowLeft className="h-4 w-4" aria-hidden="true" /> 홈으로
       </Link>
 
-      <section className="flex w-full max-w-[520px] items-center py-16 sm:py-20 lg:py-24">
+      <section className="flex w-full max-w-[520px] items-center py-14 sm:py-20 lg:py-24">
         <div className="w-full">
           <div className="mb-9 sm:mb-10">
             {isSignup && !challenge ? (
@@ -146,8 +146,8 @@ export default function Auth({ mode }: AuthProps) {
 
           {isConsentStep ? (
             <div>
-              <div className="overflow-hidden rounded-2xl border border-border-subtle bg-white">
-                <div className="flex items-start gap-3 border-b border-border-subtle p-5">
+              <div className="overflow-hidden rounded-xl border border-border-subtle bg-white">
+                <div className="flex items-start gap-2.5 border-b border-border-subtle p-4 min-[375px]:gap-3 min-[375px]:p-5">
                   <input
                     id="terms-agreement"
                     type="checkbox"
@@ -155,17 +155,17 @@ export default function Auth({ mode }: AuthProps) {
                     onChange={(event) => { setTermsAgreed(event.target.checked); setSubmitError('') }}
                     className="mt-1 h-5 w-5 shrink-0 accent-brand"
                   />
-                  <FileText className="mt-0.5 h-5 w-5 shrink-0 text-brand" aria-hidden="true" />
+                  <FileText className="mt-0.5 hidden h-5 w-5 shrink-0 text-brand min-[375px]:block" aria-hidden="true" />
                   <label htmlFor="terms-agreement" className="min-w-0 flex-1 cursor-pointer">
                     <span className="block font-bold text-navy"><span className="mr-1 text-brand">[필수]</span> 이용약관 동의</span>
                     <span className="mt-1 block text-xs leading-5 text-ink-muted">서비스 이용 규칙과 회원의 권리·의무를 확인해주세요.</span>
                   </label>
-                  <Link to="/terms" target="_blank" rel="noreferrer" aria-label="이용약관 새 창에서 보기" className="inline-flex min-h-9 shrink-0 items-center gap-0.5 rounded-lg px-2 text-xs font-bold text-ink-muted hover:bg-brand-soft hover:text-brand">
+                  <Link to="/terms" target="_blank" rel="noreferrer" aria-label="이용약관 새 창에서 보기" className="inline-flex min-h-9 shrink-0 items-center gap-0.5 rounded-md px-1.5 text-xs font-bold text-ink-muted hover:bg-brand-soft hover:text-brand min-[375px]:px-2">
                     보기 <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
                   </Link>
                 </div>
 
-                <div className="flex items-start gap-3 p-5">
+                <div className="flex items-start gap-2.5 p-4 min-[375px]:gap-3 min-[375px]:p-5">
                   <input
                     id="privacy-agreement"
                     type="checkbox"
@@ -173,17 +173,17 @@ export default function Auth({ mode }: AuthProps) {
                     onChange={(event) => { setPrivacyAgreed(event.target.checked); setSubmitError('') }}
                     className="mt-1 h-5 w-5 shrink-0 accent-brand"
                   />
-                  <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-brand" aria-hidden="true" />
+                  <ShieldCheck className="mt-0.5 hidden h-5 w-5 shrink-0 text-brand min-[375px]:block" aria-hidden="true" />
                   <label htmlFor="privacy-agreement" className="min-w-0 flex-1 cursor-pointer">
                     <span className="block font-bold text-navy"><span className="mr-1 text-brand">[필수]</span> 개인정보 처리방침 동의</span>
                     <span className="mt-1 block text-xs leading-5 text-ink-muted">수집하는 정보와 이용·보관 방법을 확인해주세요.</span>
                   </label>
-                  <Link to="/privacy" target="_blank" rel="noreferrer" aria-label="개인정보 처리방침 새 창에서 보기" className="inline-flex min-h-9 shrink-0 items-center gap-0.5 rounded-lg px-2 text-xs font-bold text-ink-muted hover:bg-brand-soft hover:text-brand">
+                  <Link to="/privacy" target="_blank" rel="noreferrer" aria-label="개인정보 처리방침 새 창에서 보기" className="inline-flex min-h-9 shrink-0 items-center gap-0.5 rounded-md px-1.5 text-xs font-bold text-ink-muted hover:bg-brand-soft hover:text-brand min-[375px]:px-2">
                     보기 <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
                   </Link>
                 </div>
 
-                <div className="flex items-start gap-3 border-t border-border-subtle p-5">
+                <div className="flex items-start gap-2.5 border-t border-border-subtle p-4 min-[375px]:gap-3 min-[375px]:p-5">
                   <input
                     id="newsletter-agreement"
                     type="checkbox"
@@ -191,7 +191,7 @@ export default function Auth({ mode }: AuthProps) {
                     onChange={(event) => setNewsletterOptIn(event.target.checked)}
                     className="mt-1 h-5 w-5 shrink-0 accent-brand"
                   />
-                  <Mail className="mt-0.5 h-5 w-5 shrink-0 text-brand" aria-hidden="true" />
+                  <Mail className="mt-0.5 hidden h-5 w-5 shrink-0 text-brand min-[375px]:block" aria-hidden="true" />
                   <label htmlFor="newsletter-agreement" className="min-w-0 flex-1 cursor-pointer">
                     <span className="block font-bold text-navy"><span className="mr-1 text-ink-muted">[선택]</span> 매달 정기 간행물 이메일 수신</span>
                     <span className="mt-1 block text-xs leading-5 text-ink-muted">BAAAAM의 새로운 수학·과학 이야기를 매달 이메일로 받아보세요.</span>

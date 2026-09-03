@@ -21,7 +21,7 @@ import { useOperatorSession } from '@/services/session'
 import { roleLabels } from '@/services/profiles'
 
 const tabTriggerClassName =
-  'min-h-10 rounded-xl px-4 py-2 text-sm font-bold text-ink-muted transition-colors data-[state=active]:bg-white data-[state=active]:text-brand data-[state=active]:shadow-sm hover:bg-white/70 hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-strong'
+  'min-h-11 border-b-2 border-transparent px-3 py-2 text-sm font-bold text-ink-muted transition-colors data-[state=active]:border-brand data-[state=active]:text-brand hover:border-brand/40 hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-strong'
 
 /**
  * 관리자 - 글 관리 화면(`/admin`).
@@ -32,9 +32,9 @@ export default function Admin() {
   const { currentStaff, isSessionLoading, logout, isLoggingOut } = useOperatorSession()
 
   return (
-    <div className="min-h-screen bg-surface text-ink">
+    <div className="site-page">
       <SiteHeader />
-      <main className="mx-auto max-w-5xl px-4 py-10 min-[375px]:px-5 sm:px-6 sm:py-16">
+      <main className="site-main mx-auto w-full max-w-5xl px-4 py-10 min-[375px]:px-5 sm:px-6 sm:py-14">
         <header className="mb-10 max-w-2xl">
           <p className="mb-2 text-sm font-semibold text-brand-strong">{adminContent.eyebrow}</p>
           <h1 className="text-3xl font-bold tracking-tight text-ink md:text-4xl">
@@ -48,7 +48,7 @@ export default function Admin() {
         ) : currentStaff && currentStaff.role !== 'general' ? (
           <ToastProvider>
             <div>
-              <div className="mb-8 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border-subtle bg-surface-card px-5 py-4">
+              <div className="mb-8 flex flex-wrap items-center justify-between gap-3 border-y border-border-subtle bg-section px-4 py-4 sm:px-5">
                 <p className="text-sm text-ink">
                   <span className="font-semibold">{currentStaff.name}</span>
                   {adminContent.session.activeSuffix}
@@ -69,7 +69,7 @@ export default function Admin() {
 
               <Tabs defaultValue="posts">
                 <div className="responsive-scroll -mx-4 mb-8 overflow-x-auto px-4 min-[375px]:-mx-5 min-[375px]:px-5 sm:mx-0 sm:px-0">
-                <TabsList className="inline-flex min-w-max gap-1 rounded-2xl bg-surface-muted p-1.5" aria-label={adminContent.tabsAriaLabel}>
+                <TabsList className="inline-flex min-w-max gap-1 border-b border-border-subtle" aria-label={adminContent.tabsAriaLabel}>
                   <TabsTrigger value="posts" className={tabTriggerClassName}>
                     {adminContent.tabs.posts}
                   </TabsTrigger>

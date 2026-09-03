@@ -27,7 +27,7 @@ export function SearchResultsList({ results }: SearchResultsListProps) {
 
   return (
     <div id="search-results-list" className="scroll-mt-24">
-      <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+      <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {visiblePosts.map((post) => (
           <li key={post.id}>
             <PostCard

@@ -25,11 +25,11 @@ export default function CategoryList() {
   const activeCategory = categories.find((category) => category.id === activeCategoryId)
 
   return (
-    <div className="min-h-screen bg-surface text-ink">
+    <div className="site-page">
       <SiteHeader />
-      <main>
+      <main className="site-main">
         <section className="border-b border-border-subtle bg-section">
-          <div className="mx-auto max-w-7xl px-5 py-12 md:px-8 md:py-16">
+          <div className="mx-auto max-w-7xl px-5 py-10 sm:py-12 md:px-8 md:py-14">
           <header className="mb-9 max-w-3xl">
             <p className="mb-3 text-sm font-bold text-brand">
               {categoryContent.eyebrow}
@@ -47,7 +47,7 @@ export default function CategoryList() {
           </div>
           </div>
         </section>
-        <section className="mx-auto max-w-7xl px-5 py-14 md:px-8 md:py-18">
+        <section className="mx-auto w-full max-w-7xl px-5 py-12 md:px-8 md:py-16">
           <CategoryPostGrid key={activeCategoryId} activeCategoryId={activeCategoryId} />
         </section>
       </main>

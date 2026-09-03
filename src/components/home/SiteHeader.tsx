@@ -34,8 +34,8 @@ export function SiteHeader() {
   useEffect(() => setMenuOpen(false), [pathname])
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border-subtle bg-white/95">
-      <div className="mx-auto flex h-14 max-w-7xl items-center gap-1.5 px-3 min-[375px]:gap-2 min-[375px]:px-4 sm:h-16 sm:gap-4 sm:px-5 md:px-8 xl:grid xl:h-[68px] xl:grid-cols-[auto_minmax(0,1fr)_auto] xl:gap-8">
+    <header className="sticky top-0 z-30 border-b border-border-subtle bg-white/95 backdrop-blur-sm">
+      <div className="mx-auto flex h-14 max-w-7xl items-center gap-1.5 px-3 min-[375px]:gap-2 min-[375px]:px-4 sm:h-16 sm:gap-4 sm:px-5 md:px-8 lg:grid lg:h-16 lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:gap-5 xl:gap-8">
         <Link
           to="/"
           className="flex shrink-0 items-center rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
@@ -44,7 +44,7 @@ export function SiteHeader() {
           <BrandLogo variant="header" className="w-[5.5rem] min-[375px]:w-24 sm:w-[6.5rem]" />
         </Link>
 
-        <nav aria-label="주요 메뉴" className="hidden h-full items-center justify-self-center gap-1 xl:flex xl:gap-3">
+        <nav aria-label="주요 메뉴" className="hidden h-full items-center justify-self-center gap-0.5 lg:flex xl:gap-2">
           {navItems.map((item) => {
             const Icon = item.icon
             return (
@@ -52,7 +52,7 @@ export function SiteHeader() {
                 key={item.to}
                 to={item.to}
                 className={() =>
-                  `relative flex h-full items-center gap-2 px-3 text-base font-bold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand xl:px-4 ${
+                  `relative flex h-full items-center gap-1.5 px-2.5 text-sm font-bold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand xl:gap-2 xl:px-4 xl:text-base ${
                     isItemActive(pathname, item.kind)
                       ? 'text-brand after:absolute after:inset-x-2 after:bottom-0 after:h-[3px] after:rounded-t-full after:bg-brand'
                       : 'text-navy hover:text-brand'
@@ -66,10 +66,10 @@ export function SiteHeader() {
           })}
         </nav>
 
-        <div className="hidden items-center gap-2.5 xl:flex">
+        <div className="hidden items-center gap-2 lg:flex">
           <Link
             to="/search"
-            className="inline-flex h-11 items-center gap-2 rounded-full border border-input-border px-5 text-sm font-bold text-navy transition-colors hover:border-brand hover:text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            className="inline-flex h-10 items-center gap-2 rounded-lg border border-input-border px-3.5 text-sm font-bold text-navy transition-colors hover:border-brand hover:text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand xl:px-4"
           >
             <Search className="h-[1.1rem] w-[1.1rem]" aria-hidden="true" />
             검색
@@ -77,22 +77,22 @@ export function SiteHeader() {
           {!isSessionLoading && currentStaff ? (
             <>
               {currentStaff.role !== 'general' ? (
-                <Link to="/admin" className="inline-flex h-11 items-center justify-center rounded-full border border-brand px-5 text-sm font-bold text-brand transition-colors hover:bg-brand-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">
+                <Link to="/admin" className="inline-flex h-10 items-center justify-center rounded-lg border border-brand px-3.5 text-sm font-bold text-brand transition-colors hover:bg-brand-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand xl:px-4">
                   {currentStaff.role === 'developer' ? '개발자' : currentStaff.role === 'admin' ? '관리자' : '글 관리'}
                 </Link>
               ) : null}
-              <Link to="/account" aria-label="계정 관리" className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-input-border px-5 text-sm font-bold text-navy transition-colors hover:border-brand hover:text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">
+              <Link to="/account" aria-label="계정 관리" className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-input-border px-3.5 text-sm font-bold text-navy transition-colors hover:border-brand hover:text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand xl:px-4">
                 <UserRound className="h-5 w-5" aria-hidden="true" />
                 <span className="max-w-24 truncate">{currentStaff.name}</span>
               </Link>
-              <button type="button" onClick={() => void logout()} disabled={isLoggingOut} aria-label="로그아웃" className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-input-border text-ink-muted transition-colors hover:border-brand hover:text-brand disabled:opacity-60">
+              <button type="button" onClick={() => void logout()} disabled={isLoggingOut} aria-label="로그아웃" className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-input-border text-ink-muted transition-colors hover:border-brand hover:text-brand disabled:opacity-60">
                 <LogOut className="h-5 w-5" aria-hidden="true" />
               </button>
             </>
           ) : (
             <Link
               to="/login"
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-input-border px-5 text-sm font-bold text-navy transition-colors hover:border-brand hover:text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-input-border px-3.5 text-sm font-bold text-navy transition-colors hover:border-brand hover:text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand xl:px-4"
             >
               <UserRound className="h-5 w-5" aria-hidden="true" />
               {homeContent.header.loginCta}
@@ -103,7 +103,7 @@ export function SiteHeader() {
         <Link
           to="/search"
           aria-label={homeContent.header.searchLabel}
-          className="ml-auto inline-flex h-10 w-10 items-center justify-center rounded-lg text-navy hover:bg-brand-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:h-11 sm:w-11 xl:hidden"
+          className="ml-auto inline-flex h-10 w-10 items-center justify-center rounded-lg text-navy hover:bg-brand-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:h-11 sm:w-11 lg:hidden"
         >
           <Search className="h-5 w-5" aria-hidden="true" />
         </Link>
@@ -112,14 +112,14 @@ export function SiteHeader() {
           aria-label={menuOpen ? '메뉴 닫기' : homeContent.header.menuLabel}
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen((open) => !open)}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-navy hover:bg-brand-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:h-11 sm:w-11 xl:hidden"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-navy hover:bg-brand-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:h-11 sm:w-11 lg:hidden"
         >
           {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </div>
 
       {menuOpen ? (
-        <div className="max-h-[calc(100dvh-3.5rem)] overflow-y-auto border-t border-border-subtle bg-white px-4 py-4 sm:max-h-[calc(100dvh-4rem)] sm:px-5 sm:py-5 xl:hidden">
+        <div className="max-h-[calc(100dvh-3.5rem)] overflow-y-auto border-t border-border-subtle bg-white px-4 py-3 sm:max-h-[calc(100dvh-4rem)] sm:px-5 sm:py-4 lg:hidden">
           <nav aria-label="모바일 메뉴" className="mx-auto flex max-w-7xl flex-col">
             {navItems.map((item) => {
               const Icon = item.icon

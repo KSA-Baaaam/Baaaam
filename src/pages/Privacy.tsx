@@ -10,11 +10,11 @@ const listClassName = 'mt-4 list-decimal space-y-2 pl-6 text-[0.95rem] leading-7
 
 export default function Privacy() {
   return (
-    <div className="min-h-screen bg-section text-ink">
+    <div className="site-page bg-section">
       <SiteHeader />
-      <main>
+      <main className="site-main">
         <header className="border-b border-hero-border bg-hero">
-          <div className="mx-auto max-w-5xl px-4 py-12 min-[375px]:px-5 sm:py-16 md:px-8 md:py-20">
+          <div className="mx-auto max-w-5xl px-4 py-10 min-[375px]:px-5 sm:py-12 md:px-8 md:py-14">
             <p className="text-sm font-extrabold tracking-[0.12em] text-brand">PRIVACY POLICY</p>
             <h1 className="mt-4 text-3xl font-extrabold tracking-[-0.045em] text-navy sm:text-4xl md:text-5xl">
               BAAAAM 개인정보 처리방침
@@ -26,7 +26,7 @@ export default function Privacy() {
         </header>
 
         <article className="mx-auto max-w-5xl px-4 py-8 min-[375px]:px-5 sm:py-10 md:px-8 md:py-16">
-          <div className="rounded-2xl border border-border-subtle bg-white px-4 py-7 shadow-sm min-[375px]:px-5 sm:px-8 sm:py-10 md:px-12 md:py-14">
+          <div className="border border-border-subtle bg-white px-4 py-7 min-[375px]:px-5 sm:px-8 sm:py-10 md:px-12 md:py-14">
             <div className="space-y-5 text-[0.95rem] leading-8 text-ink-muted sm:text-base">
               <p>
                 한국과학영재학교 소속 BAAAAM 연구회(이하 “BAAAAM”)는 이용자의 개인정보를 중요하게 생각하며, 「개인정보 보호법」 등 관련 법령을 준수하고 있습니다.

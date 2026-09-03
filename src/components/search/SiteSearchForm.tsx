@@ -17,7 +17,7 @@ const sizeStyles = {
     button: 'h-9 w-9',
   },
   large: {
-    shell: 'min-h-14 rounded-xl pl-4 pr-1.5 shadow-search',
+    shell: 'min-h-14 rounded-lg pl-4 pr-1.5 shadow-search',
     input: 'text-base',
     button: 'h-11 gap-2 rounded-lg px-3.5 min-[375px]:px-4 sm:px-5',
   },

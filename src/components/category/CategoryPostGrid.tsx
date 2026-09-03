@@ -1,8 +1,7 @@
-import { Search } from 'lucide-react'
+import { BookOpen, Search } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 
-import brandMascot from '@/assets/brand-mascot.png'
 import { PostCard } from '@/components/home/PostCard'
 import { Pagination, SimpleSelect } from '@/components/ui'
 import { categoryContent } from '@/content/category'
@@ -80,11 +79,11 @@ export function CategoryPostGrid({ activeCategoryId }: CategoryPostGridProps) {
         <p className="empty-panel">{categoryContent.loading}</p>
       ) : visiblePosts.length === 0 ? (
         <div className="empty-panel">
-          <img src={brandMascot} alt="" width={76} height={76} className="mx-auto mb-3 h-16 w-16 object-contain opacity-85" />
+          <BookOpen className="mx-auto mb-4 h-8 w-8 text-brand" strokeWidth={1.7} aria-hidden="true" />
           <p>{categoryContent.empty}</p>
         </div>
       ) : (
-        <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {visiblePosts.map((post) => (
             <li key={post.id}><PostCard post={post} categoryLabel={categoryLabelById.get(post.categoryId) ?? post.categoryId} /></li>
           ))}

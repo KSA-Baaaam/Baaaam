@@ -13,11 +13,11 @@ const principles = [
 
 export default function About() {
   return (
-    <div className="min-h-screen bg-surface text-ink">
+    <div className="site-page">
       <SiteHeader />
-      <main>
+      <main className="site-main">
         <section className="border-b border-border-subtle bg-hero">
-          <div className="mx-auto grid max-w-7xl items-center gap-8 px-5 py-14 md:grid-cols-[1.1fr_0.9fr] md:px-8 md:py-20">
+          <div className="mx-auto grid max-w-7xl items-center gap-8 px-5 py-12 sm:py-14 md:grid-cols-[1.1fr_0.9fr] md:px-8 md:py-16">
             <div>
               <p className="text-sm font-bold text-brand">BAAAAM이 만드는 이해의 순간</p>
               <h1 className="mt-4 max-w-3xl text-3xl font-extrabold leading-tight tracking-[-0.045em] text-navy min-[375px]:text-4xl md:text-5xl">
@@ -34,7 +34,7 @@ export default function About() {
           </div>
         </section>
 
-        <section aria-labelledby="principles-heading" className="mx-auto max-w-7xl px-5 py-14 sm:py-16 md:px-8 md:py-24">
+        <section aria-labelledby="principles-heading" className="mx-auto max-w-7xl px-5 py-12 sm:py-14 md:px-8 md:py-16">
           <header className="mb-10 max-w-2xl">
             <p className="text-sm font-bold text-brand">우리가 글을 쓰는 기준</p>
             <h2 id="principles-heading" className="mt-3 text-3xl font-extrabold tracking-[-0.035em] text-navy md:text-[2.35rem]">세 가지 원칙</h2>
@@ -57,7 +57,7 @@ export default function About() {
             })}
           </ol>
 
-          <div className="mt-12 flex flex-col items-start justify-between gap-5 rounded-2xl bg-brand-soft px-6 py-7 sm:flex-row sm:items-center sm:px-8">
+          <div className="mt-10 flex flex-col items-start justify-between gap-5 border-y border-hero-border bg-brand-soft px-5 py-6 sm:flex-row sm:items-center sm:px-7">
             <div>
               <p className="font-extrabold text-navy">이제 궁금했던 개념을 만나볼까요?</p>
               <p className="mt-1 text-sm text-ink-muted">수학부터 생물, 지구과학까지 분야별로 둘러보세요.</p>

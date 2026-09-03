@@ -50,9 +50,9 @@ export default function Account() {
   }
 
   return (
-    <div className="min-h-screen bg-surface text-ink">
+    <div className="site-page">
       <SiteHeader />
-      <main className="mx-auto max-w-3xl px-4 py-10 min-[375px]:px-5 sm:px-6 sm:py-16">
+      <main className="site-main mx-auto w-full max-w-3xl px-4 py-10 min-[375px]:px-5 sm:px-6 sm:py-14">
         <p className="text-sm font-bold text-brand-strong">내 계정</p>
         <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.035em] text-navy sm:text-4xl">계정 관리</h1>
         <p className="mt-3 text-sm leading-6 text-ink-muted">로그인 정보와 회원탈퇴를 관리할 수 있어요.</p>
@@ -61,7 +61,7 @@ export default function Account() {
           <p className="mt-10 text-sm text-ink-muted">계정 정보를 불러오고 있어요.</p>
         ) : currentStaff ? (
           <div className="mt-10 space-y-8">
-            <section className="rounded-3xl border border-border-subtle bg-surface-card p-6 sm:p-8" aria-labelledby="account-profile-title">
+            <section className="rounded-xl border border-border-subtle bg-surface-card p-5 sm:p-7" aria-labelledby="account-profile-title">
               <div className="flex items-start gap-4">
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-soft text-brand">
                   <UserRound className="h-6 w-6" aria-hidden="true" />
@@ -74,7 +74,7 @@ export default function Account() {
               </div>
             </section>
 
-            <section className="rounded-3xl border border-danger/30 bg-surface-card p-6 sm:p-8" aria-labelledby="delete-account-title">
+            <section className="rounded-xl border border-danger/30 bg-surface-card p-5 sm:p-7" aria-labelledby="delete-account-title">
               <div className="flex items-start gap-3">
                 <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-danger" aria-hidden="true" />
                 <div>

@@ -13,7 +13,7 @@
   --color-ink-muted: #5a7067;
   --color-ink-soft: #81938c;
   --color-navy: #17372c;
-  --color-brand: #12845a;
+  --color-brand: #0f7650;
   --color-brand-strong: #0b6846;
   --color-brand-soft: #eaf7f0;
   --color-footer: #15233a;
@@ -21,7 +21,7 @@
   --color-spark-strong: #a96508;
   --color-danger: #b42318;
 
-  --shadow-search: 0 8px 24px rgba(25, 91, 64, 0.1);
+  --shadow-search: 0 4px 14px rgba(25, 91, 64, 0.08);
 
   --font-sans: 'Pretendard Variable', Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo',
     -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif;
@@ -83,7 +83,7 @@ summary {
 
 @layer components {
   .empty-panel {
-    @apply rounded-2xl border border-dashed border-border-subtle bg-white px-6 py-12 text-center text-sm leading-6 text-ink-muted;
+    @apply border-y border-border-subtle bg-section px-5 py-10 text-center text-sm leading-6 text-ink-muted sm:px-6 sm:py-12;
   }
 
   .form-input {
@@ -93,6 +93,14 @@ summary {
   /* 새 화면에서도 같은 반응형 여백과 안전 영역을 재사용할 수 있는 기본 규칙입니다. */
   .page-shell {
     @apply mx-auto w-full max-w-7xl px-4 min-[375px]:px-5 md:px-8;
+  }
+
+  .site-page {
+    @apply flex min-h-screen flex-col bg-surface text-ink;
+  }
+
+  .site-main {
+    @apply flex-1;
   }
 
   .section-spacing {

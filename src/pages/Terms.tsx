@@ -18,11 +18,11 @@ function TermsSection({ title, children }: { title: string; children: ReactNode 
 
 export default function Terms() {
   return (
-    <div className="min-h-screen bg-section text-ink">
+    <div className="site-page bg-section">
       <SiteHeader />
-      <main>
+      <main className="site-main">
         <header className="border-b border-hero-border bg-hero">
-          <div className="mx-auto max-w-5xl px-4 py-12 min-[375px]:px-5 sm:py-16 md:px-8 md:py-20">
+          <div className="mx-auto max-w-5xl px-4 py-10 min-[375px]:px-5 sm:py-12 md:px-8 md:py-14">
             <p className="text-sm font-extrabold tracking-[0.12em] text-brand">TERMS OF SERVICE</p>
             <h1 className="mt-4 text-3xl font-extrabold tracking-[-0.045em] text-navy sm:text-4xl md:text-5xl">BAAAAM 이용약관</h1>
             <p className="mt-5 inline-flex rounded-full border border-hero-border bg-white px-4 py-2 text-sm font-bold text-ink-muted">시행일: 2026년 9월 3일</p>
@@ -30,7 +30,7 @@ export default function Terms() {
         </header>
 
         <article className="mx-auto max-w-5xl px-4 py-8 min-[375px]:px-5 sm:py-10 md:px-8 md:py-16">
-          <div className="rounded-2xl border border-border-subtle bg-white px-4 py-7 shadow-sm min-[375px]:px-5 sm:px-8 sm:py-10 md:px-12 md:py-14">
+          <div className="border border-border-subtle bg-white px-4 py-7 min-[375px]:px-5 sm:px-8 sm:py-10 md:px-12 md:py-14">
             <div className="space-y-10">
               <TermsSection title="제1조 목적">
                 <p className={paragraphClassName}>본 약관은 한국과학영재학교 소속 BAAAAM 연구회(이하 “BAAAAM”)가 운영하는 BAAAAM 웹사이트 및 관련 서비스의 이용과 관련하여 BAAAAM과 이용자 간의 권리, 의무 및 책임사항을 정하는 것을 목적으로 합니다.</p>

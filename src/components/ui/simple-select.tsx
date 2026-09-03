@@ -52,7 +52,7 @@ export function SimpleSelect({
         aria-invalid={ariaInvalid}
         aria-describedby={ariaDescribedBy}
         title={title}
-        className={`group inline-flex min-h-11 w-full items-center justify-between gap-3 rounded-xl border border-input-border bg-white px-4 text-base font-bold text-navy shadow-sm transition-colors hover:border-brand/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-ink-soft disabled:opacity-70 sm:text-sm ${className}`}
+        className={`group inline-flex min-h-11 w-full items-center justify-between gap-3 rounded-lg border border-input-border bg-white px-4 text-base font-bold text-navy transition-colors hover:border-brand/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-ink-soft disabled:opacity-70 sm:text-sm ${className}`}
       >
         <SelectValue placeholder={placeholder} />
         <SelectIcon>
@@ -62,7 +62,7 @@ export function SimpleSelect({
       <SelectContent
         position="popper"
         sideOffset={6}
-        className="z-50 min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-xl border border-border-subtle bg-white p-1 shadow-xl"
+        className="z-50 min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-lg border border-border-subtle bg-white p-1 shadow-lg"
         viewportProps={{ className: 'flex flex-col gap-0.5' }}
       >
         {options.map((option) => (
