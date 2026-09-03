@@ -23,7 +23,7 @@ export function PostBody({ post }: PostBodyProps) {
       <section id="concept" className="scroll-mt-28 pt-12">
         <p className="text-sm font-bold text-brand">핵심 개념</p>
         <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.03em] text-navy md:text-3xl">먼저 이것부터 알아봐요</h2>
-        <p className="mt-6 text-[1.08rem] font-semibold leading-9 text-navy">{concept}</p>
+        <p className="mt-6 text-base font-semibold leading-8 text-navy [overflow-wrap:anywhere] min-[375px]:text-[1.08rem] min-[375px]:leading-9">{concept}</p>
       </section>
 
       {thinkAbout ? (
@@ -40,7 +40,7 @@ export function PostBody({ post }: PostBodyProps) {
           <p className="text-sm font-bold text-brand">조금 더 자세히</p>
           <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.03em] text-navy md:text-3xl">왜 그런 걸까요?</h2>
           <div className="mt-6 space-y-5">
-            {remaining.map((sentence, index) => <p key={`${sentence}-${index}`} className="text-[1.05rem] leading-9 text-ink-muted">{sentence}</p>)}
+            {remaining.map((sentence, index) => <p key={`${sentence}-${index}`} className="text-base leading-8 text-ink-muted [overflow-wrap:anywhere] min-[375px]:text-[1.05rem] min-[375px]:leading-9">{sentence}</p>)}
           </div>
         </section>
       ) : null}

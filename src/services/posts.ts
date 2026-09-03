@@ -15,7 +15,6 @@ export interface PostsAdapter {
   getById(id: string): Promise<Post | undefined>
   create(input: PostInput): Promise<Post>
   update(id: string, input: PostInput): Promise<Post>
-  setRecommended(id: string, isRecommended: boolean): Promise<Post>
   deletePost(id: string): Promise<void>
 }
 
@@ -29,7 +28,6 @@ function mapPost(row: PostRow): Post {
     videoUrl: row.video_url,
     author: row.author,
     authorId: row.author_id,
-    isRecommended: row.is_recommended,
     viewCount: row.view_count,
     publishedAt: row.published_at,
   }
@@ -43,7 +41,7 @@ async function requireCurrentUser() {
 
 function displayName(user: Awaited<ReturnType<typeof requireCurrentUser>>) {
   const name = user.user_metadata?.full_name
-  return typeof name === 'string' && name.trim() ? name.trim() : (user.email ?? 'Baaaam 사용자')
+  return typeof name === 'string' && name.trim() ? name.trim() : (user.email ?? 'BAAAAM 사용자')
 }
 
 export const postsService: PostsAdapter = {
@@ -71,7 +69,6 @@ export const postsService: PostsAdapter = {
         content: input.content,
         image_url: input.imageUrl,
         video_url: input.videoUrl,
-        is_recommended: input.isRecommended,
       })
       .select()
       .single()
@@ -88,20 +85,8 @@ export const postsService: PostsAdapter = {
         content: input.content,
         image_url: input.imageUrl,
         video_url: input.videoUrl,
-        is_recommended: input.isRecommended,
         updated_at: new Date().toISOString(),
       })
-      .eq('id', Number(id))
-      .select()
-      .single()
-    if (error) throw new Error(error.message)
-    return mapPost(data)
-  },
-
-  async setRecommended(id, isRecommended) {
-    const { data, error } = await supabase
-      .from('posts')
-      .update({ is_recommended: isRecommended, updated_at: new Date().toISOString() })
       .eq('id', Number(id))
       .select()
       .single()

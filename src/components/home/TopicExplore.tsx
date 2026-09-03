@@ -25,39 +25,23 @@ export function TopicExplore() {
         <p className="mt-3 text-base leading-7 text-ink-muted">{homeContent.topics.description}</p>
       </header>
 
-      <ul className="grid border-y border-border-subtle sm:grid-cols-2 lg:grid-cols-3">
-        {categories.map((category, index) => {
+      <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {categories.map((category) => {
           const Icon = iconByCategoryId[category.id] ?? Compass
 
           return (
-            <li
-              key={category.id}
-              className={`group relative border-border-subtle px-1 py-7 sm:px-6 ${
-                index % 2 === 0 ? 'sm:border-r' : ''
-              } ${index < categories.length - 2 ? 'border-b' : ''} ${
-                index % 3 !== 2 ? 'lg:border-r' : 'lg:border-r-0'
-              } ${index < categories.length - 3 ? 'lg:border-b' : 'lg:border-b-0'}`}
-            >
+            <li key={category.id}>
               <Link
                 to={`/category/${category.id}`}
-                className="flex min-h-[142px] items-start gap-4 rounded-lg p-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                className="group flex min-h-28 items-center gap-4 rounded-2xl border border-border-subtle bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-brand hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:p-6"
               >
-                <span
-                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl"
-                  style={{ backgroundColor: `${category.accent}14`, color: category.accent }}
-                >
-                  <Icon className="h-5 w-5" aria-hidden="true" />
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand transition-colors group-hover:bg-brand group-hover:text-white">
+                  <Icon className="h-6 w-6" aria-hidden="true" />
                 </span>
-                <span className="flex min-w-0 flex-1 flex-col">
-                  <strong className="text-lg font-extrabold text-navy" style={{ color: category.accent }}>
-                    {category.label}
-                  </strong>
-                  <span className="mt-2 text-sm leading-6 text-ink-muted">{category.description}</span>
-                  <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-bold text-navy transition-colors group-hover:text-brand">
-                    {homeContent.topics.cta}
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
-                  </span>
-                </span>
+                <strong className="min-w-0 flex-1 text-xl font-extrabold tracking-[-0.025em] text-navy transition-colors group-hover:text-brand sm:text-2xl">
+                  {category.label}
+                </strong>
+                <ArrowRight className="h-5 w-5 shrink-0 text-ink-muted transition group-hover:translate-x-1 group-hover:text-brand" aria-hidden="true" />
               </Link>
             </li>
           )

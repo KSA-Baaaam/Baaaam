@@ -2,9 +2,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 
 import { categories } from '@/data/categories'
-import type { Post } from '@/services/posts'
 import { postsService } from '@/services/posts'
-import { PostCard } from '@/components/home/PostCard'
 import { SiteFooter } from '@/components/home/SiteFooter'
 import { SiteHeader } from '@/components/home/SiteHeader'
 import { SearchResultsList } from '@/components/search/SearchResultsList'
@@ -13,33 +11,13 @@ import { searchContent } from '@/content/search'
 import { searchPosts } from '@/lib/search'
 import brandMascot from '@/assets/brand-mascot.png'
 
-const categoryLabelById = new Map(categories.map((category) => [category.id, category.label]))
-
-const RECOMMENDED_SUGGESTION_COUNT = 3
 const categoryChipClassName =
   'rounded-full border border-border-subtle bg-white px-4 py-2 text-sm font-bold text-ink-muted transition-colors hover:border-brand hover:text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand'
 
-/** 검색어 없음/결과 없음 상태 모두에서 다음 행동을 유도하는 추천 글 + 카테고리 바로가기. */
-function SearchSuggestions({ posts }: { posts: Post[] }) {
-  const recommendedPosts = posts.filter((post) => post.isRecommended).slice(0, RECOMMENDED_SUGGESTION_COUNT)
-
+/** 검색어 없음/결과 없음 상태에서 다음 탐색을 돕는 카테고리 바로가기. */
+function SearchSuggestions() {
   return (
-    <div className="flex flex-col gap-14">
-      <div>
-        <h2 className="mb-5 text-xl font-extrabold text-navy">{searchContent.suggestions.recommendedTitle}</h2>
-        <ul className="grid gap-5 md:grid-cols-3">
-          {recommendedPosts.map((post) => (
-            <li key={post.id}>
-              <PostCard
-                post={post}
-                categoryLabel={categoryLabelById.get(post.categoryId) ?? post.categoryId}
-              />
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div>
+    <div>
         <h2 className="mb-4 text-xl font-extrabold text-navy">{searchContent.suggestions.categoryTitle}</h2>
         <nav aria-label={searchContent.suggestions.categoryTitle}>
           <ul className="flex flex-wrap gap-2">
@@ -57,7 +35,6 @@ function SearchSuggestions({ posts }: { posts: Post[] }) {
             ))}
           </ul>
         </nav>
-      </div>
     </div>
   )
 }
@@ -119,7 +96,7 @@ export default function SearchResults() {
               {query && results.length > 0 ? (
                 <SearchResultsList key={query} results={results} />
               ) : (
-                <SearchSuggestions posts={posts} />
+                <SearchSuggestions />
               )}
             </>
           )}

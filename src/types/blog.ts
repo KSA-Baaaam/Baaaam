@@ -6,7 +6,6 @@ export type Post = {
   imageUrl: string
   videoUrl: string | null
   author: string
-  isRecommended: boolean
   viewCount: number
   publishedAt: string
 }

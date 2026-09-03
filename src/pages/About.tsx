@@ -19,16 +19,16 @@ export default function About() {
         <section className="border-b border-border-subtle bg-hero">
           <div className="mx-auto grid max-w-7xl items-center gap-8 px-5 py-14 md:grid-cols-[1.1fr_0.9fr] md:px-8 md:py-20">
             <div>
-              <p className="text-sm font-bold text-brand">Baaaam이 만드는 이해의 순간</p>
+              <p className="text-sm font-bold text-brand">BAAAAM이 만드는 이해의 순간</p>
               <h1 className="mt-4 max-w-3xl text-3xl font-extrabold leading-tight tracking-[-0.045em] text-navy min-[375px]:text-4xl md:text-5xl">
                 어려운 개념도<br />제대로 이해하면 재미있습니다.
               </h1>
               <p className="mt-6 max-w-2xl text-base leading-8 text-ink-muted md:text-lg">
-                Baaaam은 학생들이 수학과 과학을 단순히 암기하는 대신, “왜 그런지” 이해하도록 돕는 학습 블로그입니다.
+                BAAAAM은 학생들이 수학과 과학을 단순히 암기하는 대신, “왜 그런지” 이해하도록 돕는 학습 블로그입니다.
               </p>
             </div>
             <BrandLogo
-              alt="프로젝트 Baaaam 공식 로고"
+              alt="프로젝트 BAAAAM 공식 로고"
               className="mx-auto aspect-[1.8/1] w-full max-w-lg"
             />
           </div>

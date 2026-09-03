@@ -29,15 +29,7 @@ export function LatestSection() {
   const visiblePosts = sortedPosts.slice((currentPage - 1) * POSTS_PER_PAGE, currentPage * POSTS_PER_PAGE)
 
   return (
-    <section id="latest" aria-labelledby="latest-heading" className="mx-auto max-w-7xl scroll-mt-24 px-5 py-14 sm:py-16 md:px-8 md:py-24">
-      <header className="mb-8 max-w-2xl">
-        <p className="mb-3 text-sm font-bold text-brand">{homeContent.latest.eyebrow}</p>
-        <h2 id="latest-heading" className="text-3xl font-extrabold tracking-[-0.035em] text-navy md:text-[2.35rem]">
-          {homeContent.latest.title}
-        </h2>
-        <p className="mt-3 text-base leading-7 text-ink-muted">{homeContent.latest.description}</p>
-      </header>
-
+    <section id="latest" aria-label="글 목록" className="mx-auto max-w-7xl scroll-mt-24 px-5 py-14 sm:py-16 md:px-8 md:py-24">
       <nav aria-label="카테고리 바로가기" className="mb-8">
         <ul className="flex flex-wrap gap-2">
           <li><Link to="/category/all" className={categoryChipClassName}>{homeContent.latest.allCategory}</Link></li>

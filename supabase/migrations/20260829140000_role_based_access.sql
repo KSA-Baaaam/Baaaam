@@ -15,7 +15,7 @@ insert into public.profiles (id, email, display_name, role)
 select
   users.id,
   coalesce(users.email, ''),
-  coalesce(nullif(trim(users.raw_user_meta_data ->> 'full_name'), ''), users.email, 'Baaaam 사용자'),
+  coalesce(nullif(trim(users.raw_user_meta_data ->> 'full_name'), ''), users.email, 'BAAAAM 사용자'),
   'general'
 from auth.users as users
 on conflict (id) do nothing;
@@ -31,7 +31,7 @@ begin
   values (
     new.id,
     coalesce(new.email, ''),
-    coalesce(nullif(trim(new.raw_user_meta_data ->> 'full_name'), ''), new.email, 'Baaaam 사용자'),
+    coalesce(nullif(trim(new.raw_user_meta_data ->> 'full_name'), ''), new.email, 'BAAAAM 사용자'),
     'general'
   )
   on conflict (id) do update

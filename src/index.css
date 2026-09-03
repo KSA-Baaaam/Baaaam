@@ -3,25 +3,25 @@
 @theme {
   --color-surface: #ffffff;
   --color-surface-card: #ffffff;
-  --color-surface-muted: #f3f7fb;
-  --color-section: #f7f9fc;
-  --color-hero: #f3f7ff;
-  --color-hero-border: #d8e4f3;
-  --color-border-subtle: #dce4ee;
-  --color-input-border: #cfd9e6;
-  --color-ink: #26364b;
-  --color-ink-muted: #59697e;
-  --color-ink-soft: #8391a4;
-  --color-navy: #15233a;
-  --color-brand: #2161e7;
-  --color-brand-strong: #174dbd;
-  --color-brand-soft: #edf4ff;
+  --color-surface-muted: #f1f7f4;
+  --color-section: #f6faf8;
+  --color-hero: #eef8f3;
+  --color-hero-border: #d3e8dc;
+  --color-border-subtle: #d9e7df;
+  --color-input-border: #c7dacf;
+  --color-ink: #2a3e36;
+  --color-ink-muted: #5a7067;
+  --color-ink-soft: #81938c;
+  --color-navy: #17372c;
+  --color-brand: #12845a;
+  --color-brand-strong: #0b6846;
+  --color-brand-soft: #eaf7f0;
   --color-footer: #15233a;
   --color-spark: #f1b94d;
   --color-spark-strong: #a96508;
   --color-danger: #b42318;
 
-  --shadow-search: 0 8px 24px rgba(41, 72, 116, 0.1);
+  --shadow-search: 0 8px 24px rgba(25, 91, 64, 0.1);
 
   --font-sans: 'Pretendard Variable', Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo',
     -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif;
@@ -37,14 +37,30 @@
 html {
   scroll-behavior: smooth;
   background: var(--color-surface);
+  overflow-x: clip;
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  overflow-x: clip;
   background: var(--color-surface);
   color: var(--color-ink);
+}
+
+img,
+video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+input,
+textarea,
+select,
+button {
+  font: inherit;
 }
 
 button,
@@ -61,7 +77,7 @@ summary {
 }
 
 ::selection {
-  background: #dbe8ff;
+  background: #d7f3e4;
   color: var(--color-navy);
 }
 
@@ -71,7 +87,38 @@ summary {
   }
 
   .form-input {
-    @apply mt-2 min-h-12 w-full rounded-lg border border-input-border bg-white px-4 text-sm font-medium text-navy placeholder:text-ink-soft focus:border-brand focus:outline focus:outline-2 focus:outline-offset-1 focus:outline-brand/20;
+    @apply mt-2 min-h-12 w-full rounded-lg border border-input-border bg-white px-4 text-base font-medium text-navy placeholder:text-ink-soft focus:border-brand focus:outline focus:outline-2 focus:outline-offset-1 focus:outline-brand/20 sm:text-sm;
+  }
+
+  /* 새 화면에서도 같은 반응형 여백과 안전 영역을 재사용할 수 있는 기본 규칙입니다. */
+  .page-shell {
+    @apply mx-auto w-full max-w-7xl px-4 min-[375px]:px-5 md:px-8;
+  }
+
+  .section-spacing {
+    @apply py-12 sm:py-16 md:py-20;
+  }
+
+  .responsive-actions {
+    @apply flex flex-col-reverse gap-3 min-[375px]:flex-row min-[375px]:items-center min-[375px]:justify-end;
+  }
+
+  .responsive-dialog {
+    max-height: calc(100dvh - 2rem);
+    overflow-y: auto;
+  }
+
+  .responsive-scroll {
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 639px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px;
   }
 }
 

@@ -85,13 +85,13 @@ export default function PostDetail() {
         <SiteHeader />
         <ReadingProgress />
         <main>
-          <div className="mx-auto grid max-w-7xl gap-12 px-5 py-10 md:px-8 md:py-16 lg:grid-cols-[minmax(0,760px)_220px] lg:justify-center">
+          <div className="mx-auto grid max-w-7xl gap-12 px-4 py-10 min-[375px]:px-5 md:px-8 md:py-16 lg:grid-cols-[minmax(0,760px)_220px] lg:justify-center">
             <article id="article-content" className="min-w-0">
               <nav aria-label="이동 경로" className="flex flex-wrap items-center gap-1.5 text-sm font-semibold text-ink-soft">
                 <Link to="/" className="hover:text-brand">홈</Link><ChevronRight className="h-3.5 w-3.5" /><Link to={`/category/${post.categoryId}`} className="hover:text-brand">{categoryLabel}</Link>
               </nav>
               <p className="mt-8 text-sm font-extrabold text-brand">{categoryLabel}</p>
-              <h1 className="mt-3 text-[2rem] font-extrabold leading-[1.24] tracking-[-0.045em] text-navy min-[375px]:text-[2.2rem] sm:text-5xl">{post.title}</h1>
+              <h1 className="mt-3 text-[1.85rem] font-extrabold leading-[1.24] tracking-[-0.045em] text-navy [overflow-wrap:anywhere] min-[375px]:text-[2.2rem] sm:text-5xl">{post.title}</h1>
               <p className="mt-5 text-base leading-8 text-ink-muted sm:text-lg">{post.content.split('. ')[0]}.</p>
               <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-border-subtle pb-8 text-sm text-ink-soft">
                 <span className="font-bold text-navy">{post.author}</span>
@@ -107,16 +107,16 @@ export default function PostDetail() {
           </div>
 
           {relatedPosts.length ? (
-            <section className="border-y border-border-subtle bg-section py-16">
-              <div className="mx-auto max-w-7xl px-5 md:px-8"><h2 className="text-2xl font-extrabold tracking-[-0.03em] text-navy">다음에는 이것도 알아보세요</h2><ul className="mt-7 grid gap-5 md:grid-cols-3">{relatedPosts.map((related) => <li key={related.id}><PostCard post={related} categoryLabel={categoryLabel} /></li>)}</ul></div>
+            <section className="border-y border-border-subtle bg-section py-12 sm:py-16">
+              <div className="mx-auto max-w-7xl px-4 min-[375px]:px-5 md:px-8"><h2 className="text-2xl font-extrabold tracking-[-0.03em] text-navy">다음에는 이것도 알아보세요</h2><ul className="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{relatedPosts.map((related) => <li key={related.id}><PostCard post={related} categoryLabel={categoryLabel} /></li>)}</ul></div>
             </section>
           ) : null}
 
-          <div className="mx-auto flex max-w-3xl flex-col gap-12 px-5 py-16 md:px-8 md:py-20"><CommentList postId={post.id} /><QuestionForm postId={post.id} /></div>
+          <div className="mx-auto flex max-w-3xl flex-col gap-12 px-4 py-12 min-[375px]:px-5 sm:py-16 md:px-8 md:py-20"><CommentList postId={post.id} /><QuestionForm postId={post.id} /></div>
         </main>
         <SiteFooter />
       </div>
-      <ToastViewport className="fixed bottom-0 right-0 z-50 flex w-full max-w-sm flex-col gap-2 p-6 outline-none" />
+      <ToastViewport className="fixed bottom-0 right-0 z-50 flex w-full max-w-sm flex-col gap-2 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] outline-none sm:p-6" />
     </ToastProvider>
   )
 }

@@ -1,21 +1,11 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Check, ChevronDown } from 'lucide-react'
 
 import { categories } from '@/data/categories'
 import type { Post, PostInput } from '@/services/posts'
 import { postsService } from '@/services/posts'
-import {
-  Select,
-  SelectContent,
-  SelectIcon,
-  SelectItem,
-  SelectItemIndicator,
-  SelectItemText,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui'
+import { SimpleSelect } from '@/components/ui'
 import { adminContent } from '@/content/admin'
 
 type PostFormProps = {
@@ -34,7 +24,8 @@ type FieldErrors = {
 }
 
 const fieldClassName =
-  'w-full rounded-xl border border-border-subtle bg-surface px-4 py-2.5 text-sm text-ink placeholder:text-ink-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-strong'
+  'w-full rounded-xl border border-border-subtle bg-surface px-4 py-2.5 text-base text-ink placeholder:text-ink-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-strong sm:text-sm'
+const categoryOptions = categories.map((category) => ({ value: category.id, label: category.label }))
 
 /** 글 작성/수정(core). 제출 성공 시 목록으로 돌아가도록 `onSaved`를 호출한다. */
 export function PostForm({ post, staffName, onCancel, onSaved }: PostFormProps) {
@@ -83,7 +74,6 @@ export function PostForm({ post, staffName, onCancel, onSaved }: PostFormProps) 
       return
     }
 
-    // 추천 여부는 이 폼이 아니라 목록의 토글이 소유하는 값이므로 기존 값을 그대로 넘긴다.
     mutation.mutate({
       title: trimmedTitle,
       categoryId,
@@ -91,12 +81,11 @@ export function PostForm({ post, staffName, onCancel, onSaved }: PostFormProps) 
       imageUrl: trimmedImageUrl,
       videoUrl: trimmedVideoUrl || null,
       author: staffName,
-      isRecommended: post?.isRecommended ?? false,
     })
   }
 
   return (
-    <div className="rounded-2xl border border-border-subtle bg-surface-card p-6 md:p-8">
+    <div className="rounded-2xl border border-border-subtle bg-surface-card p-4 min-[375px]:p-5 sm:p-6 md:p-8">
       <h2 className="text-lg font-bold text-ink">
         {isEditMode ? adminContent.postForm.editTitle : adminContent.postForm.createTitle}
       </h2>
@@ -126,37 +115,15 @@ export function PostForm({ post, staffName, onCancel, onSaved }: PostFormProps) 
           <label htmlFor="post-category" className="mb-1.5 block text-sm font-semibold text-ink">
             {adminContent.postForm.categoryLabel}
           </label>
-          <Select value={categoryId} onValueChange={setCategoryId}>
-            <SelectTrigger
-              id="post-category"
-              aria-invalid={Boolean(fieldErrors.categoryId)}
-              aria-describedby={fieldErrors.categoryId ? 'post-category-error' : undefined}
-              className="flex w-full items-center justify-between rounded-xl border border-border-subtle bg-surface px-4 py-2.5 text-sm text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-strong"
-            >
-              <SelectValue placeholder={adminContent.postForm.categoryPlaceholder} />
-              <SelectIcon>
-                <ChevronDown className="h-4 w-4 text-ink-muted" aria-hidden="true" />
-              </SelectIcon>
-            </SelectTrigger>
-            <SelectContent
-              position="popper"
-              sideOffset={4}
-              className="overflow-hidden rounded-xl border border-border-subtle bg-surface-card shadow-lg"
-            >
-              {categories.map((category) => (
-                <SelectItem
-                  key={category.id}
-                  value={category.id}
-                  className="flex cursor-pointer items-center justify-between px-4 py-2.5 text-sm text-ink outline-none data-[highlighted]:bg-brand/10"
-                >
-                  <SelectItemText>{category.label}</SelectItemText>
-                  <SelectItemIndicator>
-                    <Check className="h-4 w-4 text-brand" aria-hidden="true" />
-                  </SelectItemIndicator>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <SimpleSelect
+            id="post-category"
+            value={categoryId}
+            options={categoryOptions}
+            onValueChange={setCategoryId}
+            placeholder={adminContent.postForm.categoryPlaceholder}
+            ariaInvalid={Boolean(fieldErrors.categoryId)}
+            ariaDescribedBy={fieldErrors.categoryId ? 'post-category-error' : undefined}
+          />
           {fieldErrors.categoryId ? (
             <p id="post-category-error" role="alert" className="mt-1.5 text-xs text-danger">
               {fieldErrors.categoryId}
@@ -237,11 +204,11 @@ export function PostForm({ post, staffName, onCancel, onSaved }: PostFormProps) 
           </p>
         ) : null}
 
-        <div className="mt-2 flex items-center gap-3">
+        <div className="mt-2 flex flex-col-reverse gap-3 min-[375px]:flex-row min-[375px]:items-center">
           <button
             type="submit"
             disabled={mutation.isPending}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-brand px-6 py-2.5 text-sm font-semibold text-surface-card transition-colors hover:bg-brand-strong disabled:cursor-not-allowed disabled:opacity-70"
+            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-brand px-6 py-2.5 text-sm font-semibold text-surface-card transition-colors hover:bg-brand-strong disabled:cursor-not-allowed disabled:opacity-70 min-[375px]:w-auto"
           >
             {mutation.isPending
               ? adminContent.postForm.submitting
@@ -252,7 +219,7 @@ export function PostForm({ post, staffName, onCancel, onSaved }: PostFormProps) 
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-full border border-border-subtle px-6 py-2.5 text-sm font-semibold text-ink-muted transition-colors hover:border-brand hover:text-brand-strong"
+            className="min-h-11 w-full rounded-full border border-border-subtle px-6 py-2.5 text-sm font-semibold text-ink-muted transition-colors hover:border-brand hover:text-brand-strong min-[375px]:w-auto"
           >
             {adminContent.postForm.cancel}
           </button>

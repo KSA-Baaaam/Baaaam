@@ -14,8 +14,6 @@ import {
   AlertDialogDescription,
   AlertDialogTitle,
   AlertDialogTrigger,
-  Switch,
-  SwitchThumb,
   Toast,
   ToastClose,
   ToastTitle,
@@ -31,7 +29,7 @@ type PostManagerTabProps = {
   role: UserRole
 }
 
-/** 글 관리(core: 글 작성/수정, 추천 글 지정). */
+/** 글 관리(core: 글 작성/수정/삭제). */
 export function PostManagerTab({ staffId, staffName, role }: PostManagerTabProps) {
   const queryClient = useQueryClient()
   const { data: posts = [], isLoading } = useQuery({
@@ -40,14 +38,6 @@ export function PostManagerTab({ staffId, staffName, role }: PostManagerTabProps
   })
   const [formTarget, setFormTarget] = useState<'new' | Post | null>(null)
   const [toast, setToast] = useState({ open: false, message: '' })
-
-  const recommendMutation = useMutation({
-    mutationFn: (vars: { id: string; isRecommended: boolean }) =>
-      postsService.setRecommended(vars.id, vars.isRecommended),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts'] })
-    },
-  })
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => postsService.deletePost(id),
@@ -63,7 +53,7 @@ export function PostManagerTab({ staffId, staffName, role }: PostManagerTabProps
   const sortedPosts = useMemo(
     () =>
       posts
-        .filter((post) => role === 'admin' || post.authorId === staffId)
+        .filter((post) => role === 'admin' || role === 'developer' || post.authorId === staffId)
         .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()),
     [posts, role, staffId],
   )
@@ -109,8 +99,8 @@ export function PostManagerTab({ staffId, staffName, role }: PostManagerTabProps
           {adminContent.postManager.empty}
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-border-subtle">
-          <table className="w-full min-w-[720px] border-collapse bg-surface-card text-sm">
+        <div className="responsive-scroll overflow-x-auto rounded-2xl border border-border-subtle" tabIndex={0} aria-label="글 관리 표, 좌우로 스크롤할 수 있습니다">
+          <table className="w-full min-w-[620px] border-collapse bg-surface-card text-sm">
             <caption className="sr-only">{adminContent.postManager.tableCaption}</caption>
             <thead>
               <tr className="border-b border-border-subtle bg-surface-muted text-left text-xs font-semibold uppercase tracking-wide text-ink-muted">
@@ -123,59 +113,39 @@ export function PostManagerTab({ staffId, staffName, role }: PostManagerTabProps
                 <th scope="col" className="px-4 py-3">
                   {adminContent.postManager.tableHeaders.author}
                 </th>
-                <th scope="col" className="px-4 py-3">
-                  {adminContent.postManager.tableHeaders.recommended}
-                </th>
                 <th scope="col" className="px-4 py-3 text-right">
                   {adminContent.postManager.tableHeaders.actions}
                 </th>
               </tr>
             </thead>
             <tbody>
-              {sortedPosts.map((post) => {
-                const isTogglePending =
-                  recommendMutation.isPending && recommendMutation.variables?.id === post.id
-
-                return (
-                  <tr key={post.id} className="border-b border-border-subtle last:border-b-0">
-                    <td className="max-w-[280px] truncate px-4 py-3 font-semibold text-ink">
-                      {post.title}
-                    </td>
-                    <td className="px-4 py-3 text-ink-muted">
-                      {categoryLabelById.get(post.categoryId) ?? post.categoryId}
-                    </td>
-                    <td className="px-4 py-3 text-ink-muted">{post.author}</td>
-                    <td className="px-4 py-3">
-                      <Switch
-                        checked={post.isRecommended}
-                        onCheckedChange={(checked) =>
-                          recommendMutation.mutate({ id: post.id, isRecommended: checked })
-                        }
-                        disabled={isTogglePending}
-                        aria-label={`${post.title} ${adminContent.postManager.recommendedToggleLabel}`}
-                        className="relative h-6 w-11 shrink-0 rounded-full bg-border-subtle transition-colors data-[state=checked]:bg-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-strong disabled:opacity-60"
+              {sortedPosts.map((post) => (
+                <tr key={post.id} className="border-b border-border-subtle last:border-b-0">
+                  <td className="max-w-[280px] truncate px-4 py-3 font-semibold text-ink">
+                    {post.title}
+                  </td>
+                  <td className="px-4 py-3 text-ink-muted">
+                    {categoryLabelById.get(post.categoryId) ?? post.categoryId}
+                  </td>
+                  <td className="px-4 py-3 text-ink-muted">{post.author}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setFormTarget(post)}
+                        className="rounded-full border border-border-subtle px-4 py-1.5 text-sm font-semibold text-ink-muted transition-colors hover:border-brand hover:text-brand-strong"
                       >
-                        <SwitchThumb className="block h-5 w-5 translate-x-0.5 rounded-full bg-surface-card shadow transition-transform data-[state=checked]:translate-x-[22px]" />
-                      </Switch>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex justify-end gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setFormTarget(post)}
-                          className="rounded-full border border-border-subtle px-4 py-1.5 text-sm font-semibold text-ink-muted transition-colors hover:border-brand hover:text-brand-strong"
-                        >
-                          {adminContent.postManager.editCta}
-                        </button>
-                        {role === 'admin' ? (
-                          <AlertDialog>
+                        {adminContent.postManager.editCta}
+                      </button>
+                      {role === 'admin' || role === 'developer' ? (
+                        <AlertDialog>
                             <AlertDialogTrigger className="inline-flex items-center gap-1.5 rounded-full border border-border-subtle px-3 py-1.5 text-sm font-semibold text-ink-muted transition-colors hover:border-danger hover:text-danger">
                               <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                               {adminContent.postManager.deleteCta}
                             </AlertDialogTrigger>
                             <AlertDialogContent
                               overlayProps={{ className: 'fixed inset-0 z-40 bg-ink/40' }}
-                              className="fixed left-1/2 top-1/2 z-50 w-[calc(100%-3rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border-subtle bg-surface-card p-6 shadow-xl"
+                              className="responsive-dialog fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border-subtle bg-surface-card p-5 shadow-xl sm:p-6"
                             >
                               <AlertDialogTitle className="text-base font-bold text-ink">
                                 {adminContent.postManager.deleteDialogTitle}
@@ -183,26 +153,25 @@ export function PostManagerTab({ staffId, staffName, role }: PostManagerTabProps
                               <AlertDialogDescription className="mt-2 text-sm leading-6 text-ink-muted">
                                 {adminContent.postManager.deleteDialogDescription}
                               </AlertDialogDescription>
-                              <div className="mt-6 flex justify-end gap-3">
-                                <AlertDialogCancel className="rounded-full border border-border-subtle px-4 py-2 text-sm font-semibold text-ink-muted transition-colors hover:border-brand hover:text-brand-strong">
+                              <div className="responsive-actions mt-6">
+                                <AlertDialogCancel className="min-h-11 w-full rounded-full border border-border-subtle px-4 py-2 text-sm font-semibold text-ink-muted transition-colors hover:border-brand hover:text-brand-strong min-[375px]:w-auto">
                                   {adminContent.postManager.deleteDialogCancel}
                                 </AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => deleteMutation.mutate(post.id)}
                                   disabled={deleteMutation.isPending}
-                                  className="rounded-full bg-danger px-4 py-2 text-sm font-semibold text-surface-card transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                                  className="min-h-11 w-full rounded-full bg-danger px-4 py-2 text-sm font-semibold text-surface-card transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 min-[375px]:w-auto"
                                 >
                                   {adminContent.postManager.deleteDialogConfirm}
                                 </AlertDialogAction>
                               </div>
                             </AlertDialogContent>
-                          </AlertDialog>
-                        ) : null}
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })}
+                        </AlertDialog>
+                      ) : null}
+                    </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

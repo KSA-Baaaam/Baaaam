@@ -13,13 +13,13 @@ type SiteSearchFormProps = {
 const sizeStyles = {
   compact: {
     shell: 'min-h-11 rounded-lg pl-3 pr-1',
-    input: 'text-sm',
+    input: 'text-base sm:text-sm',
     button: 'h-9 w-9',
   },
   large: {
     shell: 'min-h-14 rounded-xl pl-4 pr-1.5 shadow-search',
-    input: 'text-[0.98rem]',
-    button: 'h-11 gap-2 rounded-lg px-4 sm:px-5',
+    input: 'text-base',
+    button: 'h-11 gap-2 rounded-lg px-3.5 min-[375px]:px-4 sm:px-5',
   },
 } as const
 

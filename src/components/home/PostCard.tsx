@@ -1,10 +1,9 @@
 import type { LucideIcon } from 'lucide-react'
-import { Atom, Braces, CalendarDays, Clock3, Compass, FlaskConical, Globe2, Leaf, Star } from 'lucide-react'
+import { Atom, Braces, CalendarDays, Clock3, Compass, FlaskConical, Globe2, Leaf } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 import type { Post } from '@/types/blog'
 import { koDateFormatter } from '@/lib/format'
-import { homeContent } from '@/content/home'
 
 const artworkByCategory: Record<string, { icon: LucideIcon; notation: string; className: string }> = {
   math: { icon: Compass, notation: 'a² + b²', className: 'bg-[#edf4ff] text-[#2767d6]' },
@@ -71,17 +70,9 @@ export function PostCard({ post, categoryLabel, variant = 'grid' }: PostCardProp
       />
 
       <div className={`flex min-w-0 flex-1 flex-col ${isRow ? 'p-4 sm:p-5' : isFeature ? 'p-5 sm:p-8' : 'p-4 sm:p-5'}`}>
-        <div className="flex items-center gap-2 text-xs font-bold text-brand">
-          <span>{categoryLabel}</span>
-          {post.isRecommended ? (
-            <span className="inline-flex items-center gap-1 text-spark-strong">
-              <Star className="h-3.5 w-3.5 fill-current" aria-hidden="true" />
-              {homeContent.recommended.badge}
-            </span>
-          ) : null}
-        </div>
+        <div className="text-xs font-bold text-brand">{categoryLabel}</div>
 
-        <h3 className={`mt-2 font-extrabold leading-snug tracking-[-0.025em] text-navy ${isFeature ? 'text-xl min-[375px]:text-2xl sm:text-[1.8rem]' : isRow ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'}`}>
+        <h3 className={`mt-2 [overflow-wrap:anywhere] font-extrabold leading-snug tracking-[-0.025em] text-navy ${isFeature ? 'text-xl min-[375px]:text-2xl sm:text-[1.8rem]' : isRow ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'}`}>
           <Link
             to={`/article/${post.id}`}
             className="rounded-sm after:absolute after:inset-0 after:content-[''] group-hover:text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"

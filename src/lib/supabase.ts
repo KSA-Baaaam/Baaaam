@@ -30,7 +30,7 @@ type ProfileRow = {
   id: string
   email: string
   display_name: string
-  role: 'admin' | 'author' | 'general'
+  role: 'developer' | 'admin' | 'author' | 'general'
   created_at: string
   updated_at: string
 }

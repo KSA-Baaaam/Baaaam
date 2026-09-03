@@ -4,7 +4,7 @@
  * 데이터 타입과 무관한 문자열 상수만 export한다.
  */
 export const adminContent = {
-  eyebrow: 'Baaaam 운영 공간',
+  eyebrow: 'BAAAAM 운영 공간',
   title: '콘텐츠 관리',
   description: '작성자는 학습 글을 만들고, 관리자는 콘텐츠와 회원 권한을 함께 관리해요.',
   loading: '불러오는 중이에요...',
@@ -18,6 +18,7 @@ export const adminContent = {
     posts: '글 관리',
     comments: '댓글 관리',
     roles: '권한 관리',
+    services: '서비스 사용량',
   },
   accessDenied: {
     badge: '일반 회원',
@@ -111,10 +112,8 @@ export const adminContent = {
       title: '제목',
       category: '카테고리',
       author: '작성자',
-      recommended: '추천',
       actions: '관리',
     },
-    recommendedToggleLabel: '추천 글로 지정',
     deleteCta: '삭제',
     deleteDialogTitle: '이 글을 삭제할까요?',
     deleteDialogDescription: '글과 이 글에 달린 댓글이 함께 삭제되며 되돌릴 수 없어요.',

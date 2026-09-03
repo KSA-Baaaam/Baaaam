@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { profilesService } from '@/services/profiles'
 import type { UserRole } from '@/services/profiles'
 
-const adminLoginEmail = 'parkhtaek@naver.com'
+const adminLoginEmail = 'dev.baaaam@gmail.com'
 
 export type EmailCodePurpose = 'login' | 'signup'
 
@@ -41,7 +41,7 @@ type AuthContextValue = {
   isSessionLoading: boolean
   login: (identifier: string, password: string) => Promise<AuthResult>
   isLoggingIn: boolean
-  signUp: (input: { email: string; password: string; name: string }) => Promise<AuthResult>
+  signUp: (input: { email: string; password: string; name: string; newsletterOptIn: boolean }) => Promise<AuthResult>
   isSigningUp: boolean
   verifyEmailCode: (input: EmailChallenge & { token: string }) => Promise<{ ok: boolean; errorMessage: string | null; destination?: AuthDestination }>
   isVerifyingEmailCode: boolean
@@ -77,7 +77,7 @@ async function toStaffAccount(session: Session | null): Promise<StaffAccount | n
 }
 
 function destinationFor(account: StaffAccount | null): AuthDestination {
-  return account?.role === 'author' || account?.role === 'admin' ? '/admin' : '/'
+  return account && account.role !== 'general' ? '/admin' : '/'
 }
 
 export function AuthSessionProvider({ children }: { children: ReactNode }) {
@@ -145,14 +145,18 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const signUp = useCallback(async (input: { email: string; password: string; name: string }): Promise<AuthResult> => {
+  const signUp = useCallback(async (input: { email: string; password: string; name: string; newsletterOptIn: boolean }): Promise<AuthResult> => {
     setIsSigningUp(true)
     try {
       const { data, error } = await supabase.auth.signUp({
         email: input.email,
         password: input.password,
         options: {
-          data: { full_name: input.name },
+          data: {
+            full_name: input.name,
+            newsletter_opt_in: input.newsletterOptIn,
+            newsletter_opt_in_at: input.newsletterOptIn ? new Date().toISOString() : null,
+          },
           emailRedirectTo: `${window.location.origin}/login`,
         },
       })

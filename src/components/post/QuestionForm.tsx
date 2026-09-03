@@ -60,7 +60,7 @@ export function QuestionForm({ postId }: QuestionFormProps) {
   return (
     <section
       aria-labelledby="question-heading"
-      className="rounded-2xl border border-border-subtle bg-surface-muted p-6 md:p-8"
+      className="rounded-2xl border border-border-subtle bg-surface-muted p-4 min-[375px]:p-5 sm:p-6 md:p-8"
     >
       <p className="mb-2 text-sm font-semibold text-brand-strong">
         {postContent.question.eyebrow}
@@ -94,7 +94,7 @@ export function QuestionForm({ postId }: QuestionFormProps) {
             rows={4}
             aria-invalid={Boolean(fieldErrors.content)}
             aria-describedby={fieldErrors.content ? 'question-content-error' : undefined}
-            className="w-full resize-none rounded-xl border border-border-subtle bg-surface-card px-4 py-2.5 text-sm text-ink placeholder:text-ink-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-strong"
+            className="w-full resize-none rounded-xl border border-border-subtle bg-surface-card px-4 py-2.5 text-base text-ink placeholder:text-ink-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-strong sm:text-sm"
           />
           {fieldErrors.content ? (
             <p
@@ -116,7 +116,7 @@ export function QuestionForm({ postId }: QuestionFormProps) {
         <button
           type="submit"
           disabled={mutation.isPending}
-          className="inline-flex items-center justify-center gap-2 self-start rounded-full bg-brand px-6 py-2.5 text-sm font-semibold text-surface-card transition-colors hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-strong disabled:cursor-not-allowed disabled:opacity-70"
+          className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-brand px-6 py-2.5 text-sm font-semibold text-surface-card transition-colors hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-strong disabled:cursor-not-allowed disabled:opacity-70 min-[375px]:w-auto min-[375px]:self-start"
         >
           {mutation.isPending ? postContent.question.submitting : postContent.question.submit}
         </button>

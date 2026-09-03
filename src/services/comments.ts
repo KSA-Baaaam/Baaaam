@@ -45,7 +45,7 @@ async function currentUserIdentity() {
     name:
       typeof metadataName === 'string' && metadataName.trim()
         ? metadataName.trim()
-        : (data.user.email ?? 'Baaaam 사용자'),
+        : (data.user.email ?? 'BAAAAM 사용자'),
   }
 }
 

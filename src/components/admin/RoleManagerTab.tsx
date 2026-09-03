@@ -5,15 +5,16 @@ import { CheckCircle2, X } from 'lucide-react'
 import { adminContent } from '@/content/admin'
 import { profilesService, roleLabels } from '@/services/profiles'
 import type { UserRole } from '@/services/profiles'
-import { Toast, ToastClose, ToastTitle } from '@/components/ui'
+import { SimpleSelect, Toast, ToastClose, ToastTitle } from '@/components/ui'
 
 type RoleManagerTabProps = {
   currentUserId: string
+  currentUserRole: 'admin' | 'developer'
 }
 
-const roles: UserRole[] = ['general', 'author', 'admin']
+const roles: UserRole[] = ['general', 'author', 'admin', 'developer']
 
-export function RoleManagerTab({ currentUserId }: RoleManagerTabProps) {
+export function RoleManagerTab({ currentUserId, currentUserRole }: RoleManagerTabProps) {
   const queryClient = useQueryClient()
   const [toast, setToast] = useState({ open: false, message: '', isError: false })
   const { data: profiles = [], isLoading, isError } = useQuery({
@@ -51,7 +52,7 @@ export function RoleManagerTab({ currentUserId }: RoleManagerTabProps) {
           {adminContent.roleManager.empty}
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-border-subtle">
+        <div className="responsive-scroll overflow-x-auto rounded-2xl border border-border-subtle" tabIndex={0} aria-label="권한 관리 표, 좌우로 스크롤할 수 있습니다">
           <table className="w-full min-w-[640px] border-collapse bg-surface-card text-sm">
             <caption className="sr-only">{adminContent.roleManager.tableCaption}</caption>
             <thead>
@@ -64,7 +65,11 @@ export function RoleManagerTab({ currentUserId }: RoleManagerTabProps) {
             <tbody>
               {profiles.map((profile) => {
                 const isSelf = profile.id === currentUserId
+                const isProtectedDeveloper = currentUserRole === 'admin' && profile.role === 'developer'
                 const isPending = mutation.isPending && mutation.variables?.id === profile.id
+                const roleOptions = roles
+                  .filter((role) => currentUserRole === 'developer' || role !== 'developer')
+                  .map((role) => ({ value: role, label: roleLabels[role] }))
 
                 return (
                   <tr key={profile.id} className="border-b border-border-subtle last:border-b-0">
@@ -76,22 +81,19 @@ export function RoleManagerTab({ currentUserId }: RoleManagerTabProps) {
                         </span>
                       ) : null}
                     </td>
-                    <td className="px-4 py-3 text-ink-muted">{profile.email}</td>
+                    <td className="break-all px-4 py-3 text-ink-muted">{profile.email}</td>
                     <td className="px-4 py-3">
-                      <select
+                      <SimpleSelect
                         value={profile.role}
-                        disabled={isSelf || isPending}
-                        aria-label={`${profile.displayName} 권한`}
-                        title={isSelf ? adminContent.roleManager.selfHelp : undefined}
-                        onChange={(event) =>
-                          mutation.mutate({ id: profile.id, role: event.target.value as UserRole })
+                        options={roleOptions}
+                        disabled={isSelf || isProtectedDeveloper || isPending}
+                        ariaLabel={`${profile.displayName} 권한`}
+                        title={isSelf ? adminContent.roleManager.selfHelp : isProtectedDeveloper ? '개발자 권한은 개발자만 변경할 수 있어요.' : undefined}
+                        onValueChange={(role) =>
+                          mutation.mutate({ id: profile.id, role: role as UserRole })
                         }
-                        className="min-h-10 rounded-lg border border-border-subtle bg-surface px-3 text-sm font-semibold text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        {roles.map((role) => (
-                          <option key={role} value={role}>{roleLabels[role]}</option>
-                        ))}
-                      </select>
+                        className="min-h-10 w-32"
+                      />
                     </td>
                   </tr>
                 )

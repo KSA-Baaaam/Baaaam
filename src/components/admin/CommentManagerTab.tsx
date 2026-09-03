@@ -85,7 +85,7 @@ function QuestionReplyItem({ question, postTitle, staffName, onReplied }: Questi
           placeholder={adminContent.commentManager.replyPlaceholder}
           rows={2}
           aria-invalid={hasError}
-          className="w-full resize-none rounded-xl border border-border-subtle bg-surface px-4 py-2.5 text-sm text-ink placeholder:text-ink-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-strong"
+          className="w-full resize-none rounded-xl border border-border-subtle bg-surface px-4 py-2.5 text-base text-ink placeholder:text-ink-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-strong sm:text-sm"
         />
         {hasError ? (
           <p role="alert" className="text-xs text-danger">
@@ -206,14 +206,14 @@ export function CommentManagerTab({ staffId, staffName, role }: CommentManagerTa
                   </p>
                 </div>
 
-                {role === 'admin' || comment.authorId === staffId ? <AlertDialog>
+                {role === 'admin' || role === 'developer' || comment.authorId === staffId ? <AlertDialog>
                   <AlertDialogTrigger className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border-subtle px-3 py-1.5 text-xs font-semibold text-ink-muted transition-colors hover:border-danger hover:text-danger">
                     <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                     {adminContent.commentManager.deleteCta}
                   </AlertDialogTrigger>
                   <AlertDialogContent
                     overlayProps={{ className: 'fixed inset-0 z-40 bg-ink/40' }}
-                    className="fixed left-1/2 top-1/2 z-50 w-[calc(100%-3rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border-subtle bg-surface-card p-6 shadow-xl"
+                    className="responsive-dialog fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border-subtle bg-surface-card p-5 shadow-xl sm:p-6"
                   >
                     <AlertDialogTitle className="text-base font-bold text-ink">
                       {adminContent.commentManager.deleteDialogTitle}
@@ -221,13 +221,13 @@ export function CommentManagerTab({ staffId, staffName, role }: CommentManagerTa
                     <AlertDialogDescription className="mt-2 text-sm text-ink-muted">
                       {adminContent.commentManager.deleteDialogDescription}
                     </AlertDialogDescription>
-                    <div className="mt-6 flex justify-end gap-3">
-                      <AlertDialogCancel className="rounded-full border border-border-subtle px-4 py-2 text-sm font-semibold text-ink-muted transition-colors hover:border-brand hover:text-brand-strong">
+                    <div className="responsive-actions mt-6">
+                      <AlertDialogCancel className="min-h-11 w-full rounded-full border border-border-subtle px-4 py-2 text-sm font-semibold text-ink-muted transition-colors hover:border-brand hover:text-brand-strong min-[375px]:w-auto">
                         {adminContent.commentManager.deleteDialogCancel}
                       </AlertDialogCancel>
                       <AlertDialogAction
                         onClick={() => deleteMutation.mutate(comment.id)}
-                        className="rounded-full bg-danger px-4 py-2 text-sm font-semibold text-surface-card transition-colors hover:opacity-90"
+                        className="min-h-11 w-full rounded-full bg-danger px-4 py-2 text-sm font-semibold text-surface-card transition-colors hover:opacity-90 min-[375px]:w-auto"
                       >
                         {adminContent.commentManager.deleteDialogConfirm}
                       </AlertDialogAction>

@@ -39,7 +39,7 @@ export const categories: readonly Category[] = [
   },
   {
     id: 'earth-science',
-    label: '지구과학',
+    label: '지구과학/천문학',
     description: '지구와 날씨, 더 넓은 우주를 탐험해요',
     accent: '#1885A8',
   },

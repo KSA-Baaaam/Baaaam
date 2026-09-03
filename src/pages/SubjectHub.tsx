@@ -31,16 +31,18 @@ export default function SubjectHub({ subject }: SubjectHubProps) {
         </section>
 
         <section className="mx-auto max-w-7xl px-5 py-14 md:px-8 md:py-20">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {subjectCategories.map((category) => (
-              <Link key={category.id} to={`/category/${category.id}`} className="group flex min-h-28 items-center justify-between rounded-xl border border-border-subtle bg-white p-5 hover:border-brand/50">
-                <span><strong className="block text-lg font-extrabold" style={{ color: category.accent }}>{category.label}</strong><span className="mt-1 block text-sm leading-6 text-ink-muted">{category.description}</span></span>
-                <ArrowRight className="ml-4 h-5 w-5 shrink-0 text-ink-soft transition-transform group-hover:translate-x-1 group-hover:text-brand" />
-              </Link>
-            ))}
-          </div>
+          {!isMath ? (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {subjectCategories.map((category) => (
+                <Link key={category.id} to={`/category/${category.id}`} className="group flex min-h-28 items-center justify-between rounded-xl border border-border-subtle bg-white p-5 hover:border-brand/50">
+                  <span><strong className="block text-lg font-extrabold" style={{ color: category.accent }}>{category.label}</strong><span className="mt-1 block text-sm leading-6 text-ink-muted">{category.description}</span></span>
+                  <ArrowRight className="ml-4 h-5 w-5 shrink-0 text-ink-soft transition-transform group-hover:translate-x-1 group-hover:text-brand" />
+                </Link>
+              ))}
+            </div>
+          ) : null}
 
-          <header className="mb-8 mt-16 border-b border-border-subtle pb-5">
+          <header className={`mb-8 border-b border-border-subtle pb-5 ${isMath ? '' : 'mt-16'}`}>
             <h2 className="text-2xl font-extrabold tracking-[-0.03em] text-navy">{isMath ? '수학 이야기' : '과학 이야기'}</h2>
             <p className="mt-2 text-sm text-ink-muted">최근에 등록된 글부터 보여드려요.</p>
           </header>

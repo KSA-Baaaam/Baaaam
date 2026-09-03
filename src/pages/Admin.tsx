@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { CommentManagerTab } from '@/components/admin/CommentManagerTab'
 import { PostManagerTab } from '@/components/admin/PostManagerTab'
 import { RoleManagerTab } from '@/components/admin/RoleManagerTab'
+import { ServiceUsageTab } from '@/components/admin/ServiceUsageTab'
 import { OperatorAuthGate } from '@/components/admin/OperatorAuthGate'
 import { SiteFooter } from '@/components/home/SiteFooter'
 import { SiteHeader } from '@/components/home/SiteHeader'
@@ -20,7 +21,7 @@ import { useOperatorSession } from '@/services/session'
 import { roleLabels } from '@/services/profiles'
 
 const tabTriggerClassName =
-  'rounded-full px-4 py-2 text-sm font-semibold text-ink-muted transition-colors data-[state=active]:bg-brand data-[state=active]:text-surface-card hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-strong'
+  'min-h-10 rounded-xl px-4 py-2 text-sm font-bold text-ink-muted transition-colors data-[state=active]:bg-white data-[state=active]:text-brand data-[state=active]:shadow-sm hover:bg-white/70 hover:text-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-strong'
 
 /**
  * 관리자 - 글 관리 화면(`/admin`).
@@ -33,7 +34,7 @@ export default function Admin() {
   return (
     <div className="min-h-screen bg-surface text-ink">
       <SiteHeader />
-      <main className="mx-auto max-w-5xl px-5 py-12 sm:px-6 sm:py-16">
+      <main className="mx-auto max-w-5xl px-4 py-10 min-[375px]:px-5 sm:px-6 sm:py-16">
         <header className="mb-10 max-w-2xl">
           <p className="mb-2 text-sm font-semibold text-brand-strong">{adminContent.eyebrow}</p>
           <h1 className="text-3xl font-bold tracking-tight text-ink md:text-4xl">
@@ -67,33 +68,45 @@ export default function Admin() {
               </div>
 
               <Tabs defaultValue="posts">
-                <TabsList className="mb-8 flex flex-wrap gap-2" aria-label={adminContent.tabsAriaLabel}>
+                <div className="responsive-scroll -mx-4 mb-8 overflow-x-auto px-4 min-[375px]:-mx-5 min-[375px]:px-5 sm:mx-0 sm:px-0">
+                <TabsList className="inline-flex min-w-max gap-1 rounded-2xl bg-surface-muted p-1.5" aria-label={adminContent.tabsAriaLabel}>
                   <TabsTrigger value="posts" className={tabTriggerClassName}>
                     {adminContent.tabs.posts}
                   </TabsTrigger>
                   <TabsTrigger value="comments" className={tabTriggerClassName}>
                     {adminContent.tabs.comments}
                   </TabsTrigger>
-                  {currentStaff.role === 'admin' ? (
+                  {currentStaff.role === 'admin' || currentStaff.role === 'developer' ? (
                     <TabsTrigger value="roles" className={tabTriggerClassName}>
                       {adminContent.tabs.roles}
                     </TabsTrigger>
                   ) : null}
+                  {currentStaff.role === 'developer' ? (
+                    <TabsTrigger value="services" className={tabTriggerClassName}>
+                      {adminContent.tabs.services}
+                    </TabsTrigger>
+                  ) : null}
                 </TabsList>
+                </div>
                 <TabsContent value="posts">
                   <PostManagerTab staffId={currentStaff.id} staffName={currentStaff.name} role={currentStaff.role} />
                 </TabsContent>
                 <TabsContent value="comments">
                   <CommentManagerTab staffId={currentStaff.id} staffName={currentStaff.name} role={currentStaff.role} />
                 </TabsContent>
-                {currentStaff.role === 'admin' ? (
+                {currentStaff.role === 'admin' || currentStaff.role === 'developer' ? (
                   <TabsContent value="roles">
-                    <RoleManagerTab currentUserId={currentStaff.id} />
+                    <RoleManagerTab currentUserId={currentStaff.id} currentUserRole={currentStaff.role} />
+                  </TabsContent>
+                ) : null}
+                {currentStaff.role === 'developer' ? (
+                  <TabsContent value="services">
+                    <ServiceUsageTab />
                   </TabsContent>
                 ) : null}
               </Tabs>
             </div>
-            <ToastViewport className="fixed bottom-0 right-0 z-50 flex w-full max-w-sm flex-col gap-2 p-6 outline-none" />
+            <ToastViewport className="fixed bottom-0 right-0 z-50 flex w-full max-w-sm flex-col gap-2 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] outline-none sm:p-6" />
           </ToastProvider>
         ) : currentStaff ? (
           <section className="rounded-3xl border border-border-subtle bg-surface-card px-6 py-12 text-center sm:px-10">

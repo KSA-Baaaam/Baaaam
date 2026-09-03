@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react'
 
 import brandMascot from '@/assets/brand-mascot.png'
 import { PostCard } from '@/components/home/PostCard'
-import { Pagination } from '@/components/ui'
+import { Pagination, SimpleSelect } from '@/components/ui'
 import { categoryContent } from '@/content/category'
 import { categories } from '@/data/categories'
 import { postsService } from '@/services/posts'
@@ -13,8 +13,12 @@ const categoryLabelById = new Map(categories.map((category) => [category.id, cat
 const ALL_CATEGORY_ID = 'all'
 const POSTS_PER_PAGE = 6
 
-type SortMode = 'newest' | 'popular' | 'recommended'
+type SortMode = 'newest' | 'popular'
 type CategoryPostGridProps = { activeCategoryId: string }
+const sortOptions = [
+  { value: 'newest', label: categoryContent.sortNewest },
+  { value: 'popular', label: categoryContent.sortPopular },
+] as const
 
 export function CategoryPostGrid({ activeCategoryId }: CategoryPostGridProps) {
   const { data: posts = [], isLoading } = useQuery({ queryKey: ['posts', 'all'], queryFn: postsService.listAll })
@@ -32,7 +36,6 @@ export function CategoryPostGrid({ activeCategoryId }: CategoryPostGridProps) {
 
     return [...matches].sort((a, b) => {
       if (sortMode === 'popular') return b.viewCount - a.viewCount
-      if (sortMode === 'recommended') return Number(b.isRecommended) - Number(a.isRecommended) || new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
       return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
     })
   }, [activeCategoryId, posts, query, sortMode])
@@ -59,21 +62,17 @@ export function CategoryPostGrid({ activeCategoryId }: CategoryPostGridProps) {
               value={query}
               onChange={(event) => { setQuery(event.target.value); setPage(1) }}
               placeholder={categoryContent.filterPlaceholder}
-              className="min-h-11 w-full rounded-lg border border-input-border bg-white pl-10 pr-4 text-sm text-navy placeholder:text-ink-soft focus:border-brand focus:outline focus:outline-2 focus:outline-offset-1 focus:outline-brand/20"
+              className="min-h-11 w-full rounded-lg border border-input-border bg-white pl-10 pr-4 text-base text-navy placeholder:text-ink-soft focus:border-brand focus:outline focus:outline-2 focus:outline-offset-1 focus:outline-brand/20 sm:text-sm"
             />
           </label>
-          <label className="flex w-full items-center gap-2 text-sm font-bold text-ink-muted sm:w-auto">
-            <span>{categoryContent.sortLabel}</span>
-            <select
+          <div className="w-full sm:w-40">
+            <SimpleSelect
               value={sortMode}
-              onChange={(event) => { setSortMode(event.target.value as SortMode); setPage(1) }}
-              className="min-h-11 min-w-0 flex-1 rounded-lg border border-input-border bg-white px-3 text-sm font-semibold text-navy focus:border-brand focus:outline focus:outline-2 focus:outline-offset-1 focus:outline-brand/20 sm:flex-none"
-            >
-              <option value="newest">{categoryContent.sortNewest}</option>
-              <option value="popular">{categoryContent.sortPopular}</option>
-              <option value="recommended">{categoryContent.sortRecommended}</option>
-            </select>
-          </label>
+              options={sortOptions}
+              onValueChange={(value) => { setSortMode(value as SortMode); setPage(1) }}
+              ariaLabel={categoryContent.sortLabel}
+            />
+          </div>
         </div>
       </div>
 

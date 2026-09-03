@@ -14,6 +14,7 @@ export type Profile = {
 }
 
 export const roleLabels: Record<UserRole, string> = {
+  developer: '개발자',
   admin: '관리자',
   author: '작성자',
   general: '일반',

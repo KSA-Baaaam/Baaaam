@@ -52,7 +52,7 @@ export default function Account() {
   return (
     <div className="min-h-screen bg-surface text-ink">
       <SiteHeader />
-      <main className="mx-auto max-w-3xl px-5 py-12 sm:px-6 sm:py-16">
+      <main className="mx-auto max-w-3xl px-4 py-10 min-[375px]:px-5 sm:px-6 sm:py-16">
         <p className="text-sm font-bold text-brand-strong">내 계정</p>
         <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.035em] text-navy sm:text-4xl">계정 관리</h1>
         <p className="mt-3 text-sm leading-6 text-ink-muted">로그인 정보와 회원탈퇴를 관리할 수 있어요.</p>
@@ -68,7 +68,7 @@ export default function Account() {
                 </span>
                 <div>
                   <h2 id="account-profile-title" className="text-lg font-bold text-navy">{currentStaff.name}</h2>
-                  <p className="mt-1 text-sm text-ink-muted">{currentStaff.email}</p>
+                  <p className="mt-1 break-all text-sm text-ink-muted">{currentStaff.email}</p>
                   <span className="mt-3 inline-flex rounded-full bg-section px-3 py-1 text-xs font-bold text-brand-strong">{roleLabels[currentStaff.role]}</span>
                 </div>
               </div>
@@ -79,7 +79,7 @@ export default function Account() {
                 <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-danger" aria-hidden="true" />
                 <div>
                   <h2 id="delete-account-title" className="text-lg font-bold text-navy">회원탈퇴</h2>
-                  <p className="mt-2 text-sm leading-6 text-ink-muted">탈퇴하면 계정 정보와 작성한 질문·댓글이 영구 삭제돼요. 공개한 학습 글은 보존되며 작성자 표시는 ‘탈퇴한 사용자’로 바뀝니다.</p>
+                  <p className="mt-2 text-sm leading-6 text-ink-muted">탈퇴하면 계정 정보와 작성한 질문·댓글이 영구 삭제돼요.</p>
                 </div>
               </div>
 
@@ -89,7 +89,7 @@ export default function Account() {
                 </AlertDialogTrigger>
                 <AlertDialogContent
                   overlayProps={{ className: 'fixed inset-0 z-40 bg-ink/50' }}
-                  className="fixed left-1/2 top-1/2 z-50 w-[calc(100%-3rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-border-subtle bg-surface-card p-6 shadow-xl sm:p-8"
+                  className="responsive-dialog fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-border-subtle bg-surface-card p-5 shadow-xl sm:p-8"
                 >
                   <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-danger/10 text-danger">
                     <LockKeyhole className="h-5 w-5" aria-hidden="true" />

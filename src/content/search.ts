@@ -20,7 +20,6 @@ export const searchContent = {
     description: '철자가 정확한지 확인하거나 다른 검색어로 다시 시도해보세요.',
   },
   suggestions: {
-    recommendedTitle: '이런 글은 어때요?',
     categoryTitle: '카테고리로 둘러보기',
     allCategoryChip: '전체',
   },
