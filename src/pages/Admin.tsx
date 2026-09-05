@@ -89,7 +89,7 @@ export default function Admin() {
                 </TabsList>
                 </div>
                 <TabsContent value="posts">
-                  <PostManagerTab staffId={currentStaff.id} staffName={currentStaff.name} role={currentStaff.role} />
+                  <PostManagerTab staffId={currentStaff.id} role={currentStaff.role} />
                 </TabsContent>
                 <TabsContent value="comments">
                   <CommentManagerTab staffId={currentStaff.id} staffName={currentStaff.name} role={currentStaff.role} />

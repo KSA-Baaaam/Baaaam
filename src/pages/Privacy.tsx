@@ -2,18 +2,23 @@ import { Link } from 'react-router-dom'
 
 import { SiteFooter } from '@/components/home/SiteFooter'
 import { SiteHeader } from '@/components/home/SiteHeader'
+import { homeContent } from '@/content/home'
 
 const sectionClassName = 'border-t border-border-subtle pt-9 first:border-t-0 first:pt-0'
 const headingClassName = 'text-xl font-extrabold tracking-[-0.025em] text-navy sm:text-2xl'
 const paragraphClassName = 'mt-4 text-[0.95rem] leading-8 text-ink-muted sm:text-base'
 const listClassName = 'mt-4 list-decimal space-y-2 pl-6 text-[0.95rem] leading-7 text-ink-muted sm:text-base'
 
-export default function Privacy() {
+type PrivacyProps = { embedded?: boolean }
+
+export default function Privacy({ embedded = false }: PrivacyProps) {
+  const ContentRoot = embedded ? 'div' : 'main'
+
   return (
-    <div className="site-page bg-section">
-      <SiteHeader />
-      <main className="site-main">
-        <header className="border-b border-hero-border bg-hero">
+    <div className={embedded ? '' : 'site-page bg-section'}>
+      {embedded ? null : <SiteHeader />}
+      <ContentRoot className={embedded ? '' : 'site-main'}>
+        {embedded ? null : <header className="border-b border-hero-border bg-hero">
           <div className="mx-auto max-w-5xl px-4 py-10 min-[375px]:px-5 sm:py-12 md:px-8 md:py-14">
             <p className="text-sm font-extrabold tracking-[0.12em] text-brand">PRIVACY POLICY</p>
             <h1 className="mt-4 text-3xl font-extrabold tracking-[-0.045em] text-navy sm:text-4xl md:text-5xl">
@@ -23,10 +28,10 @@ export default function Privacy() {
               시행일: 2026년 9월 3일
             </p>
           </div>
-        </header>
+        </header>}
 
-        <article className="mx-auto max-w-5xl px-4 py-8 min-[375px]:px-5 sm:py-10 md:px-8 md:py-16">
-          <div className="border border-border-subtle bg-white px-4 py-7 min-[375px]:px-5 sm:px-8 sm:py-10 md:px-12 md:py-14">
+        <article className={embedded ? 'pb-2' : 'mx-auto max-w-5xl px-4 py-8 min-[375px]:px-5 sm:py-10 md:px-8 md:py-16'}>
+          <div className={embedded ? '' : 'border border-border-subtle bg-white px-4 py-7 min-[375px]:px-5 sm:px-8 sm:py-10 md:px-12 md:py-14'}>
             <div className="space-y-5 text-[0.95rem] leading-8 text-ink-muted sm:text-base">
               <p>
                 한국과학영재학교 소속 BAAAAM 연구회(이하 “BAAAAM”)는 이용자의 개인정보를 중요하게 생각하며, 「개인정보 보호법」 등 관련 법령을 준수하고 있습니다.
@@ -133,7 +138,7 @@ export default function Privacy() {
                 <dl className="mt-5 grid gap-3 rounded-xl bg-surface-muted p-5 text-sm leading-6 sm:grid-cols-[7rem_1fr] sm:p-6">
                   <dt className="font-extrabold text-navy">단체명</dt><dd className="text-ink-muted">한국과학영재학교 BAAAAM 연구회</dd>
                   <dt className="font-extrabold text-navy">담당</dt><dd className="text-ink-muted">BAAAAM 연구회 개인정보 보호 담당자</dd>
-                  <dt className="font-extrabold text-navy">이메일</dt><dd><a className="font-bold text-brand underline decoration-brand/30 underline-offset-4 hover:text-brand-strong" href="mailto:dev.baaaam@gmail.com">dev.baaaam@gmail.com</a></dd>
+                  <dt className="font-extrabold text-navy">이메일</dt><dd><a className="font-bold text-brand underline decoration-brand/30 underline-offset-4 hover:text-brand-strong" href={`mailto:${homeContent.footer.contactEmail}`}>{homeContent.footer.contactEmail}</a></dd>
                   <dt className="font-extrabold text-navy">웹사이트</dt><dd><a className="font-bold text-brand underline decoration-brand/30 underline-offset-4 hover:text-brand-strong" href="https://baaaam.cloud">baaaam.cloud</a></dd>
                 </dl>
                 <p className={paragraphClassName}>개인정보의 열람, 정정, 삭제, 처리정지 또는 개인정보 침해와 관련된 문의는 위 담당자에게 연락할 수 있습니다.</p>
@@ -158,15 +163,15 @@ export default function Privacy() {
               </section>
             </div>
 
-            <div className="mt-12 border-t border-border-subtle pt-8">
+            {embedded ? null : <div className="mt-12 border-t border-border-subtle pt-8">
               <Link to="/" className="inline-flex min-h-11 items-center justify-center rounded-lg border border-brand px-5 text-sm font-bold text-brand transition-colors hover:bg-brand-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">
                 홈으로 돌아가기
               </Link>
-            </div>
+            </div>}
           </div>
         </article>
-      </main>
-      <SiteFooter />
+      </ContentRoot>
+      {embedded ? null : <SiteFooter />}
     </div>
   )
 }

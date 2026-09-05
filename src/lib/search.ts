@@ -1,5 +1,5 @@
 import type { Category } from '@/data/categories'
-import type { Post } from '@/types/blog'
+import type { PostSummary } from '@/types/blog'
 
 /**
  * 검색(core). `query`를 제목·본문·카테고리 라벨에 대해 부분 문자열로 매칭한다.
@@ -9,21 +9,21 @@ import type { Post } from '@/types/blog'
  */
 export function searchPosts(
   query: string,
-  posts: readonly Post[],
+  posts: readonly PostSummary[],
   categories: readonly Category[],
-): Post[] {
+): PostSummary[] {
   const trimmedQuery = query.trim().toLowerCase()
   if (!trimmedQuery) {
     return []
   }
 
   const categoryLabelById = new Map(categories.map((category) => [category.id, category.label]))
-  const matchesTitle = (post: Post) => post.title.toLowerCase().includes(trimmedQuery)
-  const matchesAnyField = (post: Post) => {
+  const matchesTitle = (post: PostSummary) => post.title.toLowerCase().includes(trimmedQuery)
+  const matchesAnyField = (post: PostSummary) => {
     const categoryLabel = categoryLabelById.get(post.categoryId) ?? ''
     return (
       matchesTitle(post) ||
-      post.content.toLowerCase().includes(trimmedQuery) ||
+      post.subtitle.toLowerCase().includes(trimmedQuery) ||
       categoryLabel.toLowerCase().includes(trimmedQuery)
     )
   }
@@ -35,6 +35,6 @@ export function searchPosts(
       if (titleRank !== 0) {
         return titleRank
       }
-      return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+      return new Date(b.publishedAt ?? b.updatedAt).getTime() - new Date(a.publishedAt ?? a.updatedAt).getTime()
     })
 }

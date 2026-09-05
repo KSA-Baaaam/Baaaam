@@ -1,17 +1,23 @@
 import { createClient } from '@supabase/supabase-js'
 
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
+
 type PostRow = {
   id: number
   author_id: string | null
   title: string
+  subtitle: string
+  slug: string | null
   category_id: string
-  content: string
-  image_url: string
+  content: Json
+  tags: string[]
+  thumbnail_url: string
   video_url: string | null
   author: string
   is_recommended: boolean
+  status: 'draft' | 'published'
   view_count: number
-  published_at: string
+  published_at: string | null
   updated_at: string
 }
 
@@ -44,14 +50,18 @@ export type Database = {
           id?: number
           author_id?: string | null
           title: string
+          subtitle?: string
+          slug?: string | null
           category_id: string
-          content: string
-          image_url?: string
+          content: Json
+          tags?: string[]
+          thumbnail_url?: string
           video_url?: string | null
           author: string
           is_recommended?: boolean
+          status?: PostRow['status']
           view_count?: number
-          published_at?: string
+          published_at?: string | null
           updated_at?: string
         }
         Update: Partial<Omit<PostRow, 'id'>>

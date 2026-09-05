@@ -1,11 +1,10 @@
 import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { CheckCircle2, Plus, Trash2, X } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 import { categories } from '@/data/categories'
-import type { Post } from '@/services/posts'
 import { postsService } from '@/services/posts'
-import { PostForm } from '@/components/admin/PostForm'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,18 +24,16 @@ const categoryLabelById = new Map(categories.map((category) => [category.id, cat
 
 type PostManagerTabProps = {
   staffId: string
-  staffName: string
   role: UserRole
 }
 
 /** 글 관리(core: 글 작성/수정/삭제). */
-export function PostManagerTab({ staffId, staffName, role }: PostManagerTabProps) {
+export function PostManagerTab({ staffId, role }: PostManagerTabProps) {
   const queryClient = useQueryClient()
   const { data: posts = [], isLoading } = useQuery({
-    queryKey: ['posts', 'all'],
-    queryFn: postsService.listAll,
+    queryKey: ['posts', 'manageable', role, staffId],
+    queryFn: () => postsService.listManageable({ role, staffId }),
   })
-  const [formTarget, setFormTarget] = useState<'new' | Post | null>(null)
   const [toast, setToast] = useState({ open: false, message: '' })
 
   const deleteMutation = useMutation({
@@ -54,42 +51,21 @@ export function PostManagerTab({ staffId, staffName, role }: PostManagerTabProps
     () =>
       posts
         .filter((post) => role === 'admin' || role === 'developer' || post.authorId === staffId)
-        .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()),
+        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()),
     [posts, role, staffId],
   )
-
-  function handleSaved(mode: 'create' | 'update') {
-    setFormTarget(null)
-    setToast({
-      open: true,
-      message:
-        mode === 'create' ? adminContent.postManager.createdToast : adminContent.postManager.updatedToast,
-    })
-  }
-
-  if (formTarget !== null) {
-    return (
-      <PostForm
-        post={formTarget === 'new' ? null : formTarget}
-        staffName={staffName}
-        onCancel={() => setFormTarget(null)}
-        onSaved={handleSaved}
-      />
-    )
-  }
 
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-bold text-ink">{adminContent.postManager.listTitle}</h2>
-        <button
-          type="button"
-          onClick={() => setFormTarget('new')}
+        <Link
+          to="/write"
           className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-surface-card transition-colors hover:bg-brand-strong"
         >
           <Plus className="h-4 w-4" aria-hidden="true" />
           {adminContent.postManager.newPostCta}
-        </button>
+        </Link>
       </div>
 
       {isLoading ? (
@@ -122,7 +98,8 @@ export function PostManagerTab({ staffId, staffName, role }: PostManagerTabProps
               {sortedPosts.map((post) => (
                 <tr key={post.id} className="border-b border-border-subtle last:border-b-0">
                   <td className="max-w-[280px] truncate px-4 py-3 font-semibold text-ink">
-                    {post.title}
+                    {post.title || '제목 없는 초안'}
+                    {post.status === 'draft' ? <span className="ml-2 rounded-full bg-section px-2 py-0.5 text-[11px] text-ink-soft">초안</span> : null}
                   </td>
                   <td className="px-4 py-3 text-ink-muted">
                     {categoryLabelById.get(post.categoryId) ?? post.categoryId}
@@ -130,14 +107,13 @@ export function PostManagerTab({ staffId, staffName, role }: PostManagerTabProps
                   <td className="px-4 py-3 text-ink-muted">{post.author}</td>
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setFormTarget(post)}
+                      <Link
+                        to={`/write/${post.id}`}
                         className="rounded-full border border-border-subtle px-4 py-1.5 text-sm font-semibold text-ink-muted transition-colors hover:border-brand hover:text-brand-strong"
                       >
                         {adminContent.postManager.editCta}
-                      </button>
-                      {role === 'admin' || role === 'developer' ? (
+                      </Link>
+                      {role === 'admin' || role === 'developer' || post.authorId === staffId ? (
                         <AlertDialog>
                             <AlertDialogTrigger className="inline-flex items-center gap-1.5 rounded-full border border-border-subtle px-3 py-1.5 text-sm font-semibold text-ink-muted transition-colors hover:border-danger hover:text-danger">
                               <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />

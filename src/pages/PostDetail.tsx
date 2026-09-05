@@ -1,24 +1,30 @@
-import { CalendarDays, ChevronRight, Clock3, Eye, FileQuestion } from 'lucide-react'
+import { CalendarDays, ChevronRight, Clock3, FileQuestion, Pencil } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, Navigate, useParams } from 'react-router-dom'
 
 import { PostCard } from '@/components/home/PostCard'
 import { SiteFooter } from '@/components/home/SiteFooter'
 import { SiteHeader } from '@/components/home/SiteHeader'
-import { CommentList } from '@/components/post/CommentList'
+import { CommentSection } from '@/components/post/CommentSection'
 import { PostBody } from '@/components/post/PostBody'
-import { QuestionForm } from '@/components/post/QuestionForm'
 import { ReadingProgress } from '@/components/post/ReadingProgress'
 import { ToastProvider, ToastViewport } from '@/components/ui'
 import { postContent } from '@/content/post'
 import { categories } from '@/data/categories'
-import { koDateFormatter, koNumberFormatter } from '@/lib/format'
+import { koDateFormatter } from '@/lib/format'
 import { postsService } from '@/services/posts'
+import { extractPlainText } from '@/components/post/PostContentRenderer'
+import { useOperatorSession } from '@/services/session'
+import type { JSONContent } from '@tiptap/core'
 
 const categoryLabelById = new Map(categories.map((category) => [category.id, category.label]))
 
 type TocItem = { id: string; label: string }
+
+function nodeText(node: JSONContent): string {
+  return [node.text ?? '', ...(node.content?.map(nodeText) ?? [])].join('')
+}
 
 function ArticleToc({ items, mobile = false }: { items: TocItem[]; mobile?: boolean }) {
   const [activeId, setActiveId] = useState(items[0]?.id ?? '')
@@ -53,8 +59,11 @@ function ArticleToc({ items, mobile = false }: { items: TocItem[]; mobile?: bool
 }
 
 export default function PostDetail() {
-  const { postId } = useParams<{ postId: string }>()
-  const { data: post, isLoading } = useQuery({ queryKey: ['posts', 'detail', postId], queryFn: () => postsService.getById(postId as string), enabled: Boolean(postId) })
+  const { postId, slug, postRef } = useParams<{ postId: string; slug: string; postRef: string }>()
+  const { currentStaff } = useOperatorSession()
+  const referencedId = postRef?.match(/^id=(\d+)$/)?.[1]
+  const identity = slug ?? referencedId ?? postId
+  const { data: post, isLoading } = useQuery({ queryKey: ['posts', 'detail', slug ? 'slug' : 'id', identity], queryFn: () => slug ? postsService.getBySlug(slug) : postsService.getById(identity as string), enabled: Boolean(identity) })
   const { data: allPosts = [] } = useQuery({ queryKey: ['posts', 'all'], queryFn: postsService.listAll })
   const relatedPosts = useMemo(() => allPosts.filter((candidate) => candidate.id !== post?.id && candidate.categoryId === post?.categoryId).slice(0, 3), [allPosts, post])
 
@@ -68,15 +77,12 @@ export default function PostDetail() {
     )
   }
 
+  if (postRef !== `id=${post.id}`) return <Navigate to={`/id=${post.id}`} replace />
+
   const categoryLabel = categoryLabelById.get(post.categoryId) ?? post.categoryId
-  const readingMinutes = Math.max(2, Math.ceil(post.content.replace(/\s/g, '').length / 250))
-  const tocItems: TocItem[] = [
-    { id: 'concept', label: '핵심 개념' },
-    ...(post.content.match(/[^.!?]+[.!?]?/g)?.length ?? 0) > 1 ? [{ id: 'think', label: '쉽게 생각해보기' }] : [],
-    ...(post.content.match(/[^.!?]+[.!?]?/g)?.length ?? 0) > 3 ? [{ id: 'details', label: '왜 그런 걸까요?' }] : [],
-    ...(post.videoUrl ? [{ id: 'video', label: '영상으로 확인하기' }] : []),
-    { id: 'summary', label: '한 줄 정리' },
-  ]
+  const readingMinutes = Math.max(2, Math.ceil(extractPlainText(post.content).replace(/\s/g, '').length / 250))
+  const tocItems: TocItem[] = (post.content.content ?? []).flatMap((node, index) => node.type === 'heading' ? [{ id: `section-${index}`, label: nodeText(node) || `소제목 ${index + 1}` }] : [])
+  const canEdit = Boolean(currentStaff && currentStaff.role !== 'general' && (currentStaff.role === 'admin' || currentStaff.role === 'developer' || currentStaff.id === post.authorId))
 
   return (
     <ToastProvider>
@@ -91,18 +97,20 @@ export default function PostDetail() {
               </nav>
               <p className="mt-8 text-sm font-extrabold text-brand">{categoryLabel}</p>
               <h1 className="mt-3 text-[1.85rem] font-extrabold leading-[1.24] tracking-[-0.045em] text-navy [overflow-wrap:anywhere] min-[375px]:text-[2.2rem] sm:text-5xl">{post.title}</h1>
-              <p className="mt-5 text-base leading-8 text-ink-muted sm:text-lg">{post.content.split('. ')[0]}.</p>
+              {post.subtitle ? <p className="mt-5 text-base leading-8 text-ink-muted sm:text-lg">{post.subtitle}</p> : null}
               <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-border-subtle pb-8 text-sm text-ink-soft">
                 <span className="font-bold text-navy">{post.author}</span>
-                <span className="inline-flex items-center gap-1.5"><CalendarDays className="h-4 w-4" />{koDateFormatter.format(new Date(post.publishedAt))}</span>
+                <span className="inline-flex items-center gap-1.5"><CalendarDays className="h-4 w-4" />{koDateFormatter.format(new Date(post.publishedAt ?? post.updatedAt))}</span>
                 <span className="inline-flex items-center gap-1.5"><Clock3 className="h-4 w-4" />약 {readingMinutes}분</span>
-                <span className="inline-flex items-center gap-1.5"><Eye className="h-4 w-4" />{koNumberFormatter.format(post.viewCount)}</span>
+                {canEdit ? <Link to={`/write/${post.id}`} className="ml-auto inline-flex items-center gap-1.5 font-bold text-brand hover:text-brand-strong"><Pencil className="h-4 w-4" />수정</Link> : null}
               </div>
-              <ArticleToc items={tocItems} mobile />
+              {tocItems.length ? <ArticleToc items={tocItems} mobile /> : null}
+              {post.imageUrl ? <img src={post.imageUrl} alt="" className="mt-10 aspect-[16/8] w-full rounded-xl object-cover" /> : null}
               <PostBody post={post} />
+              {post.tags.length ? <ul aria-label="태그" className="mt-10 flex flex-wrap gap-2">{post.tags.map((tag) => <li key={tag} className="rounded-full bg-brand-soft px-3 py-1.5 text-xs font-bold text-brand-strong">#{tag}</li>)}</ul> : null}
               <div className="mt-12 border-t border-border-subtle pt-6"><Link to={`/category/${post.categoryId}`} className="text-sm font-bold text-brand hover:text-brand-strong">← {categoryLabel} {postContent.backToCategorySuffix}</Link></div>
             </article>
-            <ArticleToc items={tocItems} />
+            {tocItems.length ? <ArticleToc items={tocItems} /> : <div />}
           </div>
 
           {relatedPosts.length ? (
@@ -111,7 +119,7 @@ export default function PostDetail() {
             </section>
           ) : null}
 
-          <div className="mx-auto flex max-w-3xl flex-col gap-10 px-4 py-12 min-[375px]:px-5 sm:py-14 md:px-8 md:py-16"><CommentList postId={post.id} /><QuestionForm postId={post.id} /></div>
+          <div className="mx-auto max-w-4xl px-4 py-12 min-[375px]:px-5 sm:py-14 md:px-8 md:py-16"><CommentSection postId={post.id} /></div>
         </main>
         <SiteFooter />
       </div>

@@ -7,6 +7,8 @@ import { profilesService } from '@/services/profiles'
 import type { UserRole } from '@/services/profiles'
 
 const adminLoginEmail = 'dev.baaaam@gmail.com'
+const staffAccountRequests = new Map<string, Promise<StaffAccount | null>>()
+const staffAccountDedupeWindowMs = 1_500
 
 export type EmailCodePurpose = 'login' | 'signup'
 
@@ -25,6 +27,11 @@ type AuthResult = {
 }
 
 type AccountDeletionResult = {
+  ok: boolean
+  errorMessage: string | null
+}
+
+type PasswordChangeResult = {
   ok: boolean
   errorMessage: string | null
 }
@@ -49,6 +56,8 @@ type AuthContextValue = {
   isResendingEmailCode: boolean
   logout: () => Promise<boolean>
   isLoggingOut: boolean
+  changePassword: (currentPassword: string, newPassword: string) => Promise<PasswordChangeResult>
+  isChangingPassword: boolean
   deleteAccount: (password: string) => Promise<AccountDeletionResult>
   isDeletingAccount: boolean
 }
@@ -59,21 +68,34 @@ function sessionHasVerifiedEmail(session: Session | null) {
   return Boolean(session?.user.email && session.user.email_confirmed_at)
 }
 
-async function toStaffAccount(session: Session | null): Promise<StaffAccount | null> {
-  if (!sessionHasVerifiedEmail(session)) return null
+function toStaffAccount(session: Session | null): Promise<StaffAccount | null> {
+  if (!sessionHasVerifiedEmail(session)) return Promise.resolve(null)
   const user = session?.user
-  if (!user?.email) return null
+  if (!user?.email) return Promise.resolve(null)
+  const userEmail = user.email
 
-  const profile = await profilesService.getById(user.id).catch(() => null)
-  const metadataName = user.user_metadata?.full_name
-  return {
-    id: user.id,
-    name:
-      profile?.displayName ??
-      (typeof metadataName === 'string' && metadataName.trim() ? metadataName.trim() : user.email),
-    email: user.email,
-    role: profile?.role ?? 'general',
-  }
+  const pendingRequest = staffAccountRequests.get(user.id)
+  if (pendingRequest) return pendingRequest
+
+  const request = profilesService.getById(user.id).catch(() => null).then((profile) => {
+    const metadataName = user.user_metadata?.full_name
+    return {
+      id: user.id,
+      name:
+        profile?.displayName ??
+        (typeof metadataName === 'string' && metadataName.trim() ? metadataName.trim() : userEmail),
+      email: userEmail,
+      role: profile?.role ?? 'general',
+    }
+  })
+
+  staffAccountRequests.set(user.id, request)
+  void request.finally(() => {
+    window.setTimeout(() => {
+      if (staffAccountRequests.get(user.id) === request) staffAccountRequests.delete(user.id)
+    }, staffAccountDedupeWindowMs)
+  })
+  return request
 }
 
 function destinationFor(account: StaffAccount | null): AuthDestination {
@@ -88,6 +110,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
   const [isVerifyingEmailCode, setIsVerifyingEmailCode] = useState(false)
   const [isResendingEmailCode, setIsResendingEmailCode] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const [isChangingPassword, setIsChangingPassword] = useState(false)
   const [isDeletingAccount, setIsDeletingAccount] = useState(false)
 
   useEffect(() => {
@@ -102,13 +125,22 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       setIsSessionLoading(false)
     })
 
-    const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: subscription } = supabase.auth.onAuthStateChange((event, session) => {
       if (!active) return
-      void toStaffAccount(session).then((account) => {
-        if (!active) return
-        setCurrentStaff(account)
+      if (event === 'INITIAL_SESSION') return
+      if (!session) {
+        setCurrentStaff(null)
         setIsSessionLoading(false)
-      })
+        return
+      }
+
+      window.setTimeout(() => {
+        void toStaffAccount(session).then((account) => {
+          if (!active) return
+          setCurrentStaff(account)
+          setIsSessionLoading(false)
+        })
+      }, 0)
     })
 
     return () => {
@@ -243,6 +275,41 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
+  const changePassword = useCallback(async (currentPassword: string, newPassword: string): Promise<PasswordChangeResult> => {
+    if (!currentStaff) {
+      return { ok: false, errorMessage: '로그인 정보를 확인할 수 없어요. 다시 로그인해주세요.' }
+    }
+
+    setIsChangingPassword(true)
+    try {
+      const { data: passwordData, error: passwordError } = await supabase.auth.signInWithPassword({
+        email: currentStaff.email,
+        password: currentPassword,
+      })
+      if (passwordError || passwordData.user?.id !== currentStaff.id) {
+        return { ok: false, errorMessage: '현재 비밀번호가 올바르지 않아요.' }
+      }
+
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: newPassword,
+        current_password: currentPassword,
+      })
+      if (updateError) {
+        if (/same password/i.test(updateError.message)) {
+          return { ok: false, errorMessage: '현재 비밀번호와 다른 비밀번호를 입력해주세요.' }
+        }
+        if (/weak|password.*(short|length)|characters/i.test(updateError.message)) {
+          return { ok: false, errorMessage: '비밀번호 조건을 확인해주세요. 8자 이상으로 입력해주세요.' }
+        }
+        return { ok: false, errorMessage: '비밀번호를 변경하지 못했어요. 잠시 후 다시 시도해주세요.' }
+      }
+
+      return { ok: true, errorMessage: null }
+    } finally {
+      setIsChangingPassword(false)
+    }
+  }, [currentStaff])
+
   const deleteAccount = useCallback(async (password: string): Promise<AccountDeletionResult> => {
     if (!currentStaff) {
       return { ok: false, errorMessage: '로그인 정보를 확인할 수 없어요. 다시 로그인해주세요.' }
@@ -287,10 +354,12 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       isResendingEmailCode,
       logout,
       isLoggingOut,
+      changePassword,
+      isChangingPassword,
       deleteAccount,
       isDeletingAccount,
     }),
-    [currentStaff, isSessionLoading, login, isLoggingIn, signUp, isSigningUp, verifyEmailCode, isVerifyingEmailCode, resendEmailCode, isResendingEmailCode, logout, isLoggingOut, deleteAccount, isDeletingAccount],
+    [currentStaff, isSessionLoading, login, isLoggingIn, signUp, isSigningUp, verifyEmailCode, isVerifyingEmailCode, resendEmailCode, isResendingEmailCode, logout, isLoggingOut, changePassword, isChangingPassword, deleteAccount, isDeletingAccount],
   )
 
   return createElement(AuthContext.Provider, { value }, children)

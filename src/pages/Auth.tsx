@@ -1,15 +1,19 @@
-import { ArrowLeft, ChevronRight, FileText, Mail, ShieldCheck } from 'lucide-react'
+import { ArrowLeft, ChevronRight, Eye, EyeOff, FileText, Mail, ShieldCheck, X } from 'lucide-react'
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from '@/components/ui'
 import { useOperatorSession } from '@/services/session'
 import type { EmailCodePurpose } from '@/services/session'
+import Privacy from '@/pages/Privacy'
+import Terms from '@/pages/Terms'
 
 type AuthProps = { mode: 'login' | 'signup' }
 type FormErrors = { name?: string; identifier?: string; password?: string }
 type EmailChallenge = { email: string; purpose: EmailCodePurpose }
 type SignupStep = 'consent' | 'details'
+type LegalDocument = 'terms' | 'privacy'
 
 export default function Auth({ mode }: AuthProps) {
   const isSignup = mode === 'signup'
@@ -33,6 +37,8 @@ export default function Auth({ mode }: AuthProps) {
   const [termsAgreed, setTermsAgreed] = useState(false)
   const [privacyAgreed, setPrivacyAgreed] = useState(false)
   const [newsletterOptIn, setNewsletterOptIn] = useState(false)
+  const [legalDocument, setLegalDocument] = useState<LegalDocument | null>(null)
+  const [passwordVisible, setPasswordVisible] = useState(false)
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -72,6 +78,7 @@ export default function Auth({ mode }: AuthProps) {
       return
     }
 
+    const adminPageReady = import('@/pages/Admin').catch(() => null)
     const result = await login(identifier, password)
     if (!result.ok) {
       setSubmitError(result.errorMessage ?? '아이디 또는 이메일과 비밀번호를 확인해주세요.')
@@ -81,7 +88,8 @@ export default function Auth({ mode }: AuthProps) {
       setChallenge(result.challenge)
       return
     }
-    navigate(result.destination ?? '/')
+    if (result.destination === '/admin') await adminPageReady
+    navigate(result.destination ?? '/', { replace: true })
   }
 
   async function handleVerifyCode(event: FormEvent<HTMLFormElement>) {
@@ -160,9 +168,9 @@ export default function Auth({ mode }: AuthProps) {
                     <span className="block font-bold text-navy"><span className="mr-1 text-brand">[필수]</span> 이용약관 동의</span>
                     <span className="mt-1 block text-xs leading-5 text-ink-muted">서비스 이용 규칙과 회원의 권리·의무를 확인해주세요.</span>
                   </label>
-                  <Link to="/terms" target="_blank" rel="noreferrer" aria-label="이용약관 새 창에서 보기" className="inline-flex min-h-9 shrink-0 items-center gap-0.5 rounded-md px-1.5 text-xs font-bold text-ink-muted hover:bg-brand-soft hover:text-brand min-[375px]:px-2">
+                  <button type="button" onClick={() => setLegalDocument('terms')} aria-haspopup="dialog" aria-label="이용약관 팝업으로 보기" className="inline-flex min-h-9 shrink-0 items-center gap-0.5 rounded-md px-1.5 text-xs font-bold text-ink-muted hover:bg-brand-soft hover:text-brand min-[375px]:px-2">
                     보기 <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
-                  </Link>
+                  </button>
                 </div>
 
                 <div className="flex items-start gap-2.5 p-4 min-[375px]:gap-3 min-[375px]:p-5">
@@ -178,9 +186,9 @@ export default function Auth({ mode }: AuthProps) {
                     <span className="block font-bold text-navy"><span className="mr-1 text-brand">[필수]</span> 개인정보 처리방침 동의</span>
                     <span className="mt-1 block text-xs leading-5 text-ink-muted">수집하는 정보와 이용·보관 방법을 확인해주세요.</span>
                   </label>
-                  <Link to="/privacy" target="_blank" rel="noreferrer" aria-label="개인정보 처리방침 새 창에서 보기" className="inline-flex min-h-9 shrink-0 items-center gap-0.5 rounded-md px-1.5 text-xs font-bold text-ink-muted hover:bg-brand-soft hover:text-brand min-[375px]:px-2">
+                  <button type="button" onClick={() => setLegalDocument('privacy')} aria-haspopup="dialog" aria-label="개인정보 처리방침 팝업으로 보기" className="inline-flex min-h-9 shrink-0 items-center gap-0.5 rounded-md px-1.5 text-xs font-bold text-ink-muted hover:bg-brand-soft hover:text-brand min-[375px]:px-2">
                     보기 <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
-                  </Link>
+                  </button>
                 </div>
 
                 <div className="flex items-start gap-2.5 border-t border-border-subtle p-4 min-[375px]:gap-3 min-[375px]:p-5">
@@ -257,13 +265,19 @@ export default function Auth({ mode }: AuthProps) {
               <input name="identifier" type={isSignup ? 'email' : 'text'} inputMode={isSignup ? 'email' : 'text'} autoComplete={isSignup ? 'email' : 'username'} aria-invalid={Boolean(errors.identifier)} className="form-input" placeholder="name@example.com" />
               {errors.identifier ? <span className="mt-1.5 block text-xs font-semibold text-danger">{errors.identifier}</span> : null}
             </label>
-            <label className="block text-sm font-bold text-navy">비밀번호
-              <input name="password" type="password" autoComplete={isSignup ? 'new-password' : 'current-password'} aria-invalid={Boolean(errors.password)} className="form-input" placeholder="비밀번호를 입력해주세요" />
+            <div>
+              <label htmlFor="auth-password" className="block text-sm font-bold text-navy">비밀번호</label>
+              <div className="relative">
+                <input id="auth-password" name="password" type={passwordVisible ? 'text' : 'password'} autoComplete={isSignup ? 'new-password' : 'current-password'} aria-invalid={Boolean(errors.password)} className="form-input pr-12" placeholder="비밀번호를 입력해주세요" />
+                <button type="button" onClick={() => setPasswordVisible((visible) => !visible)} aria-label={passwordVisible ? '비밀번호 숨기기' : '비밀번호 보기'} aria-pressed={passwordVisible} className="absolute bottom-0 right-1 flex h-12 w-11 items-center justify-center rounded-lg text-ink-muted transition-colors hover:bg-section hover:text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-brand">
+                  {passwordVisible ? <EyeOff className="h-5 w-5" aria-hidden="true" /> : <Eye className="h-5 w-5" aria-hidden="true" />}
+                </button>
+              </div>
               {errors.password ? <span className="mt-1.5 block text-xs font-semibold text-danger">{errors.password}</span> : null}
-            </label>
+            </div>
 
             {submitError ? <p role="alert" className="text-sm leading-6 text-danger">{submitError}</p> : null}
-            <button type="submit" disabled={isLoggingIn || isSigningUp} className="min-h-14 w-full rounded-xl bg-brand px-5 text-base font-bold text-white transition-colors hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-70">{isLoggingIn || isSigningUp ? '처리 중...' : isSignup ? '회원가입' : '로그인'}</button>
+            <button type="submit" disabled={isLoggingIn || isSigningUp} className="min-h-14 w-full rounded-xl bg-brand px-5 text-base font-bold text-white transition-colors hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-70">{isLoggingIn ? '로그인 중...' : isSigningUp ? '회원가입 중...' : isSignup ? '회원가입' : '로그인'}</button>
             {isSignup ? (
               <button type="button" onClick={() => { setSignupStep('consent'); setSubmitError('') }} className="w-full text-sm font-bold text-ink-muted hover:text-brand">
                 이전 단계로
@@ -278,6 +292,28 @@ export default function Auth({ mode }: AuthProps) {
           </p> : null}
         </div>
       </section>
+
+      <Dialog open={legalDocument !== null} onOpenChange={(open) => { if (!open) setLegalDocument(null) }}>
+        <DialogContent
+          overlayProps={{ className: 'fixed inset-0 z-50 bg-navy/55 backdrop-blur-[2px]' }}
+          className="fixed inset-0 z-[60] flex flex-col bg-white shadow-2xl sm:inset-5 sm:rounded-2xl sm:border sm:border-border-subtle lg:left-1/2 lg:right-auto lg:w-[min(64rem,calc(100%-3rem))] lg:-translate-x-1/2"
+        >
+          <div className="flex shrink-0 items-start justify-between gap-4 border-b border-border-subtle px-4 py-4 min-[375px]:px-5 sm:px-7 sm:py-5">
+            <div className="min-w-0">
+              <DialogTitle className="text-xl font-extrabold tracking-[-0.025em] text-navy sm:text-2xl">
+                {legalDocument === 'privacy' ? '개인정보 처리방침' : '이용약관'}
+              </DialogTitle>
+              <DialogDescription className="mt-1 text-xs font-semibold text-ink-muted sm:text-sm">시행일: 2026년 9월 3일</DialogDescription>
+            </div>
+            <DialogClose className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-ink-muted transition-colors hover:bg-section hover:text-navy focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand" aria-label="약관 팝업 닫기">
+              <X className="h-5 w-5" aria-hidden="true" />
+            </DialogClose>
+          </div>
+          <div className="min-h-0 flex-1 overscroll-contain overflow-y-auto px-4 py-6 min-[375px]:px-5 sm:px-7 sm:py-8" tabIndex={0}>
+            {legalDocument === 'privacy' ? <Privacy embedded /> : <Terms embedded />}
+          </div>
+        </DialogContent>
+      </Dialog>
     </main>
   )
 }

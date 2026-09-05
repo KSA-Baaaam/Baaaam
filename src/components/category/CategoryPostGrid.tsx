@@ -1,6 +1,6 @@
 import { BookOpen, Search } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { PostCard } from '@/components/home/PostCard'
 import { Pagination, SimpleSelect } from '@/components/ui'
@@ -20,36 +20,41 @@ const sortOptions = [
 ] as const
 
 export function CategoryPostGrid({ activeCategoryId }: CategoryPostGridProps) {
-  const { data: posts = [], isLoading } = useQuery({ queryKey: ['posts', 'all'], queryFn: postsService.listAll })
   const [page, setPage] = useState(1)
   const [query, setQuery] = useState('')
+  const [debouncedQuery, setDebouncedQuery] = useState('')
   const [sortMode, setSortMode] = useState<SortMode>('newest')
 
-  const filteredPosts = useMemo(() => {
-    const normalizedQuery = query.trim().toLocaleLowerCase('ko-KR')
-    const matches = posts.filter((post) => {
-      const categoryMatches = activeCategoryId === ALL_CATEGORY_ID || post.categoryId === activeCategoryId
-      const queryMatches = !normalizedQuery || `${post.title} ${post.content}`.toLocaleLowerCase('ko-KR').includes(normalizedQuery)
-      return categoryMatches && queryMatches
-    })
+  useEffect(() => {
+    const timer = window.setTimeout(() => setDebouncedQuery(query), 350)
+    return () => window.clearTimeout(timer)
+  }, [query])
 
-    return [...matches].sort((a, b) => {
-      if (sortMode === 'popular') return b.viewCount - a.viewCount
-      return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
-    })
-  }, [activeCategoryId, posts, query, sortMode])
+  useEffect(() => setPage(1), [activeCategoryId])
 
-  const totalPages = Math.max(1, Math.ceil(filteredPosts.length / POSTS_PER_PAGE))
+  const { data = { items: [], total: 0 }, isLoading } = useQuery({
+    queryKey: ['posts', 'published-page', activeCategoryId, page, debouncedQuery, sortMode],
+    queryFn: () => postsService.listPublishedPage({ page, pageSize: POSTS_PER_PAGE, categoryId: activeCategoryId, query: debouncedQuery, sort: sortMode }),
+  })
+  const totalPages = Math.max(1, Math.ceil(data.total / POSTS_PER_PAGE))
   const currentPage = Math.min(page, totalPages)
-  const visiblePosts = filteredPosts.slice((currentPage - 1) * POSTS_PER_PAGE, currentPage * POSTS_PER_PAGE)
   const heading = activeCategoryId === ALL_CATEGORY_ID ? categoryContent.allCategoryTitle : `${categoryLabelById.get(activeCategoryId) ?? activeCategoryId}${categoryContent.categoryTitleSuffix}`
+  const emptyMessage = debouncedQuery
+    ? categoryContent.empty
+    : activeCategoryId === ALL_CATEGORY_ID
+      ? '아직 등록된 글이 없어요.'
+      : '아직 이 카테고리에 등록된 글이 없어요.'
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages)
+  }, [page, totalPages])
 
   return (
     <div id="category-post-list" className="scroll-mt-24">
       <div className="mb-7 flex flex-col gap-4 border-b border-border-subtle pb-6 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <h2 className="text-2xl font-extrabold tracking-[-0.03em] text-navy">{heading}</h2>
-          <p className="mt-1 text-sm text-ink-muted">{filteredPosts.length}{categoryContent.countSuffix}</p>
+          <p className="mt-1 text-sm text-ink-muted">{data.total}{categoryContent.countSuffix}</p>
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row">
@@ -77,20 +82,20 @@ export function CategoryPostGrid({ activeCategoryId }: CategoryPostGridProps) {
 
       {isLoading ? (
         <p className="empty-panel">{categoryContent.loading}</p>
-      ) : visiblePosts.length === 0 ? (
+      ) : data.items.length === 0 ? (
         <div className="empty-panel">
           <BookOpen className="mx-auto mb-4 h-8 w-8 text-brand" strokeWidth={1.7} aria-hidden="true" />
-          <p>{categoryContent.empty}</p>
+          <p>{emptyMessage}</p>
         </div>
       ) : (
         <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {visiblePosts.map((post) => (
+          {data.items.map((post) => (
             <li key={post.id}><PostCard post={post} categoryLabel={categoryLabelById.get(post.categoryId) ?? post.categoryId} /></li>
           ))}
         </ul>
       )}
 
-      {!isLoading ? <Pagination currentPage={currentPage} totalItems={filteredPosts.length} itemsPerPage={POSTS_PER_PAGE} onPageChange={setPage} ariaLabel="카테고리 글 페이지" scrollTargetId="category-post-list" /> : null}
+      {!isLoading ? <Pagination currentPage={currentPage} totalItems={data.total} itemsPerPage={POSTS_PER_PAGE} onPageChange={setPage} ariaLabel="카테고리 글 페이지" scrollTargetId="category-post-list" /> : null}
     </div>
   )
 }

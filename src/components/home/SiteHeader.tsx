@@ -14,14 +14,18 @@ const navItems = [
   { to: '/about', label: homeContent.header.navAbout, kind: 'about', icon: Info },
 ] as const
 
+const scienceCategoryPaths = new Set([
+  '/category/physics',
+  '/category/chemistry',
+  '/category/biology',
+  '/category/earth-science',
+])
+
 function isItemActive(pathname: string, kind: (typeof navItems)[number]['kind']) {
   if (kind === 'home') return pathname === '/'
   if (kind === 'math') return pathname === '/math' || pathname === '/category/math'
   if (kind === 'science') {
-    return (
-      pathname === '/science' ||
-      (pathname.startsWith('/category/') && pathname !== '/category/math')
-    )
+    return pathname === '/science' || scienceCategoryPaths.has(pathname)
   }
   return pathname === '/about'
 }
@@ -32,6 +36,15 @@ export function SiteHeader() {
   const { currentStaff, isSessionLoading, logout, isLoggingOut } = useOperatorSession()
 
   useEffect(() => setMenuOpen(false), [pathname])
+
+  useEffect(() => {
+    if (!menuOpen) return
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMenuOpen(false)
+    }
+    window.addEventListener('keydown', closeOnEscape)
+    return () => window.removeEventListener('keydown', closeOnEscape)
+  }, [menuOpen])
 
   return (
     <header className="sticky top-0 z-30 border-b border-border-subtle bg-white/95 backdrop-blur-sm">
@@ -51,6 +64,7 @@ export function SiteHeader() {
               <NavLink
                 key={item.to}
                 to={item.to}
+                aria-current={isItemActive(pathname, item.kind) ? 'page' : undefined}
                 className={() =>
                   `relative flex h-full items-center gap-1.5 px-2.5 text-sm font-bold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand xl:gap-2 xl:px-4 xl:text-base ${
                     isItemActive(pathname, item.kind)
@@ -74,7 +88,11 @@ export function SiteHeader() {
             <Search className="h-[1.1rem] w-[1.1rem]" aria-hidden="true" />
             검색
           </Link>
-          {!isSessionLoading && currentStaff ? (
+          {isSessionLoading ? (
+            <span role="status" className="inline-flex h-10 w-24 animate-pulse items-center justify-center rounded-lg bg-section text-xs font-semibold text-ink-soft">
+              계정 확인 중
+            </span>
+          ) : currentStaff ? (
             <>
               {currentStaff.role !== 'general' ? (
                 <Link to="/admin" className="inline-flex h-10 items-center justify-center rounded-lg border border-brand px-3.5 text-sm font-bold text-brand transition-colors hover:bg-brand-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand xl:px-4">
@@ -114,7 +132,7 @@ export function SiteHeader() {
           onClick={() => setMenuOpen((open) => !open)}
           className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-navy hover:bg-brand-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:h-11 sm:w-11 lg:hidden"
         >
-          {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {menuOpen ? <X className="h-6 w-6" aria-hidden="true" /> : <Menu className="h-6 w-6" aria-hidden="true" />}
         </button>
       </div>
 
@@ -127,6 +145,7 @@ export function SiteHeader() {
                 <Link
                   key={item.to}
                   to={item.to}
+                  aria-current={isItemActive(pathname, item.kind) ? 'page' : undefined}
                   className={`flex items-center gap-3 border-b border-border-subtle px-1 py-3.5 text-base font-bold ${
                     isItemActive(pathname, item.kind) ? 'text-brand' : 'text-navy'
                   }`}
@@ -139,7 +158,9 @@ export function SiteHeader() {
             <div className="pt-5">
               <SiteSearchForm size="large" />
             </div>
-            {!isSessionLoading && currentStaff ? (
+            {isSessionLoading ? (
+              <p role="status" className="mt-4 rounded-lg bg-section px-4 py-3 text-center text-sm font-semibold text-ink-muted">계정 정보를 확인하고 있어요.</p>
+            ) : currentStaff ? (
               <div className="mt-4 grid grid-cols-2 gap-2">
                 {currentStaff.role !== 'general' ? (
                   <Link to="/admin" className="col-span-2 inline-flex min-h-12 items-center justify-center rounded-lg bg-brand px-5 text-sm font-bold text-white">

@@ -34,7 +34,7 @@ export const profilesService = {
   async getById(id: string): Promise<Profile | null> {
     const { data, error } = await supabase
       .from('profiles')
-      .select('*')
+      .select('id, email, display_name, role, created_at, updated_at')
       .eq('id', id)
       .maybeSingle()
     if (error) throw new Error(error.message)

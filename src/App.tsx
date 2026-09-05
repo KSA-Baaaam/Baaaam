@@ -15,6 +15,8 @@ const Privacy = lazy(() => import('@/pages/Privacy'))
 const SearchResults = lazy(() => import('@/pages/SearchResults'))
 const SubjectHub = lazy(() => import('@/pages/SubjectHub'))
 const Terms = lazy(() => import('@/pages/Terms'))
+const Team = lazy(() => import('@/pages/Team'))
+const WritePost = lazy(() => import('@/pages/WritePost'))
 
 const queryClient = new QueryClient()
 
@@ -42,10 +44,15 @@ export default function App() {
           <Route path="/category/:categoryId" element={<CategoryList />} />
           <Route path="/post/:postId" element={<PostDetail />} />
           <Route path="/article/:postId" element={<PostDetail />} />
+          <Route path="/posts/:slug" element={<PostDetail />} />
+          <Route path="/:postRef" element={<PostDetail />} />
+          <Route path="/write" element={<WritePost />} />
+          <Route path="/write/:postId" element={<WritePost />} />
           <Route path="/search" element={<SearchResults />} />
           <Route path="/about" element={<About />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="/team" element={<Team />} />
           <Route path="/account" element={<Account />} />
           <Route path="/login" element={<Auth key="login" mode="login" />} />
           <Route path="/signup" element={<Auth key="signup" mode="signup" />} />

@@ -18,6 +18,7 @@ export type AddCommentInput = {
 
 export interface CommentsAdapter {
   listByPostId(postId: string): Promise<Comment[]>
+  listMine(): Promise<Comment[]>
   listAll(): Promise<Comment[]>
   addComment(input: AddCommentInput): Promise<Comment>
   deleteComment(id: string): Promise<void>
@@ -56,6 +57,18 @@ export const commentsService: CommentsAdapter = {
       .select('*')
       .eq('post_id', Number(postId))
       .order('created_at', { ascending: true })
+    if (error) throw new Error(error.message)
+    return data.map(mapComment)
+  },
+
+  async listMine() {
+    const identity = await currentUserIdentity()
+    const { data, error } = await supabase
+      .from('comments')
+      .select('*')
+      .eq('author_id', identity.id)
+      .order('created_at', { ascending: false })
+      .limit(100)
     if (error) throw new Error(error.message)
     return data.map(mapComment)
   },

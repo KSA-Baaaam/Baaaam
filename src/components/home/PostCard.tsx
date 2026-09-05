@@ -1,8 +1,8 @@
 import type { LucideIcon } from 'lucide-react'
-import { Atom, Braces, CalendarDays, Clock3, Compass, FlaskConical, Globe2, Leaf } from 'lucide-react'
+import { Atom, Braces, CalendarDays, Compass, FlaskConical, Globe2, Leaf } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
-import type { Post } from '@/types/blog'
+import type { PostSummary } from '@/types/blog'
 import { koDateFormatter } from '@/lib/format'
 
 const artworkByCategory: Record<string, { icon: LucideIcon; notation: string; className: string }> = {
@@ -12,15 +12,6 @@ const artworkByCategory: Record<string, { icon: LucideIcon; notation: string; cl
   biology: { icon: Leaf, notation: 'CELL', className: 'bg-[#edf8f1] text-[#247a4d]' },
   'earth-science': { icon: Globe2, notation: 'EARTH', className: 'bg-[#eaf7fb] text-[#147b9d]' },
   other: { icon: Braces, notation: '0101', className: 'bg-[#f0f1f7] text-[#4f5e8b]' },
-}
-
-function getSummary(content: string): string {
-  const boundary = content.indexOf('. ')
-  return boundary === -1 ? content : content.slice(0, boundary + 1)
-}
-
-function getReadingMinutes(content: string) {
-  return Math.max(2, Math.ceil(content.replace(/\s/g, '').length / 250))
 }
 
 type TopicArtworkProps = {
@@ -46,7 +37,7 @@ export function TopicArtwork({ categoryId, compact = false, className = '' }: To
 }
 
 type PostCardProps = {
-  post: Post
+  post: PostSummary
   categoryLabel: string
   imageRenderWidth?: number
   eager?: boolean
@@ -54,8 +45,6 @@ type PostCardProps = {
 }
 
 export function PostCard({ post, categoryLabel, variant = 'grid' }: PostCardProps) {
-  const summary = getSummary(post.content)
-  const minutes = getReadingMinutes(post.content)
   const isRow = variant === 'row'
   const isFeature = variant === 'feature'
 
@@ -68,13 +57,13 @@ export function PostCard({ post, categoryLabel, variant = 'grid' }: PostCardProp
           src={post.imageUrl}
           alt=""
           loading="lazy"
-          className={isRow ? 'hidden w-[34%] min-w-32 shrink-0 object-cover sm:block' : isFeature ? 'aspect-[16/7] w-full object-cover' : 'aspect-[16/8] w-full object-cover'}
+          className={isRow ? 'hidden w-[34%] min-w-32 shrink-0 object-cover sm:block' : 'aspect-[16/7] w-full object-cover'}
         />
       ) : (
         <TopicArtwork
           categoryId={post.categoryId}
           compact={isRow}
-          className={isRow ? 'hidden w-[34%] min-w-32 shrink-0 sm:flex' : isFeature ? 'aspect-[16/7] w-full' : 'aspect-[16/8] w-full'}
+          className={isRow ? 'hidden w-[34%] min-w-32 shrink-0 sm:flex' : 'aspect-[16/7] w-full'}
         />
       )}
 
@@ -83,7 +72,7 @@ export function PostCard({ post, categoryLabel, variant = 'grid' }: PostCardProp
 
         <h3 className={`mt-2 [overflow-wrap:anywhere] font-extrabold leading-snug tracking-[-0.025em] text-navy ${isFeature ? 'text-xl min-[375px]:text-2xl sm:text-[1.8rem]' : isRow ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'}`}>
           <Link
-            to={`/article/${post.id}`}
+            to={`/id=${post.id}`}
             className="rounded-sm after:absolute after:inset-0 after:content-[''] group-hover:text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
             {post.title}
@@ -91,17 +80,13 @@ export function PostCard({ post, categoryLabel, variant = 'grid' }: PostCardProp
         </h3>
 
         <p className={`mt-3 text-sm leading-6 text-ink-muted ${isRow ? 'line-clamp-2' : isFeature ? 'max-w-2xl text-[0.98rem] sm:leading-7' : 'line-clamp-2'}`}>
-          {summary}
+          {post.subtitle || '새로운 수학·과학 이야기를 만나보세요.'}
         </p>
 
         <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 pt-5 text-xs text-ink-soft">
           <span className="inline-flex items-center gap-1.5">
             <CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />
-            {koDateFormatter.format(new Date(post.publishedAt))}
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <Clock3 className="h-3.5 w-3.5" aria-hidden="true" />
-            약 {minutes}분
+            {koDateFormatter.format(new Date(post.publishedAt ?? post.updatedAt))}
           </span>
         </div>
       </div>

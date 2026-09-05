@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 
 import { SiteFooter } from '@/components/home/SiteFooter'
 import { SiteHeader } from '@/components/home/SiteHeader'
+import { homeContent } from '@/content/home'
 
 const paragraphClassName = 'mt-4 text-[0.95rem] leading-8 text-ink-muted sm:text-base'
 const listClassName = 'mt-4 list-decimal space-y-2 pl-6 text-[0.95rem] leading-7 text-ink-muted sm:text-base'
@@ -16,21 +17,25 @@ function TermsSection({ title, children }: { title: string; children: ReactNode 
   )
 }
 
-export default function Terms() {
+type TermsProps = { embedded?: boolean }
+
+export default function Terms({ embedded = false }: TermsProps) {
+  const ContentRoot = embedded ? 'div' : 'main'
+
   return (
-    <div className="site-page bg-section">
-      <SiteHeader />
-      <main className="site-main">
-        <header className="border-b border-hero-border bg-hero">
+    <div className={embedded ? '' : 'site-page bg-section'}>
+      {embedded ? null : <SiteHeader />}
+      <ContentRoot className={embedded ? '' : 'site-main'}>
+        {embedded ? null : <header className="border-b border-hero-border bg-hero">
           <div className="mx-auto max-w-5xl px-4 py-10 min-[375px]:px-5 sm:py-12 md:px-8 md:py-14">
             <p className="text-sm font-extrabold tracking-[0.12em] text-brand">TERMS OF SERVICE</p>
             <h1 className="mt-4 text-3xl font-extrabold tracking-[-0.045em] text-navy sm:text-4xl md:text-5xl">BAAAAM 이용약관</h1>
             <p className="mt-5 inline-flex rounded-full border border-hero-border bg-white px-4 py-2 text-sm font-bold text-ink-muted">시행일: 2026년 9월 3일</p>
           </div>
-        </header>
+        </header>}
 
-        <article className="mx-auto max-w-5xl px-4 py-8 min-[375px]:px-5 sm:py-10 md:px-8 md:py-16">
-          <div className="border border-border-subtle bg-white px-4 py-7 min-[375px]:px-5 sm:px-8 sm:py-10 md:px-12 md:py-14">
+        <article className={embedded ? 'pb-2' : 'mx-auto max-w-5xl px-4 py-8 min-[375px]:px-5 sm:py-10 md:px-8 md:py-16'}>
+          <div className={embedded ? '' : 'border border-border-subtle bg-white px-4 py-7 min-[375px]:px-5 sm:px-8 sm:py-10 md:px-12 md:py-14'}>
             <div className="space-y-10">
               <TermsSection title="제1조 목적">
                 <p className={paragraphClassName}>본 약관은 한국과학영재학교 소속 BAAAAM 연구회(이하 “BAAAAM”)가 운영하는 BAAAAM 웹사이트 및 관련 서비스의 이용과 관련하여 BAAAAM과 이용자 간의 권리, 의무 및 책임사항을 정하는 것을 목적으로 합니다.</p>
@@ -168,7 +173,7 @@ export default function Terms() {
                 <dl className="mt-5 grid gap-3 rounded-xl bg-surface-muted p-5 text-sm leading-6 sm:grid-cols-[7rem_1fr] sm:p-6">
                   <dt className="font-extrabold text-navy">운영단체</dt><dd className="text-ink-muted">한국과학영재학교 BAAAAM 연구회</dd>
                   <dt className="font-extrabold text-navy">문의 담당</dt><dd className="text-ink-muted">BAAAAM 연구회 운영진</dd>
-                  <dt className="font-extrabold text-navy">이메일</dt><dd><a className="font-bold text-brand underline decoration-brand/30 underline-offset-4 hover:text-brand-strong" href="mailto:dev.baaaam@gmail.com">dev.baaaam@gmail.com</a></dd>
+                  <dt className="font-extrabold text-navy">이메일</dt><dd><a className="font-bold text-brand underline decoration-brand/30 underline-offset-4 hover:text-brand-strong" href={`mailto:${homeContent.footer.contactEmail}`}>{homeContent.footer.contactEmail}</a></dd>
                   <dt className="font-extrabold text-navy">웹사이트</dt><dd><a className="font-bold text-brand underline decoration-brand/30 underline-offset-4 hover:text-brand-strong" href="https://baaaam.cloud">baaaam.cloud</a></dd>
                 </dl>
               </TermsSection>
@@ -186,13 +191,13 @@ export default function Terms() {
               </TermsSection>
             </div>
 
-            <div className="mt-12 border-t border-border-subtle pt-8">
+            {embedded ? null : <div className="mt-12 border-t border-border-subtle pt-8">
               <Link to="/" className="inline-flex min-h-11 items-center justify-center rounded-lg border border-brand px-5 text-sm font-bold text-brand transition-colors hover:bg-brand-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">홈으로 돌아가기</Link>
-            </div>
+            </div>}
           </div>
         </article>
-      </main>
-      <SiteFooter />
+      </ContentRoot>
+      {embedded ? null : <SiteFooter />}
     </div>
   )
 }

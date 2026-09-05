@@ -23,8 +23,8 @@
 
   --shadow-search: 0 4px 14px rgba(25, 91, 64, 0.08);
 
-  --font-sans: 'Pretendard Variable', Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo',
-    -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif;
+  --font-sans: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui,
+    sans-serif;
 }
 
 :root {
@@ -35,18 +35,59 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
   background: var(--color-surface);
   overflow-x: clip;
 }
 
 body {
   margin: 0;
-  min-width: 320px;
+  min-width: 0;
   min-height: 100vh;
   overflow-x: clip;
   background: var(--color-surface);
   color: var(--color-ink);
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+body,
+button,
+input,
+textarea,
+select,
+optgroup,
+option {
+  font-family: var(--font-sans);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  text-wrap: balance;
+}
+
+p,
+li,
+dt,
+dd,
+figcaption,
+label {
+  text-wrap: pretty;
+}
+
+a {
+  overflow-wrap: anywhere;
+}
+
+input,
+textarea,
+pre,
+code {
+  word-break: normal;
 }
 
 img,
@@ -103,6 +144,14 @@ summary {
     @apply flex-1;
   }
 
+  /* Grid/Flex 자식의 내용 너비가 화면보다 커져도 페이지 자체가 잘리지 않게 합니다. */
+  .site-main,
+  .site-main > *,
+  .page-shell,
+  .page-shell > * {
+    min-width: 0;
+  }
+
   .section-spacing {
     @apply py-12 sm:py-16 md:py-20;
   }
@@ -120,6 +169,189 @@ summary {
     overscroll-behavior-inline: contain;
     -webkit-overflow-scrolling: touch;
   }
+
+  .write-autogrow {
+    field-sizing: content;
+    min-height: 4.25rem;
+    max-height: 10rem;
+  }
+
+  .baaaam-prosemirror > *:first-child {
+    margin-top: 0;
+  }
+
+  .baaaam-prosemirror p {
+    @apply my-3 min-h-7 text-base leading-8 text-ink-muted;
+  }
+
+  .baaaam-prosemirror h1 {
+    @apply mb-3 mt-9 text-3xl font-extrabold tracking-[-0.04em] text-navy;
+  }
+
+  .baaaam-prosemirror h2 {
+    @apply mb-3 mt-8 text-2xl font-extrabold tracking-[-0.03em] text-navy;
+  }
+
+  .baaaam-prosemirror h3 {
+    @apply mb-2 mt-7 text-xl font-extrabold text-navy;
+  }
+
+  .baaaam-prosemirror ul:not([data-type='taskList']) {
+    @apply my-4 list-outside list-disc space-y-1.5 pl-7 text-ink-muted;
+  }
+
+  .baaaam-prosemirror ol {
+    @apply my-4 list-outside list-decimal space-y-1.5 pl-7 text-ink-muted;
+  }
+
+  .baaaam-prosemirror li {
+    @apply pl-1 leading-8;
+  }
+
+  .baaaam-prosemirror li > p,
+  .baaaam-prosemirror li > div > p {
+    margin-block: 0;
+    min-height: 0;
+    color: inherit;
+  }
+
+  .baaaam-prosemirror li > ul,
+  .baaaam-prosemirror li > ol {
+    margin-block: 0.35rem 0;
+  }
+
+  .baaaam-prosemirror ul[data-type='taskList'] {
+    @apply my-4 list-none space-y-2 p-0;
+  }
+
+  .baaaam-prosemirror ul[data-type='taskList'] > li {
+    display: grid;
+    grid-template-columns: 1.25rem minmax(0, 1fr);
+    align-items: start;
+    column-gap: 0.625rem;
+    padding-left: 0;
+  }
+
+  .baaaam-prosemirror ul[data-type='taskList'] > li > label {
+    @apply mt-2 flex select-none items-center;
+  }
+
+  .baaaam-prosemirror ul[data-type='taskList'] > li > label input {
+    @apply m-0 h-4 w-4 shrink-0 accent-brand;
+  }
+
+  .baaaam-prosemirror ul[data-type='taskList'] > li > div,
+  .post-rich-content li > div {
+    min-width: 0;
+  }
+
+  .post-rich-content ul,
+  .post-rich-content ol {
+    list-style-position: outside;
+  }
+
+  .post-rich-content li > p,
+  .post-rich-content li > div > p {
+    margin-block: 0;
+    min-height: 0;
+    color: inherit;
+  }
+
+  .post-rich-content li > ul,
+  .post-rich-content li > ol {
+    margin-block: 0.5rem 0;
+  }
+
+  .baaaam-prosemirror blockquote {
+    @apply my-6 border-l-4 border-brand bg-brand-soft px-5 py-2 text-navy;
+  }
+
+  .baaaam-prosemirror hr {
+    @apply my-8 border-0 border-t border-border-subtle;
+  }
+
+  .baaaam-prosemirror a {
+    @apply font-semibold text-brand underline decoration-brand/30 underline-offset-4;
+  }
+
+  .baaaam-prosemirror mark {
+    background: #e2f3c6;
+    border-radius: 0.18rem;
+    padding-inline: 0.08rem;
+  }
+
+  .baaaam-prosemirror code:not(pre code) {
+    @apply rounded bg-section px-1.5 py-0.5 text-[0.92em] text-brand-strong;
+  }
+
+  .baaaam-prosemirror pre {
+    @apply my-6 overflow-x-auto rounded-xl bg-[#14251f] p-4 text-sm leading-7 text-white;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .baaaam-prosemirror table {
+    @apply my-6 w-full min-w-[520px] border-collapse text-left text-sm;
+  }
+
+  .baaaam-prosemirror .tableWrapper {
+    @apply overflow-x-auto;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .baaaam-prosemirror th,
+  .baaaam-prosemirror td {
+    @apply relative min-w-24 border border-border-subtle px-3 py-2 align-top;
+  }
+
+  .baaaam-prosemirror th {
+    @apply bg-section font-extrabold text-navy;
+  }
+
+  .baaaam-prosemirror .selectedCell::after {
+    background: color-mix(in srgb, var(--color-brand) 12%, transparent);
+  }
+
+  .baaaam-prosemirror .column-resize-handle {
+    @apply pointer-events-none absolute -right-0.5 bottom-0 top-0 w-1 bg-brand;
+  }
+
+  .resize-cursor,
+  .resize-cursor * {
+    cursor: col-resize !important;
+  }
+
+  .baaaam-prosemirror p.is-editor-empty:first-child::before {
+    color: var(--color-ink-soft);
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+  }
+
+  .hljs-keyword,
+  .hljs-selector-tag,
+  .hljs-literal {
+    color: #9ed7b8;
+  }
+
+  .hljs-string,
+  .hljs-title,
+  .hljs-section {
+    color: #f0c878;
+  }
+
+  .hljs-number,
+  .hljs-built_in,
+  .hljs-type {
+    color: #9ec7ef;
+  }
+
+  .hljs-comment {
+    color: #82958d;
+    font-style: italic;
+  }
 }
 
 @media (max-width: 639px) {
@@ -128,6 +360,7 @@ summary {
   select {
     font-size: 16px;
   }
+
 }
 
 @keyframes toast-in {

@@ -19,7 +19,7 @@ const sizeStyles = {
   large: {
     shell: 'min-h-14 rounded-lg pl-4 pr-1.5 shadow-search',
     input: 'text-base',
-    button: 'h-11 gap-2 rounded-lg px-3.5 min-[375px]:px-4 sm:px-5',
+    button: 'h-11 w-11 gap-2 rounded-lg min-[375px]:w-auto min-[375px]:px-4 sm:px-5',
   },
 } as const
 
@@ -60,7 +60,7 @@ export function SiteSearchForm({ size = 'compact', className = '' }: SiteSearchF
           className={`inline-flex shrink-0 items-center justify-center bg-brand text-sm font-bold text-white transition-colors hover:bg-brand-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand ${styles.button}`}
         >
           <Search className="h-4 w-4" aria-hidden="true" />
-          {size === 'large' ? <span>{searchContent.submitLabel}</span> : null}
+          {size === 'large' ? <span className="hidden min-[375px]:inline">{searchContent.submitLabel}</span> : null}
         </button>
       </div>
     </form>

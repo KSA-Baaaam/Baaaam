@@ -33,7 +33,7 @@ export function Pagination({ currentPage, totalItems, itemsPerPage, onPageChange
   function changePage(nextPage: number) {
     onPageChange(nextPage)
     if (scrollTargetId) {
-      requestAnimationFrame(() => document.getElementById(scrollTargetId)?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
+      requestAnimationFrame(() => document.getElementById(scrollTargetId)?.scrollIntoView({ behavior: 'auto', block: 'start' }))
     }
   }
 

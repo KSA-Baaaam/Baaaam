@@ -22,7 +22,7 @@ export const homeContent = {
     eyebrow: '중학생을 위한 수과학 블로그',
     headlineLead: '수학과 과학,',
     headlineAccent: '쉽고 재미있게!',
-    sub: '어려운 개념도 학생의 눈높이에서 차근차근. BAAAAM과 함께 “왜 그럴까?”를 이해해봐요.',
+    sub: '어려운 개념도 학생의 눈높이에서 차근차근.\nBAAAAM과 함께 “왜 그럴까?”를 이해해봐요.',
   },
   topics: {
     eyebrow: '자신이 좋아하는 분야의 글을 찾아보세요!',
@@ -42,6 +42,7 @@ export const homeContent = {
   },
   footer: {
     copyright: '© 2026 한국과학영재학교 BAAAAM 연구회. ALL RIGHTS RESERVED. Created by 26 박현택',
+    contactEmail: '26-048@ksa.hs.kr',
     schoolLinkLabel: 'KAIST 부설 한국과학영재학교 바로가기',
     schoolUrl: 'https://ksa.hs.kr/',
   },

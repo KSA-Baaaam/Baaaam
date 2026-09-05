@@ -1,22 +1,55 @@
 <!doctype html>
 <html lang="ko">
-  <body style="margin:0;background:#f3f8f5;font-family:Arial,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;color:#17324d;">
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f3f8f5;padding:32px 16px;">
-      <tr><td align="center">
-        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:520px;background:#ffffff;border:1px solid #dbe9e1;border-radius:20px;overflow:hidden;">
-          <tr><td style="height:7px;background:#21a66f;"></td></tr>
-          <tr><td style="padding:38px 36px 12px;text-align:center;">
-            <div style="font-size:27px;font-weight:800;letter-spacing:-1px;color:#17324d;">BAAAAM</div>
-            <div style="margin-top:8px;font-size:13px;font-weight:700;color:#21a66f;">재미있게 배우는 수학·과학 이야기</div>
-          </td></tr>
-          <tr><td style="padding:18px 36px 38px;text-align:center;">
-            <h1 style="margin:0;font-size:22px;line-height:1.4;color:#17324d;">로그인 인증코드입니다</h1>
-            <p style="margin:12px 0 24px;font-size:14px;line-height:1.75;color:#60758a;">BAAAAM 로그인 화면에 아래 인증코드 6자리를 입력해주세요.</p>
-            <div style="display:inline-block;padding:18px 24px;border-radius:14px;background:#edf9f3;color:#12845a;font-size:32px;font-weight:800;letter-spacing:9px;">{{ .Token }}</div>
-            <p style="margin:24px 0 0;font-size:12px;line-height:1.7;color:#8494a3;">본인이 요청하지 않았다면 비밀번호를 변경해주세요.<br>인증코드는 다른 사람에게 알려주지 마세요.</p>
-          </td></tr>
-        </table>
-      </td></tr>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BAAAAM 로그인 인증</title>
+  </head>
+  <body style="margin:0;padding:0;background:#f2f8f4;font-family:Arial,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;color:#17372c;word-break:keep-all;">
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">BAAAAM 로그인을 위한 이메일 인증코드입니다.</div>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background:#f2f8f4;">
+      <tr>
+        <td align="center" style="padding:32px 12px;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:600px;background:#ffffff;border:1px solid #d9e7df;border-radius:22px;overflow:hidden;">
+            <tr>
+              <td align="center" style="padding:34px 28px 28px;border-bottom:1px solid #e5eee9;">
+                <div style="font-size:34px;line-height:1;font-weight:900;letter-spacing:-1.5px;color:#13834f;">BAAAAM<span style="font-size:24px;vertical-align:top;">˙</span></div>
+                <div style="margin-top:10px;font-size:13px;line-height:1.5;font-weight:600;color:#61736b;">중학생을 위한 수학·과학 이야기</div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:38px 32px 32px;">
+                <h1 style="margin:0;font-size:25px;line-height:1.4;font-weight:800;letter-spacing:-0.7px;color:#17231f;">로그인을 확인해주세요</h1>
+                <p style="margin:12px 0 0;font-size:15px;line-height:1.75;color:#65756e;">BAAAAM 로그인 화면에 아래 인증코드 6자리를 입력해주세요.</p>
+
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;margin-top:28px;background:#eef8f3;border-radius:14px;">
+                  <tr>
+                    <td style="padding:20px;">
+                      <p style="margin:0 0 13px;font-size:13px;line-height:1.65;color:#607169;">로그인 인증코드</p>
+                      <div style="padding:17px 12px;border:2px dashed #47ac70;border-radius:10px;background:#ffffff;text-align:center;font-size:31px;line-height:1.2;font-weight:800;letter-spacing:8px;color:#13834f;">{{ .Token }}</div>
+                    </td>
+                  </tr>
+                </table>
+
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;margin-top:24px;">
+                  <tr>
+                    <td width="34" valign="top" style="width:34px;padding-top:1px;">
+                      <div style="width:24px;height:24px;border:1px solid #6fba8d;border-radius:50%;font-size:14px;line-height:24px;text-align:center;color:#13834f;">✓</div>
+                    </td>
+                    <td style="font-size:13px;line-height:1.75;color:#6e7d76;">인증코드는 다른 사람에게 알려주지 마세요.<br>본인이 요청하지 않았다면 이 메일을 무시해도 됩니다.</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding:24px 24px 28px;background:#f6faf8;border-top:1px solid #e5eee9;">
+                <a href="https://www.baaaam.cloud" style="font-size:13px;font-weight:700;color:#13834f;text-decoration:none;">www.baaaam.cloud</a>
+                <p style="margin:10px 0 0;font-size:11px;line-height:1.6;color:#8a9891;">© 2026 한국과학영재학교 BAAAAM 연구회</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
     </table>
   </body>
 </html>

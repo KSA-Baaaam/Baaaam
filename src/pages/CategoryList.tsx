@@ -1,4 +1,5 @@
 import { useParams } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 
 import { categories } from '@/data/categories'
 import { CategoryPostGrid } from '@/components/category/CategoryPostGrid'
@@ -10,6 +11,12 @@ import { categoryContent } from '@/content/category'
 const ALL_CATEGORY_ID = 'all'
 const knownCategoryIds = new Set(categories.map((category) => category.id))
 
+function normalizeCategoryId(categoryId?: string) {
+  return categoryId && (categoryId === ALL_CATEGORY_ID || knownCategoryIds.has(categoryId))
+    ? categoryId
+    : ALL_CATEGORY_ID
+}
+
 /**
  * 카테고리별 글 목록 화면(`/category/:categoryId`).
  *
@@ -18,11 +25,11 @@ const knownCategoryIds = new Set(categories.map((category) => category.id))
  */
 export default function CategoryList() {
   const { categoryId } = useParams<{ categoryId: string }>()
-  const activeCategoryId =
-    categoryId && (categoryId === ALL_CATEGORY_ID || knownCategoryIds.has(categoryId))
-      ? categoryId
-      : ALL_CATEGORY_ID
+  const routeCategoryId = normalizeCategoryId(categoryId)
+  const [activeCategoryId, setActiveCategoryId] = useState(routeCategoryId)
   const activeCategory = categories.find((category) => category.id === activeCategoryId)
+
+  useEffect(() => setActiveCategoryId(routeCategoryId), [routeCategoryId])
 
   return (
     <div className="site-page">
@@ -43,7 +50,7 @@ export default function CategoryList() {
           </header>
 
           <div className="mb-10">
-            <CategoryTabs activeCategoryId={activeCategoryId} />
+            <CategoryTabs activeCategoryId={activeCategoryId} onCategoryChange={setActiveCategoryId} />
           </div>
           </div>
         </section>

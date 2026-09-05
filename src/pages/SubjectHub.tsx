@@ -13,10 +13,13 @@ type SubjectHubProps = { subject: 'math' | 'science' }
 export default function SubjectHub({ subject }: SubjectHubProps) {
   const isMath = subject === 'math'
   const subjectCategories = categories.filter((category) => isMath ? category.id === 'math' : category.id !== 'math')
-  const allowedIds = new Set(subjectCategories.map((category) => category.id))
+  const subjectCategoryIds = subjectCategories.map((category) => category.id)
   const categoryLabelById = new Map(categories.map((category) => [category.id, category.label]))
-  const { data: posts = [], isLoading } = useQuery({ queryKey: ['posts', 'all'], queryFn: postsService.listAll })
-  const subjectPosts = [...posts].filter((post) => allowedIds.has(post.categoryId)).sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+  const { data = { items: [], total: 0 }, isLoading } = useQuery({
+    queryKey: ['posts', 'subject', subject],
+    queryFn: () => postsService.listPublishedPage({ categoryIds: subjectCategoryIds, pageSize: 12 }),
+  })
+  const subjectPosts = data.items
 
   return (
     <div className="site-page">
