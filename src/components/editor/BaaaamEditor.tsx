@@ -1,7 +1,7 @@
 import type { JSONContent } from '@tiptap/core'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { BubbleMenu } from '@tiptap/react/menus'
-import { EditorContent, useEditor } from '@tiptap/react'
+import { BubbleMenu, type BubbleMenuProps } from '@tiptap/react/menus'
+import { EditorContent, useEditor, useEditorState } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Underline from '@tiptap/extension-underline'
 import Highlight from '@tiptap/extension-highlight'
@@ -71,6 +71,10 @@ type EditorDialogState = {
   apply?: (value: string) => void
 } | null
 
+// Keep this callback stable: BubbleMenu dispatches a transaction when it changes.
+const shouldShowBubbleMenu: NonNullable<BubbleMenuProps['shouldShow']> = ({ editor }) =>
+  editor.isEditable && editor.isFocused && !editor.state.selection.empty
+
 function ToolbarButton({ label, active, disabled = false, showLabel = false, onClick, children }: ToolbarButtonProps) {
   return (
     <button
@@ -79,6 +83,10 @@ function ToolbarButton({ label, active, disabled = false, showLabel = false, onC
       title={label}
       aria-pressed={active === undefined ? undefined : active}
       disabled={disabled}
+      onMouseDown={(event) => {
+        // Keep the editor's selection and stored marks when using either toolbar.
+        if (event.button === 0) event.preventDefault()
+      }}
       onClick={onClick}
       className={`inline-flex h-9 shrink-0 items-center justify-center rounded-md transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand ${showLabel ? 'gap-1.5 px-2.5' : 'w-9'} ${active ? 'bg-brand-soft text-brand-strong' : 'text-ink-muted hover:bg-white hover:text-navy'} disabled:cursor-not-allowed disabled:opacity-35`}
     >
@@ -116,7 +124,7 @@ export function BaaaamEditor({ content, onChange, onUploadImage }: BaaaamEditorP
 
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({ codeBlock: false }),
+      StarterKit.configure({ codeBlock: false, underline: false, link: false }),
       Underline,
       Highlight.configure({ multicolor: false }),
       Link.configure({ openOnClick: false, autolink: true, defaultProtocol: 'https' }),
@@ -170,6 +178,24 @@ export function BaaaamEditor({ content, onChange, onUploadImage }: BaaaamEditorP
         setBlockMenu({ open: false, query: '' })
       }
     },
+  })
+
+  // Tiptap 3 does not rerender on selection/stored-mark transactions by default.
+  // Subscribe to the values displayed by both toolbars, including empty-cursor formatting.
+  useEditorState({
+    editor,
+    selector: ({ editor: current }) => current ? {
+      active: ['bold', 'italic', 'underline', 'strike', 'highlight', 'link', 'bulletList', 'orderedList', 'taskList', 'blockquote', 'codeBlock', 'table'].map((type) => current.isActive(type)),
+      headings: [1, 2, 3].map((level) => current.isActive('heading', { level })),
+      alignment: ['left', 'center', 'right'].map((textAlign) => current.isActive({ textAlign })),
+      undo: current.can().undo(),
+      redo: current.can().redo(),
+      deleteRow: current.can().deleteRow(),
+      deleteColumn: current.can().deleteColumn(),
+      deleteTable: current.can().deleteTable(),
+      language: current.getAttributes('codeBlock').language,
+      characters: current.storage.characterCount.characters(),
+    } : null,
   })
 
   editorRef.current = editor
@@ -309,7 +335,7 @@ export function BaaaamEditor({ content, onChange, onUploadImage }: BaaaamEditorP
         </div>
       ) : null}
 
-      <BubbleMenu editor={editor} shouldShow={({ editor: current }) => !current.state.selection.empty} className="flex items-center gap-0.5 rounded-lg border border-border-subtle bg-white p-1 shadow-lg">
+      <BubbleMenu editor={editor} shouldShow={shouldShowBubbleMenu} className="z-30 flex items-center gap-0.5 rounded-lg border border-border-subtle bg-white p-1 shadow-lg">
         <ToolbarButton label="굵게" active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()}><Bold className={icon} /></ToolbarButton>
         <ToolbarButton label="기울임" active={editor.isActive('italic')} onClick={() => editor.chain().focus().toggleItalic().run()}><Italic className={icon} /></ToolbarButton>
         <ToolbarButton label="밑줄" active={editor.isActive('underline')} onClick={() => editor.chain().focus().toggleUnderline().run()}><UnderlineIcon className={icon} /></ToolbarButton>

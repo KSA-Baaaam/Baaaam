@@ -180,6 +180,13 @@ summary {
     margin-top: 0;
   }
 
+  .baaaam-prosemirror em,
+  .post-rich-content em {
+    font-style: italic;
+    /* Pretendard has no italic face; allow slanting for authored italic text. */
+    font-synthesis: style;
+  }
+
   .baaaam-prosemirror p {
     @apply my-3 min-h-7 text-base leading-8 text-ink-muted;
   }
@@ -274,7 +281,8 @@ summary {
     @apply font-semibold text-brand underline decoration-brand/30 underline-offset-4;
   }
 
-  .baaaam-prosemirror mark {
+  .baaaam-prosemirror mark,
+  .post-rich-content mark {
     background: #e2f3c6;
     border-radius: 0.18rem;
     padding-inline: 0.08rem;
