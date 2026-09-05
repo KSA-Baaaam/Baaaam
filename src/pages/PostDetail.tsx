@@ -1,4 +1,4 @@
-import { CalendarDays, ChevronRight, Clock3, FileQuestion, Pencil } from 'lucide-react'
+import { CalendarDays, ChevronRight, FileQuestion, Pencil } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
@@ -14,7 +14,6 @@ import { postContent } from '@/content/post'
 import { categories } from '@/data/categories'
 import { koDateFormatter } from '@/lib/format'
 import { postsService } from '@/services/posts'
-import { extractPlainText } from '@/components/post/PostContentRenderer'
 import { useOperatorSession } from '@/services/session'
 import type { JSONContent } from '@tiptap/core'
 
@@ -80,7 +79,6 @@ export default function PostDetail() {
   if (postRef !== `id=${post.id}`) return <Navigate to={`/id=${post.id}`} replace />
 
   const categoryLabel = categoryLabelById.get(post.categoryId) ?? post.categoryId
-  const readingMinutes = Math.max(2, Math.ceil(extractPlainText(post.content).replace(/\s/g, '').length / 250))
   const tocItems: TocItem[] = (post.content.content ?? []).flatMap((node, index) => node.type === 'heading' ? [{ id: `section-${index}`, label: nodeText(node) || `소제목 ${index + 1}` }] : [])
   const canEdit = Boolean(currentStaff && currentStaff.role !== 'general' && (currentStaff.role === 'admin' || currentStaff.role === 'developer' || currentStaff.id === post.authorId))
 
@@ -101,7 +99,6 @@ export default function PostDetail() {
               <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-border-subtle pb-8 text-sm text-ink-soft">
                 <span className="font-bold text-navy">{post.author}</span>
                 <span className="inline-flex items-center gap-1.5"><CalendarDays className="h-4 w-4" />{koDateFormatter.format(new Date(post.publishedAt ?? post.updatedAt))}</span>
-                <span className="inline-flex items-center gap-1.5"><Clock3 className="h-4 w-4" />약 {readingMinutes}분</span>
                 {canEdit ? <Link to={`/write/${post.id}`} className="ml-auto inline-flex items-center gap-1.5 font-bold text-brand hover:text-brand-strong"><Pencil className="h-4 w-4" />수정</Link> : null}
               </div>
               {tocItems.length ? <ArticleToc items={tocItems} mobile /> : null}

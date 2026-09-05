@@ -132,6 +132,11 @@ function EducationBlockView({ attrs }: { attrs: Record<string, unknown> }) {
   )
 }
 
+function positiveInteger(value: unknown, fallback = 1) {
+  const number = Number(value)
+  return Number.isSafeInteger(number) && number > 0 ? Math.min(number, 10000) : fallback
+}
+
 function RenderNode({ node, index }: { node: JSONContent; index: number }) {
   const children = node.content?.map((child, childIndex) => <RenderNode key={`${child.type}-${childIndex}`} node={child} index={childIndex} />)
   const attrs = (node.attrs ?? {}) as Record<string, unknown>
@@ -147,7 +152,7 @@ function RenderNode({ node, index }: { node: JSONContent; index: number }) {
       return <h4 id={`section-${index}`} style={align} className="mb-2 mt-8 scroll-mt-28 text-xl font-extrabold text-navy">{children}</h4>
     }
     case 'bulletList': return <ul className="my-5 list-disc space-y-2 pl-6 text-ink-muted">{children}</ul>
-    case 'orderedList': return <ol className="my-5 list-decimal space-y-2 pl-6 text-ink-muted">{children}</ol>
+    case 'orderedList': return <ol start={Number.isSafeInteger(Number(attrs.start)) ? Number(attrs.start) : 1} className="my-5 list-decimal space-y-2 pl-6 text-ink-muted">{children}</ol>
     case 'listItem': return <li className="pl-1 leading-8">{children}</li>
     case 'taskList': return <ul className="my-5 list-none space-y-2 p-0">{children}</ul>
     case 'taskItem': return <li className="flex gap-3 leading-8"><input type="checkbox" checked={Boolean(attrs.checked)} readOnly className="mt-2 h-4 w-4 accent-brand" /><div>{children}</div></li>
@@ -155,10 +160,17 @@ function RenderNode({ node, index }: { node: JSONContent; index: number }) {
     case 'horizontalRule': return <hr className="my-10 border-0 border-t border-border-subtle" />
     case 'hardBreak': return <br />
     case 'codeBlock': return <CodeBlock code={(node.content ?? []).map((child) => child.text ?? '').join('')} language={String(attrs.language ?? 'plaintext')} />
-    case 'table': return <div className="responsive-scroll my-8 overflow-x-auto"><table className="w-full min-w-[520px] border-collapse text-left text-sm">{children}</table></div>
+    case 'table': {
+      const widths = (node.content?.[0]?.content ?? []).flatMap((cell) => {
+        const span = positiveInteger(cell.attrs?.colspan)
+        return Array.from({ length: span }, (_, column) => positiveInteger(cell.attrs?.colwidth?.[column], 0))
+      })
+      const width = widths.length && widths.every(Boolean) ? widths.reduce((sum, value) => sum + value, 0) : undefined
+      return <div className="responsive-scroll my-8 max-w-full overflow-x-auto"><table style={{ width, minWidth: width ?? 520 }} className="w-full border-collapse text-left text-sm"><colgroup>{widths.map((value, column) => <col key={column} style={value ? { width: value } : undefined} />)}</colgroup><tbody>{children}</tbody></table></div>
+    }
     case 'tableRow': return <tr>{children}</tr>
-    case 'tableHeader': return <th className="border border-border-subtle bg-section px-3 py-2 font-extrabold text-navy">{children}</th>
-    case 'tableCell': return <td className="border border-border-subtle px-3 py-2 align-top text-ink-muted">{children}</td>
+    case 'tableHeader': return <th colSpan={positiveInteger(attrs.colspan)} rowSpan={positiveInteger(attrs.rowspan)} className="border border-border-subtle bg-section px-3 py-2 font-extrabold text-navy">{children}</th>
+    case 'tableCell': return <td colSpan={positiveInteger(attrs.colspan)} rowSpan={positiveInteger(attrs.rowspan)} className="border border-border-subtle px-3 py-2 align-top text-ink-muted">{children}</td>
     case 'imageBlock': {
       const src = safeExternalUrl(attrs.src)
       if (!src) return null

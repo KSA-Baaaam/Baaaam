@@ -26,9 +26,9 @@ async function withStore<T>(mode: IDBTransactionMode, run: (store: IDBObjectStor
   return new Promise<T>((resolve, reject) => {
     const transaction = database.transaction(STORE_NAME, mode)
     const request = run(transaction.objectStore(STORE_NAME))
-    request.onsuccess = () => resolve(request.result)
     request.onerror = () => reject(request.error ?? new Error('임시 저장에 실패했어요.'))
-    transaction.oncomplete = () => database.close()
+    transaction.oncomplete = () => { database.close(); resolve(request.result) }
+    transaction.onabort = () => { database.close(); reject(transaction.error ?? new Error('임시 저장이 중단되었어요.')) }
     transaction.onerror = () => reject(transaction.error ?? new Error('임시 저장에 실패했어요.'))
   })
 }
@@ -38,17 +38,21 @@ function fallbackKey(key: string) {
 }
 
 export const draftStorage = {
+  // Synchronous recovery journal survives route changes and tab closure before IDB finishes.
+  checkpoint(key: string, draft: PostDraft): void {
+    window.localStorage.setItem(fallbackKey(key), JSON.stringify(draft))
+  },
   async get(key: string): Promise<PostDraft | null> {
+    let local: PostDraft | null = null
     try {
-      return (await withStore<PostDraft | undefined>('readonly', (store) => store.get(key))) ?? null
-    } catch {
       const raw = window.localStorage.getItem(fallbackKey(key))
-      if (!raw) return null
-      try {
-        return JSON.parse(raw) as PostDraft
-      } catch {
-        return null
-      }
+      if (raw) local = JSON.parse(raw) as PostDraft
+    } catch { /* IndexedDB remains available when localStorage is blocked. */ }
+    try {
+      const stored = await withStore<PostDraft | undefined>('readonly', (store) => store.get(key))
+      return local && (!stored || local.updatedAt >= stored.updatedAt) ? local : stored ?? null
+    } catch {
+      return local
     }
   },
 
@@ -63,8 +67,7 @@ export const draftStorage = {
   async remove(key: string): Promise<void> {
     try {
       await withStore<undefined>('readwrite', (store) => store.delete(key) as IDBRequest<undefined>)
-    } finally {
-      window.localStorage.removeItem(fallbackKey(key))
-    }
+    } catch { /* A fallback-only browser has no IndexedDB record to remove. */ }
+    window.localStorage.removeItem(fallbackKey(key))
   },
 }

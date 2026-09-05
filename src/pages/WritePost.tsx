@@ -91,6 +91,10 @@ export default function WritePost() {
   const [previewOpen, setPreviewOpen] = useState(false)
   const [publishOpen, setPublishOpen] = useState(false)
   const [publishing, setPublishing] = useState(false)
+  const [published, setPublished] = useState(false)
+  const [loadedKey, setLoadedKey] = useState('')
+  const [uploads, setUploads] = useState(0)
+  const uploadsRef = useRef(0)
   const [coverUploadProgress, setCoverUploadProgress] = useState<number | null>(null)
   const [coverCropFile, setCoverCropFile] = useState<File | null>(null)
   const [coverEditLoading, setCoverEditLoading] = useState(false)
@@ -104,14 +108,17 @@ export default function WritePost() {
   const publishingRef = useRef(false)
 
   const { data: serverPost, isLoading: isPostLoading } = useQuery({
-    queryKey: ['posts', 'edit', postId],
+    queryKey: ['posts', 'edit', currentStaff?.id, postId],
     queryFn: () => postsService.getById(postId as string),
     enabled: Boolean(postId && currentStaff && currentStaff.role !== 'general'),
   })
 
-  const localKey = postId ?? 'new'
-  const localState = useLocalDraft(localKey, draft, Boolean(draft))
-  draftRef.current = draft
+  const localKey = `${currentStaff?.id ?? 'anonymous'}:${postId ?? 'new'}`
+  const activeLocalKey = useRef(localKey)
+  activeLocalKey.current = localKey
+  const draftReady = loadedKey === localKey
+  const localState = useLocalDraft(localKey, draft, Boolean(draft) && draftReady && !conflictDraft && !publishing && !published)
+  draftRef.current = draftReady ? draft : null
 
   useEffect(() => {
     const update = () => setOffline(!navigator.onLine)
@@ -125,12 +132,16 @@ export default function WritePost() {
 
   useEffect(() => {
     if (isSessionLoading || !currentStaff || currentStaff.role === 'general') return
-    const initializationKey = postId ?? 'new'
+    const initializationKey = localKey
     if (initializedFor.current === initializationKey) return
     if (postId && isPostLoading) return
     initializedFor.current = initializationKey
 
+    let cancelled = false
+    setConflictDraft(null)
     void draftStorage.get(initializationKey).then((local) => {
+      if (cancelled) return
+      setLoadedKey(initializationKey)
       if (!postId) {
         setDraft(local ?? freshDraft())
         lastSyncedRef.current = null
@@ -142,14 +153,15 @@ export default function WritePost() {
         return
       }
       lastSyncedRef.current = editorInput(server)
-      if (local && local.updatedAt > server.updatedAt) {
+      if (local && local.updatedAt > server.updatedAt && JSON.stringify(editorInput(local)) !== JSON.stringify(editorInput(server))) {
         setDraft(server)
         setConflictDraft(local)
       } else {
         setDraft(server)
       }
     })
-  }, [currentStaff, isPostLoading, isSessionLoading, postId, serverPost])
+    return () => { cancelled = true; initializedFor.current = null }
+  }, [currentStaff, isPostLoading, isSessionLoading, localKey, postId, serverPost])
 
   const updateDraft = useCallback((patch: Partial<PostDraft>) => {
     setDraft((current) => current ? { ...current, ...patch, updatedAt: Date.now() } : current)
@@ -159,14 +171,33 @@ export default function WritePost() {
   const uploadImage = useCallback(async (file: File, progress: (value: number) => void) => {
     const current = draftRef.current
     if (!current) throw new Error('글을 불러오는 중이에요.')
-    return postImagesService.upload(file, { postKey: current.id ?? current.localId, onProgress: progress })
+    uploadsRef.current += 1
+    setUploads(uploadsRef.current)
+    try {
+      return await postImagesService.upload(file, { postKey: current.id ?? current.localId, onProgress: progress })
+    } finally {
+      uploadsRef.current -= 1
+      setUploads(uploadsRef.current)
+    }
   }, [])
 
   const syncCloud = useCallback(async (force = false) => {
-    if (publishingRef.current) return false
+    if (publishingRef.current || conflictDraft) return false
     if (syncPromiseRef.current) return syncPromiseRef.current
     const current = draftRef.current
     if (!current) return false
+    if (current.status === 'published') {
+      try {
+        draftStorage.checkpoint(localKey, current)
+        await draftStorage.save(localKey, current)
+        if (force) setNotice('수정 내용은 이 기기에 저장했습니다. 발행을 눌러야 공개 글에 반영됩니다.')
+        return true
+      } catch {
+        setCloudState('failed')
+        if (force) setNotice('기기에 저장하지 못했습니다. 저장 공간과 브라우저 설정을 확인해주세요.')
+        return false
+      }
+    }
     if (!navigator.onLine) {
       if (force) setNotice('오프라인 상태입니다. 작성 내용은 이 기기에 저장되어 있습니다.')
       return false
@@ -198,6 +229,7 @@ export default function WritePost() {
           }
           saved = await postsService.updateDraft(current.id, patch)
         }
+        if (activeLocalKey.current !== localKey) return false
         const savedAt = new Date(saved.updatedAt).getTime()
         lastSyncedRef.current = next
         const latest = draftRef.current ?? current
@@ -206,13 +238,16 @@ export default function WritePost() {
         draftRef.current = nextDraft
         setDraft(nextDraft)
         if (!current.id) {
-          await draftStorage.save(saved.id, nextDraft)
-          await draftStorage.remove('new')
-          initializedFor.current = saved.id
+          const savedKey = `${currentStaff?.id}:${saved.id}`
+          draftStorage.checkpoint(savedKey, nextDraft)
+          await draftStorage.save(savedKey, nextDraft)
+          await draftStorage.remove(localKey)
+          initializedFor.current = savedKey
+          setLoadedKey(savedKey)
           navigate(`/write/${saved.id}`, { replace: true })
         }
-        setCloudState('saved')
-        if (force) setNotice('임시저장되었습니다.')
+        setCloudState(changedDuringSync ? 'idle' : 'saved')
+        if (force) setNotice(changedDuringSync ? '저장 중 추가한 내용은 다음 저장에 반영됩니다.' : '임시저장되었습니다.')
         return true
       } catch {
         setCloudState('failed')
@@ -224,9 +259,9 @@ export default function WritePost() {
     })()
     syncPromiseRef.current = promise
     return promise
-  }, [navigate])
+  }, [conflictDraft, currentStaff?.id, localKey, navigate])
 
-  const isDraftReady = Boolean(draft)
+  const isDraftReady = Boolean(draft) && draftReady && !conflictDraft
 
   useEffect(() => {
     if (!isDraftReady) return
@@ -246,18 +281,31 @@ export default function WritePost() {
   }, [notice])
 
   async function publish() {
+    if (publishingRef.current) return
+    if (uploadsRef.current || coverEditLoading || coverCropFile) throw new Error('사진 편집과 업로드를 완료한 후 발행해주세요.')
     setPublishing(true)
     publishingRef.current = true
     try {
       if (syncPromiseRef.current) await syncPromiseRef.current
-      const current = draftRef.current
+      if (activeLocalKey.current !== localKey) throw new Error('작성 화면이 변경되었습니다. 다시 시도해주세요.')
+      let current = draftRef.current
       if (!current) throw new Error('글을 불러오는 중이에요.')
       if (!current.title.trim()) throw new Error('제목을 입력해주세요.')
       if (!current.categoryId) throw new Error('카테고리를 선택해주세요.')
       if (!hasBody(current)) throw new Error('본문을 입력해주세요.')
+      if (!current.id) {
+        const created = await postsService.createDraft(editorInput(current))
+        if (activeLocalKey.current !== localKey) throw new Error('작성 화면이 변경되었습니다. 저장된 글은 글 관리에서 확인해주세요.')
+        current = { ...current, id: created.id }
+        draftRef.current = current
+        setDraft(current)
+        // Retain the ID before publishing so a failed publish retries the same draft.
+        try { draftStorage.checkpoint(localKey, current); await draftStorage.save(localKey, current) } catch { /* Keep the ID in memory even if device storage is full. */ }
+      }
       const saved = await postsService.publish(current.id, editorInput(current))
-      await Promise.all([...new Set([localKey, saved.id])].map((key) => draftStorage.remove(key)))
-      await queryClient.invalidateQueries({ queryKey: ['posts'] })
+      setPublished(true)
+      await Promise.allSettled([...new Set([localKey, `${currentStaff?.id}:${saved.id}`])].map((key) => draftStorage.remove(key)))
+      void queryClient.invalidateQueries({ queryKey: ['posts'] })
       setPublishOpen(false)
       navigate(`/id=${saved.id}`, { replace: true })
     } finally {
@@ -321,7 +369,7 @@ export default function WritePost() {
     || (currentStaff.role === 'author' && serverPost.authorId !== currentStaff.id)
   )) return <Navigate to="/admin" replace />
 
-  if (isSessionLoading || (postId && isPostLoading) || !draft) {
+  if (isSessionLoading || (postId && isPostLoading) || !draft || !draftReady) {
     return <main className="flex min-h-screen items-center justify-center bg-white px-5 text-sm font-semibold text-ink-muted">작성 화면을 불러오는 중입니다.</main>
   }
 
@@ -351,6 +399,8 @@ export default function WritePost() {
       <main className="mx-auto w-full max-w-[900px] px-4 py-8 min-[375px]:px-5 sm:px-8 sm:py-12">
         <div className="grid gap-8">
           <section aria-labelledby="post-basic-info" className="grid gap-6">
+            {draft.status === 'published' ? <p role="note" className="rounded-lg bg-section px-4 py-3 text-sm leading-6 text-ink-muted">공개된 글을 수정하고 있습니다. 수정 내용은 이 기기에만 임시저장되며, 발행을 눌러야 독자에게 반영됩니다.</p> : null}
+            {uploads > 0 ? <p role="status" className="text-sm text-brand">사진을 업로드하고 있습니다. 완료 후 발행해주세요.</p> : null}
             <div>
               <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-brand">글 정보</p>
               <h1 id="post-basic-info" className="mt-1 text-xl font-extrabold tracking-[-0.02em] text-navy">독자에게 보일 정보를 입력하세요</h1>
@@ -399,7 +449,7 @@ export default function WritePost() {
       <PublishModal open={publishOpen} onOpenChange={setPublishOpen} draft={draft} imageOptions={imageOptions} publishing={publishing} coverUploadProgress={coverUploadProgress} coverEditLoading={coverEditLoading} onChange={updateDraft} onChooseThumbnail={chooseCoverFile} onAdjustThumbnail={() => void adjustCurrentCover()} onPublish={publish} />
       <CoverImageCropDialog file={coverCropFile} saving={coverUploadProgress !== null} onCancel={() => setCoverCropFile(null)} onSave={saveCoverCrop} />
 
-      <Dialog open={Boolean(conflictDraft)} onOpenChange={(open) => { if (!open) setConflictDraft(null) }}>
+      <Dialog open={Boolean(conflictDraft)} onOpenChange={() => { /* Choose a version explicitly before discarding a recovery draft. */ }}>
         <DialogContent overlayProps={{ className: 'fixed inset-0 z-50 bg-navy/55' }} className="fixed left-1/2 top-1/2 z-[60] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border-subtle bg-white p-6 shadow-2xl">
           <DialogTitle className="text-lg font-extrabold text-navy">더 최근에 작성한 내용이 있어요</DialogTitle>
           <DialogDescription className="mt-2 text-sm leading-6 text-ink-muted">이 기기에 더 최근에 작성된 내용이 있습니다. 이어서 작성할 버전을 선택해주세요.</DialogDescription>

@@ -67,17 +67,22 @@ async function loadImage(source: string) {
   })
 }
 
-export function CoverImageCropDialog({ file, saving, onCancel, onSave }: CoverImageCropDialogProps) {
+export function CoverImageCropDialog({ file, saving: uploading, onCancel, onSave }: CoverImageCropDialogProps) {
   const imageFrameRef = useRef<HTMLDivElement>(null)
   const interactionRef = useRef<Interaction | null>(null)
   const [imageSize, setImageSize] = useState({ width: 16, height: 7 })
   const [cropArea, setCropArea] = useState<CropArea>(() => getInitialCrop(16, 7))
   const [errorMessage, setErrorMessage] = useState('')
+  const [imageReady, setImageReady] = useState(false)
+  const [processing, setProcessing] = useState(false)
+  const processingRef = useRef(false)
+  const saving = uploading || processing
 
   const source = useMemo(() => file ? URL.createObjectURL(file) : '', [file])
   const heightPerWidth = (imageSize.width / imageSize.height) / TARGET_RATIO
 
   useEffect(() => {
+    setImageReady(false)
     if (!source) return
     let active = true
     void loadImage(source).then((image) => {
@@ -85,6 +90,7 @@ export function CoverImageCropDialog({ file, saving, onCancel, onSave }: CoverIm
       const nextSize = { width: image.naturalWidth, height: image.naturalHeight }
       setImageSize(nextSize)
       setCropArea(getInitialCrop(nextSize.width, nextSize.height))
+      setImageReady(true)
     }).catch((error) => {
       if (active) setErrorMessage(error instanceof Error ? error.message : '사진을 읽지 못했어요.')
     })
@@ -179,7 +185,9 @@ export function CoverImageCropDialog({ file, saving, onCancel, onSave }: CoverIm
   }
 
   async function save() {
-    if (!source) return
+    if (!source || !imageReady || saving || processingRef.current) return
+    processingRef.current = true
+    setProcessing(true)
     setErrorMessage('')
     try {
       const image = await loadImage(source)
@@ -203,6 +211,9 @@ export function CoverImageCropDialog({ file, saving, onCancel, onSave }: CoverIm
       await onSave(new File([blob], 'cover-image.webp', { type: 'image/webp', lastModified: Date.now() }))
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : '사진을 편집하지 못했어요.')
+    } finally {
+      processingRef.current = false
+      setProcessing(false)
     }
   }
 
@@ -281,7 +292,7 @@ export function CoverImageCropDialog({ file, saving, onCancel, onSave }: CoverIm
           <button type="button" onClick={reset} disabled={saving} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border-subtle px-4 text-sm font-bold text-ink-muted hover:border-brand hover:text-brand disabled:opacity-50"><RotateCcw className="h-4 w-4" />선택 영역 초기화</button>
           <div className="flex flex-1 gap-3 min-[375px]:justify-end">
             <button type="button" onClick={onCancel} disabled={saving} className="min-h-11 flex-1 rounded-lg border border-border-subtle px-4 text-sm font-bold text-ink-muted hover:border-brand disabled:opacity-50 min-[375px]:flex-none">취소</button>
-            <button type="button" onClick={() => void save()} disabled={saving || Boolean(errorMessage)} className="inline-flex min-h-11 flex-[1.4] items-center justify-center gap-2 rounded-lg bg-brand px-5 text-sm font-extrabold text-white hover:bg-brand-strong disabled:cursor-not-allowed disabled:opacity-55 min-[375px]:flex-none">{saving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}{saving ? '저장 중...' : '선택 영역 저장'}</button>
+            <button type="button" onClick={() => void save()} disabled={saving || processing || !imageReady} className="inline-flex min-h-11 flex-[1.4] items-center justify-center gap-2 rounded-lg bg-brand px-5 text-sm font-extrabold text-white hover:bg-brand-strong disabled:cursor-not-allowed disabled:opacity-55 min-[375px]:flex-none">{saving || processing ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}{saving || processing ? '저장 중...' : '선택 영역 저장'}</button>
           </div>
         </div>
       </DialogContent>

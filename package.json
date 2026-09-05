@@ -8,7 +8,8 @@
     "build": "vite build",
     "typecheck": "tsc --noEmit --pretty false --skipLibCheck",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx --quiet",
-    "validate": "tsc --noEmit --pretty false --skipLibCheck && eslint src --ext .js,.jsx,.ts,.tsx --quiet"
+    "validate": "tsc --noEmit --pretty false --skipLibCheck && eslint src --ext .js,.jsx,.ts,.tsx --quiet",
+    "test:editor": "tsx --tsconfig tsconfig.json tests/editor/formatting.mts && tsx --tsconfig tsconfig.json tests/editor/regression.mts"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "1.2.20",
@@ -76,7 +77,9 @@
     "@vitejs/plugin-react": "6.0.3",
     "eslint": "9.39.2",
     "globals": "14.0.0",
+    "jsdom": "^30.0.1",
     "tailwindcss": "4.3.2",
+    "tsx": "^4.23.13",
     "typescript": "5.9.3",
     "typescript-eslint": "8.50.0",
     "vite": "8.1.4",

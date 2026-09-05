@@ -214,6 +214,7 @@ export const postsService = {
       .from('posts')
       .update(patchToRow(patch))
       .eq('id', Number(id))
+      .eq('status', 'draft')
       .select(detailColumns)
       .single()
     if (error) throw friendlyPostError(error)
@@ -223,34 +224,7 @@ export const postsService = {
   async publish(id: string | null, input: PostEditorInput): Promise<Post> {
     const publishedAt = new Date().toISOString()
     if (!id) {
-      const user = await requireCurrentUser()
-      const { data: draft, error: draftError } = await supabase
-        .from('posts')
-        .insert({
-          ...inputToRow(input),
-          author_id: user.id,
-          author: displayName(user),
-          status: 'draft',
-          published_at: null,
-        })
-        .select('id')
-        .single()
-      if (draftError) throw friendlyPostError(draftError)
-
-      const { data, error } = await supabase
-        .from('posts')
-        .update({
-          ...inputToRow(input),
-          slug: `post-${draft.id}`,
-          status: 'published' as PostStatus,
-          published_at: publishedAt,
-          updated_at: publishedAt,
-        })
-        .eq('id', draft.id)
-        .select(detailColumns)
-        .single()
-      if (error) throw friendlyPostError(error)
-      return mapPost(data as PostRow)
+      throw new Error('임시저장한 글의 ID가 필요합니다. 저장 후 다시 발행해주세요.')
     }
 
     const current = await postsService.getById(id)

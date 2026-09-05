@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import { draftStorage } from '@/services/draftStorage'
 import type { PostDraft } from '@/types/blog'
@@ -10,6 +10,17 @@ export function useLocalDraft(key: string, draft: PostDraft | null, enabled: boo
   const latestDraft = useRef(draft)
 
   latestDraft.current = draft
+
+  useLayoutEffect(() => {
+    if (!enabled || !draft) return
+    try {
+      draftStorage.checkpoint(key, draft)
+      setState('saved')
+    } catch {
+      // Start IDB immediately if a synchronous recovery journal is unavailable.
+      void draftStorage.save(key, draft).then(() => setState('saved')).catch(() => setState('failed'))
+    }
+  }, [draft, enabled, key])
 
   useEffect(() => {
     if (!enabled || !draft) return
@@ -24,7 +35,7 @@ export function useLocalDraft(key: string, draft: PostDraft | null, enabled: boo
     if (!enabled) return
     const saveImmediately = () => {
       if (document.visibilityState === 'hidden' && latestDraft.current) {
-        void draftStorage.save(key, latestDraft.current)
+        void draftStorage.save(key, latestDraft.current).catch(() => setState('failed'))
       }
     }
     document.addEventListener('visibilitychange', saveImmediately)

@@ -88,6 +88,7 @@ export function EditorBlockMenu({ editor, open, query, onClose, onPickImage, cle
   useEffect(() => {
     if (!open) return
     const onKeyDown = (event: KeyboardEvent) => {
+      if (event.isComposing || event.keyCode === 229) return
       if (event.key === 'ArrowDown') {
         event.preventDefault()
         setActiveIndex((current) => (current + 1) % Math.max(1, filtered.length))
